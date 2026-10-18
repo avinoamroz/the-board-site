@@ -161,10 +161,6 @@ section{padding-block:72px}
 
 .cta{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:start}
 .cta>*{min-width:0}
-.price{display:grid;gap:4px;margin-top:8px;padding:22px 24px;border:2px solid var(--ink);border-radius:6px;background:var(--surface)}
-.price b{font-family:var(--f-display);font-weight:900;font-size:2.6rem;line-height:1}
-.price b small{font-size:1.2rem}
-.price span{color:var(--muted)}
 .cta-box{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px;display:grid;gap:14px}
 .phone{font-family:var(--f-mono);direction:ltr;unicode-bidi:isolate;user-select:all}
 .fld{display:grid;gap:6px;font-size:.95rem;font-weight:600}
@@ -307,7 +303,6 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       <tr><td>משך</td><td>חברות שנתית מתחדשת</td><td>כמה מפגשים</td><td class="us">שישה חודשים, ואז בורד ענפי</td></tr>
       <tr><td>מה קורה במפגש</td><td>שיתוף ופורום</td><td>כלים מהמנחה</td><td class="us">עבודה על החברה שלך ותוצר בכל מפגש</td></tr>
       <tr><td>קבוצה</td><td>8 עד 16 חברים</td><td>משתנה</td><td class="us">8 קבועים, אותו שולחן כל חודש</td></tr>
-      <tr><td>מחיר</td><td>אלפי דולרים בשנה ודמי הצטרפות</td><td>נמוך</td><td class="us">₪4,000 + מע״מ לשישה חודשים, בלי דמי הצטרפות</td></tr>
       <tr><td>שפה וזמן</td><td>לעיתים באנגלית, יום עבודה מלא</td><td>משתנה</td><td class="us">עברית, שישי ראשון בחודש, 10:00 עד 15:00</td></tr>
     </table></div>
   </section>
@@ -476,11 +471,10 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       <p class="eyebrow">הבורד הבא נפתח ב-4.12.26</p>
       <h2>מוכן לשבת ליד השולחן?</h2>
       <p class="lead">המקומות מוגבלים כדי שלכל משתתף יהיה זמן אמיתי על השולחן. עונים על כמה שאלות קצרות, ועדי חסדאי חוזרת אליך לשיחה כדי לבדוק יחד אם The Board מתאים לך ולעסק שלך.</p>
-      <div class="price"><b>₪4,000 <small>+ מע״מ</small></b><span>לשישה חודשים, תשלום מראש · שישה מפגשים</span></div>
-      <div><a class="btn" href="#fit">לבדיקת התאמה לחץ כאן</a></div>
+      <div><a class="btn" href="#fit">למילוי שאלון ההתאמה</a></div>
     </div>
     <form class="cta-box" id="joinForm" novalidate>
-      <span class="eyebrow" id="fit">בדיקת התאמה</span>
+      <span class="eyebrow" id="fit">שאלון התאמה</span>
       <h3>כמה שאלות קצרות, ועדי חוזרת אליך</h3>
       <p class="contact-line">התשובות עוזרות לנו לוודא שהבורד מתאים לך, ושתשב ליד השולחן הנכון.</p>
       <label class="fld"><span>לאיזה בורד?</span><select id="f-board" name="board"><option>בורד 1 · 4.12.26</option><option>בורד 2 · 1.1.27</option><option>בורד 3 · 5.2.27</option><option>בורד 4 · 5.3.27</option><option>בורד ענפי · 4.6.27</option><option>עוד לא יודע/ת</option></select></label>
@@ -495,7 +489,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       <label class="fld"><span>מוכן/ה לשתף את המספרים של החברה ליד השולחן?</span><select id="f-numbers" name="numbers"><option value="">בחירה</option><option>כן</option><option>צריך/ה לחשוב על זה</option></select></label>
       <label class="fld"><span>יכול/ה להתחייב לשישי הראשון בכל חודש, עם היעדרות אחת לכל היותר?</span><select id="f-commit" name="commit"><option value="">בחירה</option><option>כן</option><option>לא בטוח/ה</option></select></label>
       <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
-      <button class="btn" type="submit" id="f-submit">שליחה לבדיקת התאמה</button>
+      <button class="btn" type="submit" id="f-submit">שליחת השאלון</button>
       <p class="form-msg" id="f-msg" role="status"></p>
       <p class="contact-line">שאלות? עדי חסדאי: <span class="phone">052-230-4968</span></p>
     </form>

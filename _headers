@@ -1,0 +1,3 @@
+/download/*
+  Content-Disposition: attachment
+  X-Robots-Tag: noindex, nofollow

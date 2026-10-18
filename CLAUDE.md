@@ -23,3 +23,8 @@ Instructions for Claude when anyone on the team (Noam, Adi, Ethan) asks to chang
 3. Commit with a clear message in English and push to `main`.
 4. Open https://the-board.co.il after a minute and confirm the change is live.
 5. Every change is in git history, so anything can be rolled back.
+
+## Download copy for offline editing
+- `download/the-board-landing.html` is a copy of `index.html` that team members download (https://the-board.co.il/download/the-board-landing.html), edit with their own Claude, and email back to Noam.
+- Whenever `index.html` changes, copy it over `download/the-board-landing.html` in the same commit.
+- When an edited file comes back: diff it against the current `index.html`, apply only the content changes, check the form, webhook, consent and honeypot are untouched and there are no em dashes, then push.

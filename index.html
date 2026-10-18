@@ -493,7 +493,6 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
       <button class="btn" type="submit" id="f-submit">שליחת השאלון</button>
       <p class="form-msg" id="f-msg" role="status"></p>
-      <p class="contact-line">שאלות? עדי חסדאי: <span class="phone">052-230-4968</span></p>
     </form>
   </section>
 
@@ -545,7 +544,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       msg.textContent = "תודה! קיבלנו את התשובות. עדי תחזור אליך בימים הקרובים.";
       msg.classList.add("ok");
     }).catch(function(){
-      msg.textContent = "משהו השתבש בשליחה. נסו שוב, או כתבו לעדי בוואטסאפ: 052-230-4968";
+      msg.textContent = "משהו השתבש בשליחה. נסו שוב בעוד רגע.";
       msg.classList.add("err");
     }).finally(function(){ btn.disabled = false; });
   });

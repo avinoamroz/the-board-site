@@ -181,6 +181,13 @@ section{padding-block:72px}
 .form-msg{min-height:1.4em;font-weight:600}
 .form-msg.ok{color:var(--gold)}
 .form-msg.err{color:#C4362C}
+.skip{position:absolute;right:16px;top:-60px;background:var(--gold-soft);color:#13234A;padding:10px 16px;border-radius:4px;font-weight:700;z-index:20;text-decoration:none}
+.skip:focus{top:12px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--muted)}
+.consent input{width:20px;height:20px;margin-top:4px;flex:none;accent-color:#C9A13B}
+.consent a{color:var(--gold)}
+.legal{display:flex;gap:18px;flex-wrap:wrap}
+.legal a{color:inherit}
 .contact-line{color:var(--muted);font-size:.95rem}
 footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:.9rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center}
 
@@ -211,6 +218,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
 </style>
 </head>
 <body>
+<a class="skip" href="#main">דילוג לתוכן</a>
 
 
 <div class="wrap">
@@ -220,7 +228,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
     <a class="btn" href="#boards">הצטרפו לבורד הבא</a>
   </header>
 
-  <section class="hero">
+  <section class="hero" id="main">
     <div>
       <p class="eyebrow">קהילת בעלי עסקים · תל אביב</p>
       <h1 style="margin-top:16px">בעלי עסקים. בגובה העיניים.</h1>
@@ -537,6 +545,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       <label class="fld"><span>מוכן/ה לשתף את המספרים של החברה ליד השולחן?</span><select id="f-numbers" name="numbers"><option value="">בחירה</option><option>כן</option><option>צריך/ה לחשוב על זה</option></select></label>
       <label class="fld"><span>יכול/ה להתחייב לשישי הראשון בכל חודש, עם היעדרות אחת לכל היותר?</span><select id="f-commit" name="commit"><option value="">בחירה</option><option>כן</option><option>לא בטוח/ה</option></select></label>
       <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+      <label class="consent"><input id="f-consent" name="consent" type="checkbox" required> <span>קראתי את <a href="/privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a> ואני מסכים/ה שהפרטים ישמשו את מייסדי The Board לבדיקת התאמה ולחזרה אליי. שם וטלפון הם שדות חובה, וכל השאר רשות.</span></label>
       <button class="btn" type="submit" id="f-submit">שליחת השאלון</button>
       <p class="form-msg" id="f-msg" role="status"></p>
     </form>
@@ -544,6 +553,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
 
   <footer>
     <div dir="ltr" role="img" aria-label="THE BOARD" style="display:inline-flex;align-items:baseline;font-family:'Assistant','Arial Hebrew',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:0.12em;line-height:1;color:currentColor;white-space:nowrap;"><span>THE&#160;BO</span><svg viewBox="-6 -46 112 146" style="height:1.02em;width:0.78em;margin:0 0.02em;overflow:visible" aria-hidden="true"><polyline points="6,100 50,0 94,100" fill="none" stroke="currentColor" stroke-width="15" stroke-linejoin="miter"></polyline><line x1="27" y1="64" x2="73" y2="64" stroke="currentColor" stroke-width="13"></line><line x1="47" y1="8" x2="59" y2="-20" stroke="#C9A13B" stroke-width="15"></line><polygon points="68,-44 72,-12 45,-24" fill="#C9A13B"></polygon></svg><span>RD</span></div>
+    <nav class="legal" aria-label="מידע משפטי"><a href="/privacy.html">מדיניות פרטיות</a><a href="/accessibility.html">הצהרת נגישות</a><a href="/terms.html">תנאי שימוש</a></nav>
     <span>the-board.co.il · תל אביב</span>
   </footer>
 </div>
@@ -574,6 +584,11 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       msg.classList.add("err");
       return;
     }
+    if (!document.getElementById("f-consent").checked) {
+      msg.textContent = "כדי לשלוח, יש לאשר את מדיניות הפרטיות.";
+      msg.classList.add("err");
+      return;
+    }
     btn.disabled = true;
     msg.textContent = "שולח...";
     fetch(HOOK, {
@@ -581,7 +596,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         name: name, phone: phone, email: val("f-email"),
-        business: val("f-business"), message: val("f-message"), board: val("f-board"), role: val("f-role"), years: val("f-years"), revenue: val("f-revenue"), share_numbers: val("f-numbers"), commitment: val("f-commit"), type: "fit_check",
+        business: val("f-business"), message: val("f-message"), board: val("f-board"), role: val("f-role"), years: val("f-years"), revenue: val("f-revenue"), share_numbers: val("f-numbers"), commitment: val("f-commit"), type: "fit_check", consent: "yes",
         website: val("f-website"), src: src()
       })
     }).then(function(r){

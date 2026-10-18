@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Board</title>
+<meta name="description" content="The Board: קהילת בעלי עסקים בתל אביב שנפגשים בגובה העיניים, מניחים את המספרים על השולחן ועוזרים זה לזה לצמוח. הבורד הראשון נפתח ב-4.12.26.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a round table seen from above. Navy bands like the brochures, gold seats as the only accent, the six meetings as one line of stations. */
+:root{
+  --bg:#F3F5F9; --surface:#FFFFFF; --ink:#13234A; --muted:#4A5470; --line:#D5DBE7;
+  --navy:#13234A; --navy-ink:#F3F5F9; --gold:#8A6A1F; --gold-soft:#C9A13B;
+  --f-display:"Frank Ruhl Libre","David Libre",Georgia,serif;
+  --f-body:"Assistant","Heebo",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1528;--surface:#152038;--ink:#E7ECF6;--muted:#A3AEC7;--line:#26324F;--navy:#1A2A52;--navy-ink:#EEF2FA;--gold:#D9B65A;--gold-soft:#C9A13B;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1528;--surface:#152038;--ink:#E7ECF6;--muted:#A3AEC7;--line:#26324F;--navy:#1A2A52;--navy-ink:#EEF2FA;--gold:#D9B65A;--gold-soft:#C9A13B;color-scheme:dark}
+
+*{box-sizing:border-box}
+html{direction:rtl}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.65;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1080px;margin-inline:auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.8rem,1.3rem + 2vw,2.6rem);font-weight:700}
+h3{font-size:1.25rem;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--f-body);font-weight:700;font-size:.82rem;letter-spacing:.12em;color:var(--gold)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold-soft);outline-offset:3px;border-radius:4px}
+section{padding-block:72px}
+.sec-head{display:grid;gap:12px;max-width:660px;margin-bottom:36px}
+.lead{color:var(--muted);font-size:1.08rem}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:20px}
+.mark{display:flex;align-items:center;gap:10px;direction:ltr;font-family:var(--f-display);font-weight:900;letter-spacing:.2em;font-size:1.05rem;text-decoration:none}
+.mark svg{flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--gold-soft);color:#13234A;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:4px;font-size:1rem;border:0;cursor:pointer;transition:transform .15s ease;font-family:inherit}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+
+.hero{padding-block:36px 64px;display:grid;grid-template-columns:1.25fr 1fr;gap:40px;align-items:center}
+.hero>*{min-width:0}
+.hero h1{font-size:clamp(2.5rem,1.6rem + 4.4vw,4.8rem);font-weight:900}
+.hero .lead{max-width:52ch;margin-top:22px;font-size:1.2rem}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.table-art{width:100%;max-width:360px;height:auto;justify-self:center}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid var(--line);margin-bottom:8px}
+.fact{padding:20px 16px 20px 0;display:grid;gap:4px}
+.fact + .fact{border-right:1px solid var(--line);padding-right:16px}
+.fact b{font-family:var(--f-display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.fact span{color:var(--muted);font-size:.95rem}
+
+.band{background:var(--navy);color:var(--navy-ink)}
+.band .eyebrow{color:var(--gold-soft)}
+.band .lead{color:color-mix(in srgb,var(--navy-ink) 78%,transparent)}
+.pitch{font-family:var(--f-display);font-size:clamp(1.4rem,1.1rem + 1.2vw,2rem);line-height:1.45;max-width:30ch;font-weight:500}
+.pitch-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:start}
+.pitch-grid>*{min-width:0}
+.pitch-body{display:grid;gap:16px;color:color-mix(in srgb,var(--navy-ink) 86%,transparent)}
+
+.journey{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:32px 20px 24px;overflow-x:auto}
+.stations{position:relative;display:grid;grid-template-columns:repeat(6,minmax(130px,1fr));gap:12px;min-width:820px}
+.stations::before{content:"";position:absolute;top:23px;right:7%;left:7%;height:2px;background:var(--ink)}
+.st{position:relative;display:grid;justify-items:center;gap:8px;text-align:center;align-content:start}
+.st .n{width:48px;height:48px;border-radius:50%;background:var(--navy);color:var(--navy-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:1.25rem;border:2px solid var(--bg)}
+.st:last-child .n{background:var(--gold-soft);color:#13234A}
+.st .m{font-weight:700;font-size:.9rem;color:var(--gold)}
+.st .d{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);direction:ltr}
+.st h3{font-size:1.08rem;line-height:1.25}
+.st p{font-size:.92rem;color:var(--muted);line-height:1.4}
+.next{margin-top:22px;padding-top:16px;border-top:1px dashed var(--line);text-align:center;color:var(--muted);font-size:1rem}
+.next b{color:var(--ink)}
+
+.ruler{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px;overflow-x:auto}
+.ruler-track{display:flex;min-width:760px;height:76px;border-radius:4px;overflow:hidden;direction:ltr}
+.seg{display:flex;align-items:flex-end;padding:8px;font-size:.78rem;font-weight:600;line-height:1.2;color:var(--navy-ink);border-left:1px solid color-mix(in srgb,var(--bg) 35%,transparent);direction:rtl;text-align:right}
+.k-navy{background:var(--navy)}
+.k-gold{background:var(--gold-soft);color:#13234A}
+.k-soft{background:color-mix(in srgb,var(--navy) 60%,var(--bg))}
+.k-rest{background:var(--line);color:var(--muted)}
+.ticks{display:flex;justify-content:space-between;min-width:760px;font-family:var(--f-mono);font-size:.78rem;color:var(--muted);margin-top:8px;direction:ltr}
+.agenda{display:grid;grid-template-columns:repeat(2,1fr);gap:0 40px;margin-top:28px}
+.row{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:baseline;padding-block:12px;border-bottom:1px solid var(--line)}
+.row time{font-family:var(--f-mono);font-size:.9rem;color:var(--gold);font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+.row small{display:block;color:var(--muted);font-size:.9rem}
+
+.curr{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.topic{background:var(--surface);padding:22px;display:grid;gap:10px;align-content:start}
+.topic ul{list-style:none;margin:0;padding:0;display:grid;gap:4px;color:var(--muted);font-size:.98rem}
+.topic li::before{content:"·";color:var(--gold);margin-left:8px;font-weight:700}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px}
+.split>*{min-width:0}
+.pill-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.98rem;background:var(--surface)}
+
+.guest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.g{display:grid;gap:2px;padding:14px 18px;border-radius:6px;background:var(--surface);border:1px solid var(--line)}
+.g b{font-weight:700}
+.g span{font-size:.9rem;color:var(--gold)}
+
+.boards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.bd{display:grid;gap:6px;padding:20px;border:1px solid color-mix(in srgb,var(--navy-ink) 22%,transparent);border-radius:6px;align-content:start}
+.bd p{color:color-mix(in srgb,var(--navy-ink) 78%,transparent);font-size:.98rem}
+.bd.now{background:var(--gold-soft);color:#13234A;border-color:var(--gold-soft)}
+.bd.now p{color:#13234A}
+.bd .tag{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--gold-soft)}
+.bd.now .tag{color:#13234A}
+
+.code{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.cv{background:var(--surface);padding:22px;display:grid;gap:8px;align-content:start}
+.cv b{font-family:var(--f-display);font-size:1.25rem;line-height:1.25}
+.cv span{color:var(--muted);font-size:.98rem}
+.tabsnav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.navl{text-decoration:none;font-weight:600;font-size:.98rem;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);white-space:nowrap}
+.navl:hover{border-color:var(--gold-soft)}
+.work{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.wk{display:grid;gap:6px;align-content:start;padding-top:16px;border-top:2px solid var(--ink)}
+.wk b{font-family:var(--f-display);font-size:1.2rem}
+.wk span{color:var(--muted);font-size:.98rem}
+.sched{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.sc{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:grid;gap:10px;align-content:start}
+.sc.next{border:2px solid var(--gold-soft)}
+.sc.sector{background:var(--navy);color:var(--navy-ink);border-color:var(--navy)}
+.sc .tag{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--gold)}
+.sc.sector .tag{color:var(--gold-soft)}
+.sc .dates{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.92rem;align-items:baseline}
+.sc .dates span{color:var(--muted)}
+.sc.sector .dates span{color:color-mix(in srgb,var(--navy-ink) 75%,transparent)}
+.sc .dates b{font-family:var(--f-mono);font-weight:500;text-align:right}
+.sc .seats{font-size:.92rem;font-weight:600}
+.sc.sector .btn.ghost{color:var(--navy-ink);border-color:color-mix(in srgb,var(--navy-ink) 40%,transparent)}
+.usp{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.up{display:grid;gap:6px;align-content:start;padding-top:16px;border-top:2px solid var(--gold-soft)}
+.up b{font-family:var(--f-display);font-size:1.2rem}
+.up span{color:var(--muted);font-size:.98rem}
+.cmpwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.cmp{border-collapse:collapse;width:100%;min-width:680px;font-size:.98rem}
+.cmp th,.cmp td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.cmp th{font-size:.9rem;color:var(--muted);font-weight:700}
+.cmp td:first-child{font-weight:700;white-space:nowrap}
+.cmp .us{background:color-mix(in srgb,var(--gold-soft) 16%,transparent);font-weight:600}
+.cmp th.us{color:var(--ink)}
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tm{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:22px;display:grid;gap:6px;align-content:start}
+.tm .av{width:56px;height:56px;border-radius:50%;background:var(--navy);color:var(--navy-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.2rem;margin-bottom:6px}
+.tm b{font-family:var(--f-display);font-size:1.3rem}
+.tm .role{font-size:.9rem;font-weight:700;color:var(--gold)}
+.tm p{color:var(--muted);font-size:.98rem}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:grid;gap:6px;align-content:start}
+.rule b{font-family:var(--f-display);font-size:1.3rem}
+.rule span{color:var(--muted);font-size:.98rem}
+
+.cta{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:start}
+.cta>*{min-width:0}
+.price{display:grid;gap:4px;margin-top:8px;padding:22px 24px;border:2px solid var(--ink);border-radius:6px;background:var(--surface)}
+.price b{font-family:var(--f-display);font-weight:900;font-size:2.6rem;line-height:1}
+.price b small{font-size:1.2rem}
+.price span{color:var(--muted)}
+.cta-box{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px;display:grid;gap:14px}
+.phone{font-family:var(--f-mono);direction:ltr;unicode-bidi:isolate;user-select:all}
+.fld{display:grid;gap:6px;font-size:.95rem;font-weight:600}
+.fld input,.fld textarea,.fld select{font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:10px 12px;width:100%}
+.fld input:focus,.fld textarea:focus{outline:2px solid var(--gold-soft);outline-offset:1px;border-color:transparent}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.cta-box .btn[disabled]{opacity:.6;cursor:wait}
+.form-msg{min-height:1.4em;font-weight:600}
+.form-msg.ok{color:var(--gold)}
+.form-msg.err{color:#C4362C}
+.contact-line{color:var(--muted);font-size:.95rem}
+footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:.9rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr}
+  .table-art{max-width:260px}
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .fact:nth-child(3){border-right:0;padding-right:0}
+  .fact:nth-child(n+3){border-top:1px solid var(--line)}
+  .pitch-grid,.split,.cta{grid-template-columns:1fr;gap:32px}
+  .boards{grid-template-columns:1fr 1fr}
+  .rules,.code{grid-template-columns:1fr 1fr}
+  .sched,.work{grid-template-columns:1fr 1fr}
+  .team{grid-template-columns:1fr}
+  .usp{grid-template-columns:1fr 1fr}
+  .tabsnav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap}
+  .top{flex-wrap:wrap}
+  .curr{grid-template-columns:repeat(2,1fr)}
+  .agenda{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  body{font-size:17px}
+  section{padding-block:56px}
+  .curr,.boards,.rules,.code,.sched,.work{grid-template-columns:1fr}
+  .top .btn{padding:10px 16px;font-size:.92rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="#" style="text-decoration:none"><div dir="ltr" role="img" aria-label="THE BOARD" style="display:inline-flex;align-items:baseline;font-family:'Assistant','Arial Hebrew',sans-serif;font-weight:800;font-size:1.35rem;letter-spacing:0.12em;line-height:1;color:currentColor;white-space:nowrap;"><span>THE&#160;BO</span><svg viewBox="-6 -46 112 146" style="height:1.02em;width:0.78em;margin:0 0.02em;overflow:visible" aria-hidden="true"><polyline points="6,100 50,0 94,100" fill="none" stroke="currentColor" stroke-width="15" stroke-linejoin="miter"></polyline><line x1="27" y1="64" x2="73" y2="64" stroke="currentColor" stroke-width="13"></line><line x1="47" y1="8" x2="59" y2="-20" stroke="#C9A13B" stroke-width="15"></line><polygon points="68,-44 72,-12 45,-24" fill="#C9A13B"></polygon></svg><span>RD</span></div></a>
+    <nav class="tabsnav" aria-label="ניווט"><a class="navl" href="#community">הקהילה</a><a class="navl" href="#day">איך המפגש נראה</a><a class="navl" href="#team">מי אנחנו</a><a class="navl" href="#boards">הבורדים הבאים</a></nav>
+    <a class="btn" href="#boards">הצטרפו לבורד הבא</a>
+  </header>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow">קהילת בעלי עסקים · תל אביב</p>
+      <h1 style="margin-top:16px">בעלי עסקים. בגובה העיניים.</h1>
+      <p class="lead">קהילה של מייסדים שמניחים את המספרים על השולחן, אומרים את האמת ועוזרים זה לזה לצמוח: מהניסיון, מהקשרים ומהטעויות של כולם.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#boards">הצטרפו לבורד הבא</a>
+        <a class="btn ghost" href="#community">מה אנחנו מאמינים בו</a>
+      </div>
+    </div>
+    <svg class="table-art" viewBox="0 0 270 270" aria-hidden="true">
+      <g fill="currentColor" opacity=".16">
+        <circle cx="135" cy="15" r="4"/><circle cx="135" cy="15" r="4" transform="rotate(20 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(40 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(60 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(80 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(100 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(120 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(140 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(160 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(180 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(200 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(220 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(240 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(260 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(280 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(300 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(320 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(340 135 135)"/>
+      </g>
+      <g fill="currentColor" opacity=".3">
+        <circle cx="135" cy="50" r="4"/><circle cx="135" cy="50" r="4" transform="rotate(30 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(60 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(90 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(120 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(150 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(180 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(210 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(240 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(270 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(300 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(330 135 135)"/>
+      </g>
+      <circle cx="135" cy="135" r="30" fill="none" stroke="currentColor" stroke-width="2"/>
+      <g fill="#C9A13B">
+        <circle cx="135" cy="91" r="6"/><circle cx="135" cy="91" r="6" transform="rotate(45 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(90 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(135 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(180 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(225 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(270 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(315 135 135)"/>
+      </g>
+    </svg>
+  </section>
+
+  <div class="facts">
+    <div class="fact"><b>8</b><span>מקומות בבורד</span></div>
+    <div class="fact"><b>6</b><span>מפגשים, שישי ראשון בחודש</span></div>
+    <div class="fact"><b style="direction:ltr;text-align:right">10:00-15:00</b><span>בימי שישי, כולל ארוחת בוקר</span></div>
+    <div class="fact"><b>4.12.26</b><span>פתיחת המחזור</span></div>
+  </div>
+</div>
+
+<section class="band" style="margin-top:56px">
+  <div class="wrap pitch-grid">
+    <div style="display:grid;gap:18px">
+      <p class="eyebrow">החזון</p>
+      <p class="pitch">בעל עסק לא צריך להיות לבד. אנחנו בונים קהילה גדולה של מייסדים שנפגשים, משתפים, פותחים דלתות זה לזה וצומחים יחד.</p>
+    </div>
+    <div class="pitch-body">
+      <p>בלב הקהילה פועלים בורדים: קבוצות קטנות וסגורות של בעלי עסקים שעובדים יחד לאורך זמן. כל בורד הוא שולחן עבודה אמיתי, עם עמיתים שמכירים את העסק שלך לעומק ומחויבים להצלחה שלו.</p>
+      <p>המטרה היא לא עוד ללמוד על שיווק, מכירות ופיננסים. המטרה היא להבין איפה העסק שלך נמצא היום, לאן אתה לוקח אותו, ולבנות את התשתית שתיקח אותו לשם.</p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section id="community">
+    <div class="sec-head">
+      <p class="eyebrow">הקהילה</p>
+      <h2>מה אנחנו מאמינים בו</h2>
+      <p class="lead">אנחנו נפגשים כאנשים, בגובה העיניים, כדי לעזור זה לזה. חושפים את המספרים של החברות שלנו כדי לקבל עזרה אמיתית, אומרים את האמת בלי לשפוט, ועוזרים לאחרים עם הקשרים, מערכות היחסים והניסיון שצברנו כל אחד בתחום שלו.</p>
+    </div>
+    <h3 id="code" style="margin-bottom:16px">הקוד שלנו: ככה יושבים ליד השולחן</h3>
+    <div class="code">
+      <div class="cv"><b>בגובה העיניים</b><span>אף אחד לא מעל אף אחד. שואלים שאלות, לא נותנים הרצאות.</span></div>
+      <div class="cv"><b>המספרים על השולחן</b><span>חושפים את המספרים האמיתיים של החברה, כי רק ככה אפשר באמת לעזור.</span></div>
+      <div class="cv"><b>אמת, בלי שיפוטיות</b><span>לא שופטים אף אחד, ולא מסתירים את האמת מאף אחד.</span></div>
+      <div class="cv"><b>אכפתיות, לא נחמדות</b><span>מי שאכפת לו אומר את מה שצריך לשמוע, גם כשזה לא נעים.</span></div>
+      <div class="cv"><b>פותחים דלתות</b><span>הקשרים, מערכות היחסים והניסיון של כל אחד עומדים לרשות כולם.</span></div>
+      <div class="cv"><b>לא ממציאים</b><span>לא מדברים כדי להישמע חכמים. "אני לא יודע" היא תשובה מכובדת.</span></div>
+      <div class="cv"><b>טעויות והצלחות</b><span>משתפים את שתיהן. גאים במה שעושים, בלי להתנשא ובלי להתרברב.</span></div>
+      <div class="cv"><b>צומחים מהניסיון</b><span>כל סיפור ליד השולחן הוא שיעור לכולם, וכל אחד יוצא גדול יותר.</span></div>
+    </div>
+
+    <h3 style="margin:48px 0 16px">על מה אנחנו עובדים</h3>
+    <div class="work">
+      <div class="wk"><b>יום הבורד החודשי</b><span>ביום שישי הראשון של כל חודש כל הבורדים נפגשים באותו מקום: ארוחת בוקר משותפת, ארבע שעות עבודה בשולחנות, וערך ומשימות לחודש הבא.</span></div>
+      <div class="wk"><b>בורד חדש בכל חודש</b><span>כל חודש נפתח בורד יסודות חדש של שמונה בעלי עסקים, כך שתמיד יש שולחן קרוב להצטרף אליו.</span></div>
+      <div class="wk"><b>בורדים ענפיים</b><span>מיוני 2027 הבוגרים ממשיכים לשולחנות לפי ענף: מזון, קמעונאות, שירותים, טכנולוגיה ונדל״ן.</span></div>
+      <div class="wk"><b>הכרויות ועסקאות</b><span>חיבורים בין חברי הקהילה: לקוחות, ספקים, שותפים ומשקיעים, מתוך היכרות אמיתית.</span></div>
+      <div class="wk"><b>ידע שנשאר</b><span>מסמכים, כלים ותבניות מכל מפגש, כדי שכל מה שנבנה ליד השולחן יישאר אצל החברים.</span></div>
+      <div class="wk"><b>קבוצת הקהילה</b><span>בין המפגשים: שאלות, המלצות ועזרה הדדית, כל השבוע.</span></div>
+    </div>
+  </section>
+
+  <section id="why" style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">למה The Board</p>
+      <h2>השולחן של בעלי עסקים, בלי סף כניסה של מיליונים</h2>
+      <p class="lead">פורומי המנכ״לים הגדולים בעולם פתוחים רק לחברות עם מחזור של מיליוני דולרים, ועולים אלפי דולרים בשנה. קבוצות מאסטרמיינד קצרות נגמרות לפני שמשהו באמת נבנה. The Board נמצא בדיוק באמצע.</p>
+    </div>
+    <div class="usp">
+      <div class="up"><b>פתוח לעסקים בצמיחה</b><span>אין סף מחזור ואין צורך בהזמנה. מה שקובע הוא ההתאמה לשולחן ולקוד.</span></div>
+      <div class="up"><b>בונים תשתית, לא רק מדברים</b><span>כל מפגש מוקדש לנדבך אחד בחברה, ויוצאים ממנו עם משהו שעובד: יעדים, שיווק, מכירות, מוצר, כסף ואנשים.</span></div>
+      <div class="up"><b>קודם רוחב, אחר כך עומק</b><span>שישה חודשים עם בעלי עסקים מכל התחומים, ואז שולחן עם עמיתים מהענף שלך.</span></div>
+      <div class="up"><b>מונחה על ידי בעלי עסקים</b><span>המייסדים מנהלים עסקים בעצמם. לא מנחה שכיר, לא מרצה מהצד.</span></div>
+    </div>
+    <div class="cmpwrap"><table class="cmp">
+      <tr><th></th><th>פורומים בינלאומיים למנכ״לים</th><th>קבוצות מאסטרמיינד</th><th class="us">The Board</th></tr>
+      <tr><td>תנאי כניסה</td><td>מחזור של מיליוני דולרים, לרוב בהזמנה</td><td>פתוח לכולם</td><td class="us">בעלי עסק פעיל, אחרי בדיקת התאמה</td></tr>
+      <tr><td>משך</td><td>חברות שנתית מתחדשת</td><td>כמה מפגשים</td><td class="us">שישה חודשים, ואז בורד ענפי</td></tr>
+      <tr><td>מה קורה במפגש</td><td>שיתוף ופורום</td><td>כלים מהמנחה</td><td class="us">עבודה על החברה שלך ותוצר בכל מפגש</td></tr>
+      <tr><td>קבוצה</td><td>8 עד 16 חברים</td><td>משתנה</td><td class="us">8 קבועים, אותו שולחן כל חודש</td></tr>
+      <tr><td>מחיר</td><td>אלפי דולרים בשנה ודמי הצטרפות</td><td>נמוך</td><td class="us">₪4,000 + מע״מ לשישה חודשים, בלי דמי הצטרפות</td></tr>
+      <tr><td>שפה וזמן</td><td>לעיתים באנגלית, יום עבודה מלא</td><td>משתנה</td><td class="us">עברית, שישי ראשון בחודש, 10:00 עד 15:00</td></tr>
+    </table></div>
+  </section>
+
+  <section id="team" style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">מי אנחנו</p>
+      <h2>האנשים שליד השולחן</h2>
+      <p class="lead">אנחנו בעלי עסקים בעצמנו. הקמנו את The Board כי רצינו את השולחן הזה לעצמנו: מקום שבו מדברים בגובה העיניים, אומרים את האמת ועוזרים זה לזה לצמוח.</p>
+    </div>
+    <div class="team">
+      <div class="tm"><div class="av" aria-hidden="true">נר</div><b>נועם רז</b><span class="role">מייסד</span><p>יזם ובעל עסקים בתל אביב. מייסד ומנכ״ל English Express, שמלווה אנשי הייטק ובכירים בתקשורת עסקית באנגלית. מפיק ערבי מייסדים וערבי שף, ומאמין שהצמיחה הכי טובה קורית סביב שולחן.</p></div>
+      <div class="tm"><div class="av" aria-hidden="true">או</div><b>איתן וולוביץ׳</b><span class="role">שותף מייסד</span><p>מייסד VOLCO. בונה עם נועם את הקהילה ואת הדרך שבה חברי The Board פותחים דלתות זה לזה.</p></div>
+      <div class="tm"><div class="av" aria-hidden="true">עח</div><b>עדי חסדאי</b><span class="role">הצטרפות וקשרי חברים</span><p>הכתובת לכל מי שרוצה להצטרף: שיחת ההתאמה, בחירת הבורד הנכון והליווי עד המפגש הראשון.</p></div>
+    </div>
+  </section>
+
+  <section id="boards" style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">הבורדים הבאים</p>
+      <h2>הצטרפו לבורד הבא</h2>
+      <p class="lead">כל בורד יסודות נפגש שש פעמים, ביום שישי הראשון של כל חודש, עם שמונה בעלי עסקים מתחומים שונים. בחרו את הבורד שמתאים לכם ושריינו מקום.</p>
+    </div>
+    <div class="sched">
+      <div class="sc next"><span class="tag">הבורד הבא</span><h3>בורד 1</h3><div class="dates"><span>פתיחה</span><b dir="ltr">4.12.26</b><span>מפגש אחרון</span><b dir="ltr">7.5.27</b></div><span class="seats">8 מקומות</span><a class="btn" href="#join" data-board="בורד 1 · 4.12.26">להצטרפות</a></div>
+      <div class="sc"><span class="tag">ינואר</span><h3>בורד 2</h3><div class="dates"><span>פתיחה</span><b dir="ltr">1.1.27</b><span>מפגש אחרון</span><b dir="ltr">4.6.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 2 · 1.1.27">להצטרפות</a></div>
+      <div class="sc"><span class="tag">פברואר</span><h3>בורד 3</h3><div class="dates"><span>פתיחה</span><b dir="ltr">5.2.27</b><span>מפגש אחרון</span><b dir="ltr">2.7.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 3 · 5.2.27">להצטרפות</a></div>
+      <div class="sc"><span class="tag">מרץ</span><h3>בורד 4</h3><div class="dates"><span>פתיחה</span><b dir="ltr">5.3.27</b><span>מפגש אחרון</span><b dir="ltr">6.8.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 4 · 5.3.27">להצטרפות</a></div>
+      <div class="sc sector"><span class="tag">מיוני 2027</span><h3>בורדים ענפיים</h3><div class="dates"><span>פתיחה</span><b dir="ltr">4.6.27</b><span>לבוגרים ולבעלי עסקים מהענף</span><b></b></div><span class="seats">8 בכל שולחן</span><a class="btn ghost" href="#join" data-board="בורד ענפי · 4.6.27">רישום מוקדם</a></div>
+    </div>
+  </section>
+
+  <section id="journey" style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">הבורד הראשון · נפתח ב-4.12.26</p>
+      <h2>שישה חודשים. שמונה בעלי עסקים. שולחן אחד.</h2>
+      <p class="lead">בכל מפגש עוברים יחד על החברה של כל אחד מהמשתתפים, בונים את התשתית שהיא צריכה ומיישרים קו, כדי שיהיה לך כל מה שצריך לנהל אותה ביעילות.</p>
+    </div>
+    <div class="journey">
+      <div class="stations">
+        <div class="st"><div class="n">1</div><div class="m">דצמבר</div><div class="d">4.12.26</div><h3>מבנה החברה ויעדים</h3><p>יעדים ברורים ומבנה מסודר</p></div>
+        <div class="st"><div class="n">2</div><div class="m">ינואר</div><div class="d">1.1.27</div><h3>שיווק</h3><p>תוכנית שיווק לעסק</p></div>
+        <div class="st"><div class="n">3</div><div class="m">פברואר</div><div class="d">5.2.27</div><h3>מכירות</h3><p>תהליך מכירה שעובד</p></div>
+        <div class="st"><div class="n">4</div><div class="m">מרץ</div><div class="d">5.3.27</div><h3>מוצר ושירות</h3><p>הצעת ערך חדה</p></div>
+        <div class="st"><div class="n">5</div><div class="m">אפריל</div><div class="d">2.4.27</div><h3>כספים, תמחור ותזרים</h3><p>תזרים ותמחור בשליטה</p></div>
+        <div class="st"><div class="n">6</div><div class="m">מאי</div><div class="d">7.5.27</div><h3>אנשים, תפעול ותוכנית שנתית</h3><p>תוכנית עבודה שנתית</p></div>
+      </div>
+      <p class="next"><b>ביוני 2027</b> הבוגרים ממשיכים לבורד ענפי, עם עמיתים מאותו תחום.</p>
+    </div>
+  </section>
+
+  <section id="day" style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">איך המפגש נראה</p>
+      <h2>חמש שעות, רובן סביב השולחן</h2>
+      <p class="lead">מתחילים יחד, עובדים לעומק על החברות, ויוצאים עם ערך ועם משימות ברורות לפעם הבאה.</p>
+    </div>
+    <div class="ruler">
+      <div class="ruler-track" aria-hidden="true">
+        <div class="seg k-gold" style="flex:30">ארוחת בוקר</div>
+        <div class="seg k-navy" style="flex:120">עבודה בבורד</div>
+        <div class="seg k-rest" style="flex:30">הפסקה</div>
+        <div class="seg k-navy" style="flex:60">עבודה בבורד</div>
+        <div class="seg k-soft" style="flex:60">ערך ועבודה לפעם הבאה</div>
+      </div>
+      <div class="ticks" aria-hidden="true"><span>10:00</span><span>11:15</span><span>12:30</span><span>13:45</span><span>15:00</span></div>
+    </div>
+    <div class="agenda" style="grid-template-columns:1fr">
+      <div class="row"><time>10:00</time><div>ארוחת בוקר ומינגלינג<small>כל הבורדים יחד, חצי שעה של היכרות ושיחה</small></div></div>
+      <div class="row"><time>10:30</time><div>עבודה בבורד<small>סבב פתיחה, נושא החודש, עבודה על החברה של כל משתתף והכיסא החם</small></div></div>
+      <div class="row"><time>12:30</time><div>הפסקה</div></div>
+      <div class="row"><time>13:00</time><div>עבודה בבורד, המשך</div></div>
+      <div class="row"><time>14:00</time><div>ערך ועבודה לפעם הבאה<small>תובנה מרכזית בנושא המפגש ומשימות ברורות לחודש הקרוב</small></div></div>
+      <div class="row"><time>15:00</time><div>סיום</div></div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">ערך מקצועי</p>
+      <h2>כל מה שבעל עסק צריך לשלוט בו</h2>
+    </div>
+    <div class="curr">
+      <div class="topic"><h3>ניהול</h3><ul><li>מבנה ארגוני</li><li>אסטרטגיה ותלויות</li><li>חזון חברה</li></ul></div>
+      <div class="topic"><h3>שיווק</h3><ul><li>משפכים</li><li>דשבורד</li><li>מיתוג</li></ul></div>
+      <div class="topic"><h3>מכירה</h3><ul><li>פאנל מכירה</li><li>טיפול בהתנגדויות</li><li>תסריטי שיחה</li></ul></div>
+      <div class="topic"><h3>פיננסי</h3><ul><li>תזרים</li><li>רווחיות</li><li>מעקבים ותקציב</li></ul></div>
+      <div class="topic"><h3>מוצר ושירות</h3><ul><li>מה אתה מוכר באמת</li><li>איך הוא נבנה</li></ul></div>
+      <div class="topic"><h3>עובדים וספקים</h3><ul><li>תיאום ציפיות</li><li>חוזים והסכמים</li></ul></div>
+      <div class="topic"><h3>אוטומציות ו-AI</h3><ul><li>CRM</li><li>אוטומציות ו-AI</li><li>ניהול תהליכים ו-Outsource</li></ul></div>
+      <div class="topic"><h3>הכיסא החם</h3><ul><li>משתתף מביא אתגר אמיתי</li><li>כולם שואלים</li><li>יחד פותרים</li></ul></div>
+    </div>
+  </section>
+
+  <section class="split" style="padding-top:0">
+    <div>
+      <p class="eyebrow">ערך אישי</p>
+      <h2 style="margin-top:12px">העסק גדל כשהיזם גדל</h2>
+      <p class="lead" style="margin-top:16px">בעלים, מנכ"ל ועובד באותו אדם. נעבוד על החזון האישי שלך, על היעדים, ועל השאלה איך אתה מדמיין את החיים שלך ואילו מחירים אתה מוכן לשלם בדרך.</p>
+      <div class="pill-list"><span class="pill">חזון אישי ויעדים</span><span class="pill">סגנונות תקשורת</span><span class="pill">איזונים</span><span class="pill">ניהול לו"ז</span></div>
+    </div>
+    <div>
+      <p class="eyebrow">כל מפגש נפתח בשאלה אחת</p>
+      <h2 style="margin-top:12px">סבב הפתיחה</h2>
+      <p class="lead" style="margin-top:16px">כמה דקות, כל המשתתפים, שאלה אחת. כך הבורד יודע בדיוק מה קורה אצל כל אחד, ולומד מהחודש של כולם.</p>
+      <div class="pill-list"><span class="pill">ניצחון מהחודש</span><span class="pill">טעות שעשיתם</span><span class="pill">תובנה שעלתה לכם</span></div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">הרצאות אורח</p>
+      <h2>אורחים מהשורה הראשונה</h2>
+      <p class="lead">לאורך התוכנית מצטרפים לבורדים מומחים, נותני שירות ומקורות השראה, כל אחד בתחום שבו בעלי עסקים צריכים את התשובה הכי טובה.</p>
+    </div>
+    <div class="guest-grid">
+      <div class="g"><b>שותף KPMG</b><span>פיננסים</span></div>
+      <div class="g"><b>אור מאיר</b><span>שיווק</span></div>
+      <div class="g"><b>עידן קארס</b><span>אוטומציות</span></div>
+      <div class="g"><b>מישל אוחיון</b><span>ייעוץ וראיית חשבון</span></div>
+      <div class="g"><b>נמרוד הבדלה</b><span>מכירות</span></div>
+      <div class="g"><b>אסף כהן צידון</b><span>עו"ד בעידן ה-AI</span></div>
+      <div class="g"><b>ערן שומרון</b><span>ניהול עסקים אפקטיבי</span></div>
+      <div class="g"><b>דודי וייסמן</b><span>השראה</span></div>
+      <div class="g"><b>יהודה ניב</b><span>השראה</span></div>
+      <div class="g"><b>רון לנדסמן</b><span>השראה</span></div>
+      <div class="g"><b>אריאל פינטו</b><span>השראה</span></div>
+    </div>
+  </section>
+</div>
+
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">הבורדים בקהילה</p>
+      <h2>שולחן לכל שלב, ושולחן לכל ענף</h2>
+      <p class="lead">מתחילים בבורד יסודות. אחרי שישה חודשים ממשיכים לבורד ענפי עם בעלי עסקים מאותו תחום.</p>
+    </div>
+    <div class="boards">
+      <div class="bd now"><span class="tag">נפתח עכשיו</span><h3>בורד יסודות</h3><p>מבנה, שיווק, מכירות, מוצר, כסף ואנשים. מחזור ראשון ב-4.12.26.</p></div>
+      <div class="bd"><span class="tag">מיוני 2027</span><h3>מזון ואירוח</h3><p>מסעדות, בתי קפה, מאפיות ורשתות מזון.</p></div>
+      <div class="bd"><span class="tag">מיוני 2027</span><h3>אופנה וקמעונאות</h3><p>מותגים, חנויות ומסחר מקוון.</p></div>
+      <div class="bd"><span class="tag">מיוני 2027</span><h3>שירותים ותרבות</h3><p>סוכנויות, הדרכה, מקומות בילוי ותרבות.</p></div>
+      <div class="bd"><span class="tag">מיוני 2027</span><h3>טכנולוגיה וסטארטאפים</h3><p>חברות תוכנה ומייסדים בצמיחה.</p></div>
+      <div class="bd"><span class="tag">מיוני 2027</span><h3>נדל״ן ופיננסים</h3><p>השקעות, מימון, נכסים וחללי עבודה.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">כללי השולחן</p>
+      <h2>בורד עובד רק כשכולם ליד השולחן</h2>
+    </div>
+    <div class="rules">
+      <div class="rule"><b>8 מקומות בלבד</b><span>קבוצה סגורה של בעלי עסקים מתחומים שונים.</span></div>
+      <div class="rule"><b>מחויבות מלאה</b><span>אפשר להחסיר מפגש אחד לכל היותר לאורך התוכנית.</span></div>
+      <div class="rule"><b>דיסקרטיות</b><span>כל משתתף חותם על NDA. מה שנאמר בחדר נשאר בחדר.</span></div>
+      <div class="rule"><b>בהנחיית המייסדים</b><span>מייסדי The Board מובילים כל מפגש.</span></div>
+    </div>
+  </section>
+
+  <section id="join" class="cta" style="padding-top:0">
+    <div style="display:grid;gap:16px">
+      <p class="eyebrow">הבורד הבא נפתח ב-4.12.26</p>
+      <h2>מוכן לשבת ליד השולחן?</h2>
+      <p class="lead">המקומות מוגבלים כדי שלכל משתתף יהיה זמן אמיתי על השולחן. עונים על כמה שאלות קצרות, ועדי חסדאי חוזרת אליך לשיחה כדי לבדוק יחד אם The Board מתאים לך ולעסק שלך.</p>
+      <div class="price"><b>₪4,000 <small>+ מע״מ</small></b><span>לשישה חודשים, תשלום מראש · שישה מפגשים</span></div>
+      <div><a class="btn" href="#fit">לבדיקת התאמה לחץ כאן</a></div>
+    </div>
+    <form class="cta-box" id="joinForm" novalidate>
+      <span class="eyebrow" id="fit">בדיקת התאמה</span>
+      <h3>כמה שאלות קצרות, ועדי חוזרת אליך</h3>
+      <p class="contact-line">התשובות עוזרות לנו לוודא שהבורד מתאים לך, ושתשב ליד השולחן הנכון.</p>
+      <label class="fld"><span>לאיזה בורד?</span><select id="f-board" name="board"><option>בורד 1 · 4.12.26</option><option>בורד 2 · 1.1.27</option><option>בורד 3 · 5.2.27</option><option>בורד 4 · 5.3.27</option><option>בורד ענפי · 4.6.27</option><option>עוד לא יודע/ת</option></select></label>
+      <label class="fld"><span>שם מלא</span><input id="f-name" name="name" type="text" autocomplete="name" required></label>
+      <label class="fld"><span>טלפון</span><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" required></label>
+      <label class="fld"><span>אימייל</span><input id="f-email" name="email" type="email" autocomplete="email" dir="ltr"></label>
+      <label class="fld"><span>שם החברה ותחום הפעילות</span><input id="f-business" name="business" type="text"></label>
+      <label class="fld"><span>התפקיד שלך בחברה</span><select id="f-role" name="role"><option value="">בחירה</option><option>מייסד/ת או בעלים</option><option>מנכ״ל/ית</option><option>שותף/ה</option><option>אחר</option></select></label>
+      <label class="fld"><span>ותק העסק</span><select id="f-years" name="years"><option value="">בחירה</option><option>פחות משנה</option><option>שנה עד שלוש</option><option>שלוש עד עשר</option><option>יותר מעשר</option></select></label>
+      <label class="fld"><span>מחזור שנתי בערך</span><select id="f-revenue" name="revenue"><option value="">בחירה</option><option>עד ₪1M</option><option>₪1M עד ₪5M</option><option>₪5M עד ₪20M</option><option>מעל ₪20M</option><option>מעדיף/ה לא לומר</option></select></label>
+      <label class="fld"><span>מה האתגר המרכזי בעסק שלך היום?</span><textarea id="f-message" name="message" rows="3"></textarea></label>
+      <label class="fld"><span>מוכן/ה לשתף את המספרים של החברה ליד השולחן?</span><select id="f-numbers" name="numbers"><option value="">בחירה</option><option>כן</option><option>צריך/ה לחשוב על זה</option></select></label>
+      <label class="fld"><span>יכול/ה להתחייב לשישי הראשון בכל חודש, עם היעדרות אחת לכל היותר?</span><select id="f-commit" name="commit"><option value="">בחירה</option><option>כן</option><option>לא בטוח/ה</option></select></label>
+      <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+      <button class="btn" type="submit" id="f-submit">שליחה לבדיקת התאמה</button>
+      <p class="form-msg" id="f-msg" role="status"></p>
+      <p class="contact-line">שאלות? עדי חסדאי: <span class="phone">052-230-4968</span></p>
+    </form>
+  </section>
+
+  <footer>
+    <div dir="ltr" role="img" aria-label="THE BOARD" style="display:inline-flex;align-items:baseline;font-family:'Assistant','Arial Hebrew',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:0.12em;line-height:1;color:currentColor;white-space:nowrap;"><span>THE&#160;BO</span><svg viewBox="-6 -46 112 146" style="height:1.02em;width:0.78em;margin:0 0.02em;overflow:visible" aria-hidden="true"><polyline points="6,100 50,0 94,100" fill="none" stroke="currentColor" stroke-width="15" stroke-linejoin="miter"></polyline><line x1="27" y1="64" x2="73" y2="64" stroke="currentColor" stroke-width="13"></line><line x1="47" y1="8" x2="59" y2="-20" stroke="#C9A13B" stroke-width="15"></line><polygon points="68,-44 72,-12 45,-24" fill="#C9A13B"></polygon></svg><span>RD</span></div>
+    <span>the-board.co.il · תל אביב</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var HOOK = "https://hook.us1.make.com/i34h23vwmx9iqf69fk14j4egaermxya2";
+  var form = document.getElementById("joinForm");
+  var msg = document.getElementById("f-msg");
+  var btn = document.getElementById("f-submit");
+  function val(id){ return (document.getElementById(id).value || "").trim(); }
+  function src(){
+    try {
+      var p = new URLSearchParams(location.search);
+      var u = ["utm_source","utm_medium","utm_campaign"].map(function(k){ return p.get(k); }).filter(Boolean).join("/");
+      return u || document.referrer || "direct";
+    } catch(e){ return "direct"; }
+  }
+  document.querySelectorAll("[data-board]").forEach(function(a){
+    a.addEventListener("click", function(){ document.getElementById("f-board").value = a.getAttribute("data-board"); });
+  });
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    msg.className = "form-msg";
+    var name = val("f-name"), phone = val("f-phone");
+    if (!name || phone.replace(/\D/g,"").length < 9) {
+      msg.textContent = "נא למלא שם וטלפון תקין.";
+      msg.classList.add("err");
+      return;
+    }
+    btn.disabled = true;
+    msg.textContent = "שולח...";
+    fetch(HOOK, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: name, phone: phone, email: val("f-email"),
+        business: val("f-business"), message: val("f-message"), board: val("f-board"), role: val("f-role"), years: val("f-years"), revenue: val("f-revenue"), share_numbers: val("f-numbers"), commitment: val("f-commit"), type: "fit_check",
+        website: val("f-website"), src: src()
+      })
+    }).then(function(r){
+      if (!r.ok) throw new Error(r.status);
+      form.reset();
+      msg.textContent = "תודה! קיבלנו את התשובות. עדי תחזור אליך בימים הקרובים.";
+      msg.classList.add("ok");
+    }).catch(function(){
+      msg.textContent = "משהו השתבש בשליחה. נסו שוב, או כתבו לעדי בוואטסאפ: 052-230-4968";
+      msg.classList.add("err");
+    }).finally(function(){ btn.disabled = false; });
+  });
+})();
+</script>
+
+</body>
+</html>

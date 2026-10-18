@@ -50,7 +50,15 @@ section{padding-block:72px}
 .hero h1{font-size:clamp(2.5rem,1.6rem + 4.4vw,4.8rem);font-weight:900}
 .hero .lead{max-width:52ch;margin-top:22px;font-size:1.2rem}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.table-art{width:100%;max-width:360px;height:auto;justify-self:center}
+.table-art{width:100%;max-width:420px;height:auto;justify-self:center;color:var(--ink)}
+.table-art .pad{fill:var(--bg)}
+.table-art .tb{fill:none;stroke:currentColor;stroke-width:2;opacity:.55}
+.table-art .tb.main{opacity:1;stroke-width:2.5}
+.table-art .seat{fill:#C9A13B}
+.table-art .lk{stroke:currentColor;stroke-width:1.5;opacity:.3;stroke-dasharray:3 5;animation:lkflow 2.4s linear infinite}
+.table-art .lk2{opacity:.18}
+@keyframes lkflow{to{stroke-dashoffset:-16}}
+@media (prefers-reduced-motion:reduce){.table-art .lk{animation:none}}
 .facts{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid var(--line);margin-bottom:8px}
 .fact{padding:20px 16px 20px 0;display:grid;gap:4px}
 .fact + .fact{border-right:1px solid var(--line);padding-right:16px}
@@ -222,18 +230,66 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
         <a class="btn ghost" href="#community">מה אנחנו מאמינים בו</a>
       </div>
     </div>
-    <svg class="table-art" viewBox="0 0 270 270" aria-hidden="true">
-      <g fill="currentColor" opacity=".16">
-        <circle cx="135" cy="15" r="4"/><circle cx="135" cy="15" r="4" transform="rotate(20 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(40 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(60 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(80 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(100 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(120 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(140 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(160 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(180 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(200 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(220 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(240 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(260 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(280 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(300 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(320 135 135)"/><circle cx="135" cy="15" r="4" transform="rotate(340 135 135)"/>
-      </g>
-      <g fill="currentColor" opacity=".3">
-        <circle cx="135" cy="50" r="4"/><circle cx="135" cy="50" r="4" transform="rotate(30 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(60 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(90 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(120 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(150 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(180 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(210 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(240 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(270 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(300 135 135)"/><circle cx="135" cy="50" r="4" transform="rotate(330 135 135)"/>
-      </g>
-      <circle cx="135" cy="135" r="30" fill="none" stroke="currentColor" stroke-width="2"/>
-      <g fill="#C9A13B">
-        <circle cx="135" cy="91" r="6"/><circle cx="135" cy="91" r="6" transform="rotate(45 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(90 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(135 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(180 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(225 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(270 135 135)"/><circle cx="135" cy="91" r="6" transform="rotate(315 135 135)"/>
-      </g>
-    </svg>
+    <svg class="table-art" viewBox="0 0 320 300" aria-hidden="true">
+      <line class="lk" x1="160" y1="150" x2="62" y2="66"/>
+      <line class="lk" x1="160" y1="150" x2="262" y2="70"/>
+      <line class="lk" x1="160" y1="150" x2="58" y2="240"/>
+      <line class="lk" x1="160" y1="150" x2="264" y2="236"/>
+      <line class="lk lk2" x1="62" y1="66" x2="262" y2="70"/>
+      <line class="lk lk2" x1="262" y1="70" x2="264" y2="236"/>
+      <line class="lk lk2" x1="264" y1="236" x2="58" y2="240"/>
+      <line class="lk lk2" x1="58" y1="240" x2="62" y2="66"/>
+      <circle cx="160" cy="150" r="56" class="pad"/>
+      <circle cx="160" cy="150" r="30" class="tb main"/>
+      <circle cx="160.0" cy="104.0" r="6" class="seat"/>
+      <circle cx="192.5" cy="117.5" r="6" class="seat"/>
+      <circle cx="206.0" cy="150.0" r="6" class="seat"/>
+      <circle cx="192.5" cy="182.5" r="6" class="seat"/>
+      <circle cx="160.0" cy="196.0" r="6" class="seat"/>
+      <circle cx="127.5" cy="182.5" r="6" class="seat"/>
+      <circle cx="114.0" cy="150.0" r="6" class="seat"/>
+      <circle cx="127.5" cy="117.5" r="6" class="seat"/>
+      <circle cx="62" cy="66" r="35.2" class="pad"/>
+      <circle cx="62" cy="66" r="17" class="tb"/>
+      <circle cx="62.0" cy="39.0" r="4.2" class="seat"/>
+      <circle cx="81.1" cy="46.9" r="4.2" class="seat"/>
+      <circle cx="89.0" cy="66.0" r="4.2" class="seat"/>
+      <circle cx="81.1" cy="85.1" r="4.2" class="seat"/>
+      <circle cx="62.0" cy="93.0" r="4.2" class="seat"/>
+      <circle cx="42.9" cy="85.1" r="4.2" class="seat"/>
+      <circle cx="35.0" cy="66.0" r="4.2" class="seat"/>
+      <circle cx="42.9" cy="46.9" r="4.2" class="seat"/>
+      <circle cx="262" cy="70" r="35.2" class="pad"/>
+      <circle cx="262" cy="70" r="17" class="tb"/>
+      <circle cx="262.0" cy="43.0" r="4.2" class="seat"/>
+      <circle cx="281.1" cy="50.9" r="4.2" class="seat"/>
+      <circle cx="289.0" cy="70.0" r="4.2" class="seat"/>
+      <circle cx="281.1" cy="89.1" r="4.2" class="seat"/>
+      <circle cx="262.0" cy="97.0" r="4.2" class="seat"/>
+      <circle cx="242.9" cy="89.1" r="4.2" class="seat"/>
+      <circle cx="235.0" cy="70.0" r="4.2" class="seat"/>
+      <circle cx="242.9" cy="50.9" r="4.2" class="seat"/>
+      <circle cx="58" cy="240" r="35.2" class="pad"/>
+      <circle cx="58" cy="240" r="17" class="tb"/>
+      <circle cx="58.0" cy="213.0" r="4.2" class="seat"/>
+      <circle cx="77.1" cy="220.9" r="4.2" class="seat"/>
+      <circle cx="85.0" cy="240.0" r="4.2" class="seat"/>
+      <circle cx="77.1" cy="259.1" r="4.2" class="seat"/>
+      <circle cx="58.0" cy="267.0" r="4.2" class="seat"/>
+      <circle cx="38.9" cy="259.1" r="4.2" class="seat"/>
+      <circle cx="31.0" cy="240.0" r="4.2" class="seat"/>
+      <circle cx="38.9" cy="220.9" r="4.2" class="seat"/>
+      <circle cx="264" cy="236" r="35.2" class="pad"/>
+      <circle cx="264" cy="236" r="17" class="tb"/>
+      <circle cx="264.0" cy="209.0" r="4.2" class="seat"/>
+      <circle cx="283.1" cy="216.9" r="4.2" class="seat"/>
+      <circle cx="291.0" cy="236.0" r="4.2" class="seat"/>
+      <circle cx="283.1" cy="255.1" r="4.2" class="seat"/>
+      <circle cx="264.0" cy="263.0" r="4.2" class="seat"/>
+      <circle cx="244.9" cy="255.1" r="4.2" class="seat"/>
+      <circle cx="237.0" cy="236.0" r="4.2" class="seat"/>
+      <circle cx="244.9" cy="216.9" r="4.2" class="seat"/>
+      </svg>
   </section>
 
   <div class="facts">

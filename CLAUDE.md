@@ -10,9 +10,9 @@ Instructions for Claude when anyone on the team (Noam, Adi, Ethan) asks to chang
 ## Rules
 - All site copy is Hebrew, right to left. Talk to the person in whatever language they write in.
 - Never use the em dash or long dash anywhere in the copy. Use a comma, colon, brackets or a full stop.
-- No prices anywhere on the site.
+- Prices appear only in the "דרכים להצטרף" (#tracks) section and the journey note (continuing at about 400 ₪ per meeting). Don't add prices elsewhere.
 - Keep all three founders titled שותף מייסד / שותפה מייסדת.
-- Do not add personal phone numbers. Contact email is info@the-board.co.il.
+- Do not display personal phone numbers. The only phone link is the WhatsApp button to Adi in the join section (wa.me link). Contact email is info@the-board.co.il.
 - Do not touch the fit questionnaire logic unless explicitly asked: the form posts to a Make webhook (`hook.us1.make.com/...`) that writes to the leads Google Sheet and emails the founders. Field names, the consent checkbox and the hidden honeypot field must stay as they are.
 - Keep the legal links in the footer and the skip link at the top.
 - If you change something the privacy policy describes (new form fields, new third party tools), update `privacy.html` and its date too.

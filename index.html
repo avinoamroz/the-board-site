@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>The Board</title>
-<meta name="description" content="The Board: קהילת בעלי עסקים בתל אביב שנפגשים בגובה העיניים, מניחים את המספרים על השולחן ועוזרים זה לזה לצמוח. הבורד הראשון נפתח ב-4.12.26.">
+<meta name="description" content="The Board: קהילת בעלי עסקים בתל אביב שנפגשים בגובה העיניים, מניחים את המספרים על השולחן ועוזרים זה לזה לצמוח. הבורד הראשון נפתח ב-6.11.26.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -164,7 +164,17 @@ section{padding-block:72px}
 .tm p{color:var(--muted);font-size:.98rem}
 .ig{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-weight:600;font-size:.95rem;color:var(--gold);text-decoration:none}
 .ig:hover{text-decoration:underline}
-.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tracks{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tr{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:22px;display:grid;gap:10px;align-content:start}
+.tr.main{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.tr .tag{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--gold)}
+.tr .pr{font-size:1.6rem;font-weight:800;line-height:1.1}
+.tr .pr small{font-size:.9rem;font-weight:600;color:var(--muted)}
+.tr .pr s{font-size:.95rem;font-weight:500;color:var(--muted);margin-inline-start:6px}
+.tr .seats{font-size:.92rem;font-weight:600}
+.wa{display:inline-flex;align-items:center;gap:8px;margin-inline-start:10px}
+@media (max-width:860px){.tracks{grid-template-columns:1fr}}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .rule{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:grid;gap:6px;align-content:start}
 .rule b{font-family:var(--f-display);font-size:1.3rem}
 .rule span{color:var(--muted);font-size:.98rem}
@@ -304,7 +314,7 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
     <div class="fact"><b>8</b><span>מקומות בבורד</span></div>
     <div class="fact"><b>6</b><span>מפגשים, שישי ראשון בחודש</span></div>
     <div class="fact"><b style="direction:ltr;text-align:right">10:00-15:00</b><span>בימי שישי, כולל ארוחת בוקר</span></div>
-    <div class="fact"><b>4.12.26</b><span>פתיחת המחזור</span></div>
+    <div class="fact"><b>6.11.26</b><span>פתיחת המחזור</span></div>
   </div>
 </div>
 
@@ -386,6 +396,19 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
     </div>
   </section>
 
+  <section id="tracks" style="padding-top:0">
+    <div class="sec-head">
+      <p class="eyebrow">דרכים להצטרף</p>
+      <h2>קהילה, אופן בורד ובורד סגור</h2>
+      <p class="lead">The Board היא קהילה של יזמים ובעלי עסקים. בתוכה פועלים בורדים סגורים לפי ענף וגודל עסק, והדרך הכי טובה להתחיל היא לחוות בורד אמיתי.</p>
+    </div>
+    <div class="tracks">
+      <div class="tr"><span class="tag">קהילה</span><h3>חברות בקהילה</h3><div class="pr">300-500 ₪ <small>לחודש</small></div><p>לכל בעל עסק שעומד בפרמטרים: מחזור, ותק ועובדים. גישה לאירועי הקהילה ולמפגשים השנתיים, ללא השתתפות בבורדים.</p></div>
+      <div class="tr"><span class="tag">נקודת הכניסה</span><h3>אופן בורד</h3><div class="pr">1,000 ₪ <small>למפגש</small></div><p>מפגש אינטנסיבי של חמש עד שש שעות שמדמה חוויית בורד אמיתית. נפתח כל חודש. מי שרוצה להמשיך מגיש מועמדות לבורד סגור ונכנס לרשימת ההמתנה.</p></div>
+      <div class="tr main"><span class="tag">הבורד הסגור · מחיר השקה</span><h3>בורד יסודות</h3><div class="pr">4,000 ₪ <small>לחצי שנה</small> <s>12,000 ₪</s></div><p>שמונה בעלי עסקים, שישה מפגשים, שישי ראשון בחודש. מחיר מסובסד לבורד הראשון בלבד. כל חבר בורד מקבל גם פרק משלו בפודקאסט של The Board.</p><span class="seats">8 מקומות בלבד</span></div>
+    </div>
+  </section>
+
   <section id="boards" style="padding-top:0">
     <div class="sec-head">
       <p class="eyebrow">הבורדים הבאים</p>
@@ -393,30 +416,30 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       <p class="lead">כל בורד יסודות נפגש שש פעמים, ביום שישי הראשון של כל חודש, עם שמונה בעלי עסקים מתחומים שונים. בחרו את הבורד שמתאים לכם ושריינו מקום.</p>
     </div>
     <div class="sched">
-      <div class="sc next"><span class="tag">הבורד הבא</span><h3>בורד 1</h3><div class="dates"><span>פתיחה</span><b dir="ltr">4.12.26</b><span>מפגש אחרון</span><b dir="ltr">7.5.27</b></div><span class="seats">8 מקומות</span><a class="btn" href="#join" data-board="בורד 1 · 4.12.26">להצטרפות</a></div>
-      <div class="sc"><span class="tag">ינואר</span><h3>בורד 2</h3><div class="dates"><span>פתיחה</span><b dir="ltr">1.1.27</b><span>מפגש אחרון</span><b dir="ltr">4.6.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 2 · 1.1.27">להצטרפות</a></div>
-      <div class="sc"><span class="tag">פברואר</span><h3>בורד 3</h3><div class="dates"><span>פתיחה</span><b dir="ltr">5.2.27</b><span>מפגש אחרון</span><b dir="ltr">2.7.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 3 · 5.2.27">להצטרפות</a></div>
-      <div class="sc"><span class="tag">מרץ</span><h3>בורד 4</h3><div class="dates"><span>פתיחה</span><b dir="ltr">5.3.27</b><span>מפגש אחרון</span><b dir="ltr">6.8.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 4 · 5.3.27">להצטרפות</a></div>
+      <div class="sc next"><span class="tag">הבורד הבא</span><h3>בורד 1</h3><div class="dates"><span>פתיחה</span><b dir="ltr">6.11.26</b><span>מפגש אחרון</span><b dir="ltr">2.4.27</b></div><span class="seats">8 מקומות</span><a class="btn" href="#join" data-board="בורד 1 · 6.11.26">להצטרפות</a></div>
+      <div class="sc"><span class="tag">דצמבר</span><h3>בורד 2</h3><div class="dates"><span>פתיחה</span><b dir="ltr">4.12.26</b><span>מפגש אחרון</span><b dir="ltr">7.5.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 2 · 4.12.26">להצטרפות</a></div>
+      <div class="sc"><span class="tag">ינואר</span><h3>בורד 3</h3><div class="dates"><span>פתיחה</span><b dir="ltr">1.1.27</b><span>מפגש אחרון</span><b dir="ltr">4.6.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 3 · 1.1.27">להצטרפות</a></div>
+      <div class="sc"><span class="tag">פברואר</span><h3>בורד 4</h3><div class="dates"><span>פתיחה</span><b dir="ltr">5.2.27</b><span>מפגש אחרון</span><b dir="ltr">2.7.27</b></div><span class="seats">8 מקומות</span><a class="btn ghost" href="#join" data-board="בורד 4 · 5.2.27">להצטרפות</a></div>
       <div class="sc sector"><span class="tag">מיוני 2027</span><h3>בורדים ענפיים</h3><div class="dates"><span>פתיחה</span><b dir="ltr">4.6.27</b><span>לבוגרים ולבעלי עסקים מהענף</span><b></b></div><span class="seats">8 בכל שולחן</span><a class="btn ghost" href="#join" data-board="בורד ענפי · 4.6.27">רישום מוקדם</a></div>
     </div>
   </section>
 
   <section id="journey" style="padding-top:0">
     <div class="sec-head">
-      <p class="eyebrow">הבורד הראשון · נפתח ב-4.12.26</p>
+      <p class="eyebrow">הבורד הראשון · נפתח ב-6.11.26</p>
       <h2>שישה חודשים. שמונה בעלי עסקים. שולחן אחד.</h2>
       <p class="lead">בכל מפגש עוברים יחד על החברה של כל אחד מהמשתתפים, בונים את התשתית שהיא צריכה ומיישרים קו, כדי שיהיה לך כל מה שצריך לנהל אותה ביעילות.</p>
     </div>
     <div class="journey">
       <div class="stations">
-        <div class="st"><div class="n">1</div><div class="m">דצמבר</div><div class="d">4.12.26</div><h3>מבנה החברה ויעדים</h3><p>יעדים ברורים ומבנה מסודר</p></div>
-        <div class="st"><div class="n">2</div><div class="m">ינואר</div><div class="d">1.1.27</div><h3>שיווק</h3><p>תוכנית שיווק לעסק</p></div>
-        <div class="st"><div class="n">3</div><div class="m">פברואר</div><div class="d">5.2.27</div><h3>מכירות</h3><p>תהליך מכירה שעובד</p></div>
-        <div class="st"><div class="n">4</div><div class="m">מרץ</div><div class="d">5.3.27</div><h3>מוצר ושירות</h3><p>הצעת ערך חדה</p></div>
-        <div class="st"><div class="n">5</div><div class="m">אפריל</div><div class="d">2.4.27</div><h3>כספים, תמחור ותזרים</h3><p>תזרים ותמחור בשליטה</p></div>
-        <div class="st"><div class="n">6</div><div class="m">מאי</div><div class="d">7.5.27</div><h3>אנשים, תפעול ותוכנית שנתית</h3><p>תוכנית עבודה שנתית</p></div>
+        <div class="st"><div class="n">1</div><div class="m">נובמבר</div><div class="d">6.11.26</div><h3>מבנה החברה ויעדים</h3><p>יעדים ברורים ומבנה מסודר</p></div>
+        <div class="st"><div class="n">2</div><div class="m">דצמבר</div><div class="d">4.12.26</div><h3>שיווק</h3><p>תוכנית שיווק לעסק</p></div>
+        <div class="st"><div class="n">3</div><div class="m">ינואר</div><div class="d">1.1.27</div><h3>מכירות</h3><p>תהליך מכירה שעובד</p></div>
+        <div class="st"><div class="n">4</div><div class="m">פברואר</div><div class="d">5.2.27</div><h3>מוצר ושירות</h3><p>הצעת ערך חדה</p></div>
+        <div class="st"><div class="n">5</div><div class="m">מרץ</div><div class="d">5.3.27</div><h3>כספים, תמחור ותזרים</h3><p>תזרים ותמחור בשליטה</p></div>
+        <div class="st"><div class="n">6</div><div class="m">אפריל</div><div class="d">2.4.27</div><h3>אנשים, תפעול ותוכנית שנתית</h3><p>תוכנית עבודה שנתית</p></div>
       </div>
-      <p class="next"><b>ביוני 2027</b> הבוגרים ממשיכים לבורד ענפי, עם עמיתים מאותו תחום.</p>
+      <p class="next"><b>ביוני 2027</b> הבוגרים ממשיכים לבורד ענפי, עם עמיתים מאותו תחום. מי שרוצה להישאר באותו שולחן ממשיך במחיר חודשי של כ-400 ₪ למפגש.</p>
     </div>
   </section>
 
@@ -498,9 +521,9 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
       <p class="lead">מתחילים בבורד יסודות. אחרי שישה חודשים ממשיכים לבורד ענפי עם בעלי עסקים מאותו תחום.</p>
     </div>
     <div class="boards">
-      <div class="bd now"><span class="tag">נפתח עכשיו</span><h3>בורד יסודות</h3><p>מבנה, שיווק, מכירות, מוצר, כסף ואנשים. מחזור ראשון ב-4.12.26.</p></div>
+      <div class="bd now"><span class="tag">נפתח עכשיו</span><h3>בורד יסודות</h3><p>מבנה, שיווק, מכירות, מוצר, כסף ואנשים. מחזור ראשון ב-6.11.26.</p></div>
       <div class="bd"><span class="tag">מיוני 2027</span><h3>מזון ואירוח</h3><p>מסעדות, בתי קפה, מאפיות ורשתות מזון.</p></div>
-      <div class="bd"><span class="tag">מיוני 2027</span><h3>אופנה וקמעונאות</h3><p>מותגים, חנויות ומסחר מקוון.</p></div>
+      <div class="bd"><span class="tag">מיוני 2027</span><h3>אי-קומרס וקמעונאות</h3><p>מסחר מקוון, מותגים וחנויות.</p></div>
       <div class="bd"><span class="tag">מיוני 2027</span><h3>שירותים ותרבות</h3><p>סוכנויות, הדרכה, מקומות בילוי ותרבות.</p></div>
       <div class="bd"><span class="tag">מיוני 2027</span><h3>טכנולוגיה וסטארטאפים</h3><p>חברות תוכנה ומייסדים בצמיחה.</p></div>
       <div class="bd"><span class="tag">מיוני 2027</span><h3>נדל״ן ופיננסים</h3><p>השקעות, מימון, נכסים וחללי עבודה.</p></div>
@@ -516,24 +539,26 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
     </div>
     <div class="rules">
       <div class="rule"><b>8 מקומות בלבד</b><span>קבוצה סגורה של בעלי עסקים מתחומים שונים.</span></div>
-      <div class="rule"><b>מחויבות מלאה</b><span>אפשר להחסיר מפגש אחד לכל היותר לאורך התוכנית.</span></div>
+      <div class="rule"><b>מחויבות מלאה</b><span>אפשר להחסיר עד שני מפגשים לכל היותר לאורך התוכנית.</span></div>
       <div class="rule"><b>דיסקרטיות</b><span>כל משתתף חותם על NDA, ואין מתחרים ישירים באותו שולחן. מה שנאמר בחדר נשאר בחדר.</span></div>
-      <div class="rule"><b>בהנחיית המייסדים</b><span>מייסדי The Board מובילים כל מפגש.</span></div>
+      <div class="rule"><b>Head of Board ייעודי</b><span>לכל שולחן מנחה קבוע מצוות The Board, שמוביל את המפגשים ומיישר קו בין מפגש למפגש.</span></div>
+      <div class="rule"><b>מגיעים מוכנים</b><span>כל משתתף שולח חומרים לפני המפגש, עד מועד קבוע, והמנחה בוחר מה עולה לשולחן.</span></div>
+      <div class="rule"><b>בורד מקצועי פעם ברבעון</b><span>מפגש עם אנשי מקצוע בתחומים כמו פיננסים ואוטומציות, לעומק על מה שהשולחן צריך.</span></div>
     </div>
   </section>
 
   <section id="join" class="cta" style="padding-top:0">
     <div style="display:grid;gap:16px">
-      <p class="eyebrow">הבורד הבא נפתח ב-4.12.26</p>
+      <p class="eyebrow">הבורד הבא נפתח ב-6.11.26</p>
       <h2>מוכן לשבת ליד השולחן?</h2>
       <p class="lead">המקומות מוגבלים כדי שלכל משתתף יהיה זמן אמיתי על השולחן. עונים על כמה שאלות קצרות, ועדי חסדאי חוזרת אליך לשיחה כדי לבדוק יחד אם The Board מתאים לך ולעסק שלך.</p>
-      <div><a class="btn" href="#fit">למילוי שאלון ההתאמה</a></div>
+      <div><a class="btn" href="#fit">למילוי שאלון ההתאמה</a><a class="btn ghost wa" href="https://wa.me/972522304968?text=%D7%94%D7%99%D7%99%20%D7%A2%D7%93%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%20%D7%A2%D7%9C%20The%20Board" target="_blank" rel="noopener">לדבר עם עדי בוואטסאפ</a></div>
     </div>
     <form class="cta-box" id="joinForm" novalidate>
       <span class="eyebrow" id="fit">שאלון התאמה</span>
       <h3>כמה שאלות קצרות, ועדי חוזרת אליך</h3>
       <p class="contact-line">התשובות עוזרות לנו לוודא שהבורד מתאים לך, ושתשב ליד השולחן הנכון.</p>
-      <label class="fld"><span>לאיזה בורד?</span><select id="f-board" name="board"><option>בורד 1 · 4.12.26</option><option>בורד 2 · 1.1.27</option><option>בורד 3 · 5.2.27</option><option>בורד 4 · 5.3.27</option><option>בורד ענפי · 4.6.27</option><option>עוד לא יודע/ת</option></select></label>
+      <label class="fld"><span>לאיזה בורד?</span><select id="f-board" name="board"><option>בורד 1 · 6.11.26</option><option>בורד 2 · 4.12.26</option><option>בורד 3 · 1.1.27</option><option>בורד 4 · 5.2.27</option><option>בורד ענפי · 4.6.27</option><option>אופן בורד (מפגש היכרות)</option><option>חברות בקהילה</option><option>עוד לא יודע/ת</option></select></label>
       <label class="fld"><span>שם מלא</span><input id="f-name" name="name" type="text" autocomplete="name" required></label>
       <label class="fld"><span>טלפון</span><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" required></label>
       <label class="fld"><span>אימייל</span><input id="f-email" name="email" type="email" autocomplete="email" dir="ltr"></label>

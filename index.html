@@ -81,6 +81,7 @@ section{padding-block:96px;position:relative;overflow:hidden}
 .amount{display:flex;align-items:baseline;gap:8px;color:var(--gold);direction:rtl}
 .amount b{font-family:var(--f-display);font-weight:500;font-size:clamp(3.4rem,2.6rem + 3vw,5rem);line-height:1;font-variant-numeric:tabular-nums}
 .amount span{font-family:var(--f-display);font-size:2rem}
+.amount .vat{font-size:1.1rem;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap}
 .per{color:rgba(255,255,255,.75)}
 .price-tag .btn{justify-self:start;margin-top:8px}
 .price-list{padding:36px;display:grid;gap:16px;align-content:start}
@@ -609,7 +610,7 @@ footer .mark{margin:0}
     <div class="price reveal" id="price">
       <div class="price-tag">
         <span class="kicker">השקעה בבורד</span>
-        <div class="amount"><b>4,000</b><span>₪</span></div>
+        <div class="amount"><b>4,000</b><span>₪</span><small class="vat">+ מע״מ</small></div>
                 <a class="btn gold" href="#join">שריינו מקום בבורד הבא<span class="arr"><svg><use href="#arr"/></svg></span></a>
       </div>
       <div class="price-list">

@@ -339,6 +339,7 @@ section{padding-block:96px;position:relative;overflow:hidden}
 /* Guests (VLU "המנכ״לים") */
 .guest-sub{font-family:var(--f-body);font-weight:500;color:var(--gold);font-size:.95rem;margin-top:10px}
 .guest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0;position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.14)}
+.guest-grid[hidden],.guest-sub[hidden]{display:none!important}
 .g{display:grid;gap:4px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.14);transition:background .2s ease}
 .g:hover{background:rgba(198,242,120,.12)}
 .g b{font-family:var(--f-display);font-size:1.5rem;line-height:1.2;color:#fff;font-weight:500}
@@ -647,9 +648,9 @@ footer .mark{margin:0}
     <div class="sec-head">
       <p class="kicker">מפגש הקהילה הרבעוני</p>
       <h2>פעם ברבעון, אורח מיוחד <span class="lit">מצטרף לשולחן</span><span class="dot">.</span></h2>
-      <p class="lead">פעם ברבעון כל הבורדים מתכנסים יחד, ואיתם אורח מיוחד: יזם, מומחה או מנהל בכיר. הוא לא בא להרצות. הוא מקשיב לעסקים שלכם, שואל את השאלות הנכונות ונותן את הדעה הכנה שלו על האתגרים שעל השולחן.</p><p class="guest-sub">בין האורחים שלנו</p>
+      <p class="lead">פעם ברבעון כל הבורדים מתכנסים יחד, ואיתם אורח מיוחד: יזם, מומחה או מנהל בכיר. הוא לא בא להרצות. הוא מקשיב לעסקים שלכם, שואל את השאלות הנכונות ונותן את הדעה הכנה שלו על האתגרים שעל השולחן.</p><p class="guest-sub" hidden>בין האורחים שלנו</p>
     </div>
-    <div class="guest-grid">
+    <div class="guest-grid" hidden>
       <div class="g"><b>שותף KPMG</b><span>פיננסים</span></div>
       <div class="g"><b>אור מאיר</b><span>שיווק</span></div>
       <div class="g"><b>עידן קארס</b><span>אוטומציות</span></div>

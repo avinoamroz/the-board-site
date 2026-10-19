@@ -196,14 +196,14 @@ section{padding-block:96px;position:relative;overflow:hidden}
 .tablex>*{min-width:0}
 .tx-hint{color:var(--muted);font-size:.98rem;margin-bottom:22px}
 .tx-wrap{position:relative;width:min(100%,460px);aspect-ratio:1;margin-inline:auto}
-.tx-ring{position:absolute;inset:21%;border-radius:50%;background:var(--gold)}
+.tx-ring{position:absolute;inset:21%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#2E3150 0%,var(--ink) 62%);box-shadow:0 18px 40px rgba(26,28,44,.28),inset 0 0 0 1px rgba(255,255,255,.06)}
 .tx-center{position:absolute;inset:24%;display:grid;align-content:center;justify-items:center;gap:8px;text-align:center;padding:4%}
-.tx-center b{font-family:var(--f-display);font-weight:500;font-size:clamp(1.15rem,.9rem + 1vw,1.6rem);line-height:1.2;color:var(--ink)}
-.tx-center span{color:var(--muted);font-size:clamp(.82rem,.75rem + .3vw,.98rem);line-height:1.5}
+.tx-center b{font-family:var(--f-display);font-weight:500;font-size:clamp(1.15rem,.9rem + 1vw,1.6rem);line-height:1.2;color:#fff}
+.tx-center span{color:rgba(255,255,255,.72);font-size:clamp(.82rem,.75rem + .3vw,.98rem);line-height:1.5}
 .tx-center.swap{animation:txin .45s ease}
 @keyframes txin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.seat-btn{position:absolute;transform:translate(-50%,-50%);width:clamp(48px,15%,68px);aspect-ratio:1;border:0;background:none;color:var(--purple);font-family:var(--f-latin);font-style:italic;font-size:1.1rem;cursor:pointer;display:grid;place-items:center;transition:transform .2s ease,color .2s ease;padding:0;isolation:isolate}
-.seat-btn::before{content:"";position:absolute;left:0;right:0;top:50%;height:70%;margin-top:-35%;border-radius:12px;border:3px solid var(--purple);background:#fff;transform:rotate(var(--r,0deg));z-index:-1;transition:background .2s ease,border-color .2s ease}
+.seat-btn{position:absolute;transform:translate(-50%,-50%);width:clamp(48px,15%,68px);aspect-ratio:1;border:0;background:none;color:var(--ink);font-family:var(--f-latin);font-style:italic;font-size:1.1rem;cursor:pointer;display:grid;place-items:center;transition:transform .2s ease,color .2s ease;padding:0;isolation:isolate}
+.seat-btn::before{content:"";position:absolute;left:0;right:0;top:50%;height:70%;margin-top:-35%;border-radius:12px;border:2px solid var(--ink);background:#fff;transform:rotate(var(--r,0deg));z-index:-1;transition:background .2s ease,border-color .2s ease}
 .seat-btn:hover{transform:translate(-50%,-50%) scale(1.08)}
 .seat-btn.on{color:var(--ink);transform:translate(-50%,-50%) scale(1.12)}
 .seat-btn.on::before{background:var(--gold);border-color:var(--ink)}

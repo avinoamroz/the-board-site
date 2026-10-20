@@ -895,7 +895,7 @@ footer .mark{margin:0}
       if (!b.chair || !b.chair.name) return;
       var el = document.querySelector('[data-chair="' + b.name + '"]'); if (!el) return;
       var esc = function(t){ var x = document.createElement("span"); x.textContent = t || ""; return x.innerHTML; };
-      el.innerHTML = (b.chair.photo ? '<img src="' + esc(b.chair.photo) + '" alt="" referrerpolicy="no-referrer" loading="lazy">' : '') + '<span>יו״ר הבורד<b>' + esc(b.chair.name) + (b.chair.name_en ? ' · <span dir="ltr">' + esc(b.chair.name_en) + '</span>' : '') + (b.chair.company ? ', ' + esc(b.chair.company) : '') + '</b></span>';
+      el.innerHTML = (b.chair.photo ? '<img src="' + esc(b.chair.photo) + '" alt="" referrerpolicy="no-referrer" loading="lazy">' : '') + '<span>ראש הבורד<b>' + esc(b.chair.name) + (b.chair.name_en ? ' · <span dir="ltr">' + esc(b.chair.name_en) + '</span>' : '') + (b.chair.company ? ', ' + esc(b.chair.company) : '') + '</b></span>';
       el.hidden = false;
     });
   }).catch(function(){});

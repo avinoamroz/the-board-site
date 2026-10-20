@@ -4,3 +4,5 @@
 /tools/*
   X-Robots-Tag: noindex, nofollow
   Access-Control-Allow-Origin: *
+/assets/*
+  Cache-Control: public, max-age=300, must-revalidate

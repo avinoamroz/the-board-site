@@ -28,3 +28,13 @@ Instructions for Claude when anyone on the team (Noam, Adi, Ethan) asks to chang
 - `download/the-board-landing.html` is a copy of `index.html` that team members download (https://the-board.co.il/download/the-board-landing.html), edit with their own Claude, and email back to Noam.
 - Whenever `index.html` changes, copy it over `download/the-board-landing.html` in the same commit.
 - When an edited file comes back: diff it against the current `index.html`, apply only the content changes, check the form, webhook, consent and honeypot are untouched and there are no em dashes, then push.
+
+## Member area, CRM and API (added 20.10.2026)
+- `/members/` member area (Hebrew): Google sign-in, My board (round table), profile, templates and prompts, NDA signing.
+- `/crm/` founders' CRM (English, mobile first): pipeline, members, boards, agreement, mark paid, not a fit.
+- `/join/` membership agreement signing page (opened from the emailed link).
+- `functions/api/[[route]].js` is the API (Cloudflare Pages Function). `functions/_docs.js` holds the Hebrew agreement and NDA texts: bump `version` whenever the text changes.
+- Data lives in the Google Sheet "The Board CRM" (tabs Leads, Members, Boards, Sessions, UTM links, Summary). Columns are found by their header name, so headers must not be renamed. New columns can be added at the end.
+- Secrets (sheet pipe key, session secret) live in the D1 database `the-board-config`, table `config`. Never put secrets in this repo, it is public.
+- Make scenarios: 18 (questionnaire to Leads + team email), 19 (sheet pipe used by the API), 20 (mailer).
+- Do not change the API, sign-in or signing logic unless explicitly asked.

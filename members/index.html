@@ -9,7 +9,7 @@
 <link rel="icon" href="/brand/the-board-icon-dark-bg.svg?v=2" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png?v=2">
 <script src="/assets/sign.js?v=20261020b" defer></script>
-<script src="/assets/i18n.js?v=20261020b" defer></script>
+<script src="/assets/i18n.js?v=20261020c" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&family=Heebo:wght@300;400;500;700;800&display=swap">
@@ -382,7 +382,7 @@ footer a{color:var(--muted)}
     }
     $("board-title").textContent = b.name;
     var people = (b.members || []).slice().sort(function(a, z){ return (z.me ? 1 : 0) - (a.me ? 1 : 0); });
-    var seats = Math.max(8, people.length);
+    var seats = Math.max(people.length, Math.min(8, Math.max(6, people.length + (people.length >= 6 ? 1 : 0)))); // 6 chairs by default, an extra empty chair appears as the table fills, up to 8
     var html = '<div class="tbl">' + tableIcon + '<b>' + esc(b.name) + '</b>' + (b.next ? '<span>המפגש הבא: <b>' + esc(b.next) + '</b></span>' : '') + '</div>';
     for (var i = 0; i < seats; i++) {
       var a = -Math.PI / 2 + i * 2 * Math.PI / seats, x = 50 + 41 * Math.cos(a), y = 50 + 41 * Math.sin(a);
@@ -397,8 +397,8 @@ footer a{color:var(--muted)}
     if (b.next) s += '<div class="fact"><span>המפגש הבא</span><b dir="ltr">' + esc(b.next) + '</b></div>';
     if (b.hours) s += '<div class="fact"><span>שעות</span><b dir="ltr">' + esc(b.hours) + '</b></div>';
     if (b.location) s += '<div class="fact"><span>מיקום</span><b>' + esc(b.location === "Tel Aviv" ? "תל אביב" : b.location) + '</b></div>';
-    if (b.head) s += '<div class="fact"><span>יו״ר הבורד</span><b>' + esc(b.head) + '</b></div>';
-    s += '<div class="fact"><span>חברים בשולחן</span><b>' + people.length + ' מתוך 8</b></div></div>';
+    if (b.head) s += '<div class="fact"><span>ראש הבורד</span><b>' + esc(b.head) + '</b></div>';
+    s += '<div class="fact"><span>חברים בשולחן</span><b>' + people.length + ' מתוך ' + seats + '</b></div></div>';
     if (b.dates && b.dates.length) {
       var before = !!b.next;
       s += '<h3>מועדי המפגשים</h3><div class="dates">' + b.dates.map(function(d){ var cls = d === b.next ? "next" : (before ? "past" : ""); if (d === b.next) before = false; return '<span class="' + cls + '">' + esc(d) + '</span>'; }).join("") + '</div>';

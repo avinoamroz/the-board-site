@@ -1,0 +1,8 @@
+name = "the-board-site"
+pages_build_output_dir = "."
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "the-board-config"
+database_id = "5e6cf8df-e0f3-4173-a56f-6eec335b67e7"

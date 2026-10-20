@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>אזור החברים · The Board</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1A1C2C">
+<link rel="icon" href="/brand/the-board-icon-dark-bg.svg?v=2" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png?v=2">
+<script src="/assets/sign.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&family=Heebo:wght@300;400;500;700;800&display=swap">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --indigo:#1A1C2C; --plum:#4A3FB8; --purple:#6C5FEB; --lime:#C6F278;
+  --paper:#F3F2F8; --ink:#1A1C2C; --text:#2B2E42; --muted:#565A70; --line:#DCDCE6;
+  --f-display:"Rubik","Heebo",system-ui,sans-serif;
+  --f-body:"Heebo",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --grad:radial-gradient(circle at 15% 115%, var(--plum) 0%, var(--indigo) 58%);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);font-family:var(--f-body);font-weight:300;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--plum)}
+button{font:inherit}
+[hidden]{display:none!important}
+.skip{position:absolute;inset-inline-start:-999px;top:8px;background:#fff;padding:8px 12px;border-radius:8px;z-index:9}
+.skip:focus{inset-inline-start:8px}
+header{background:var(--indigo);color:#fff;position:sticky;top:0;z-index:5}
+.bar{max-width:1160px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mark{color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:10px;font-family:"Heebo",sans-serif;font-weight:800;letter-spacing:.12em;font-size:1.15rem;direction:ltr;white-space:nowrap}
+.mark svg{width:1.3em;height:1.3em}
+.who{display:flex;align-items:center;gap:10px;font-size:.92rem}
+.who img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+.pill{background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:5px 13px;font-size:.88rem;cursor:pointer;text-decoration:none;white-space:nowrap}
+.pill:hover{border-color:#fff}
+nav.tabs{max-width:1160px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto}
+nav.tabs button{background:none;border:0;color:rgba(255,255,255,.7);padding:12px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;font-weight:500}
+nav.tabs button[aria-selected="true"]{color:#fff;border-bottom-color:var(--lime)}
+main{max-width:1160px;margin:0 auto;padding:28px 20px 72px}
+h1,h2,h3{font-family:var(--f-display);color:var(--ink);margin:0;line-height:1.15;font-weight:500}
+h1{font-size:clamp(1.7rem,1.3rem + 1.8vw,2.5rem)}
+h2{font-size:1.4rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:26px}
+.center{max-width:560px;margin:8vh auto 0;text-align:center}
+.center p{color:var(--muted)}
+.gbtn{display:flex;justify-content:center;margin-top:22px;min-height:44px}
+.loading{color:var(--muted);text-align:center;margin-top:12vh}
+.lead{color:var(--muted);margin:6px 0 0}
+
+/* the round table */
+.tablewrap{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:22px}
+.round{position:relative;width:min(100%,620px);aspect-ratio:1;margin:0 auto}
+.round .tbl{position:absolute;inset:27%;border-radius:50%;background:var(--grad);box-shadow:0 24px 60px rgba(26,28,44,.28),inset 0 0 0 1px rgba(255,255,255,.08);display:grid;place-content:center;text-align:center;color:#fff;padding:6%}
+.round .tbl svg{width:44px;height:44px;margin:0 auto 6px;color:var(--lime)}
+.round .tbl b{font-family:var(--f-display);font-weight:500;font-size:clamp(1rem,.8rem + 1vw,1.45rem);line-height:1.2}
+.round .tbl span{font-size:.85rem;color:rgba(255,255,255,.75);margin-top:4px}
+.round .tbl span b{font-size:inherit;color:var(--lime);direction:ltr;display:inline-block}
+.seat{position:absolute;transform:translate(-50%,-50%);width:23%;display:grid;justify-items:center;gap:4px;text-align:center;background:none;border:0;padding:0;cursor:pointer;color:var(--ink)}
+.seat .face{width:clamp(48px,62%,88px);aspect-ratio:1;border-radius:50%;object-fit:cover;background:#fff;border:3px solid #fff;box-shadow:0 0 0 2px var(--line),0 8px 18px rgba(26,28,44,.14);display:grid;place-items:center;font-family:var(--f-display);font-weight:500;color:var(--plum);font-size:1.15rem;transition:transform .2s ease}
+.seat:hover .face,.seat:focus-visible .face{transform:scale(1.06)}
+.seat.me .face{box-shadow:0 0 0 3px var(--lime),0 8px 18px rgba(26,28,44,.14)}
+.seat .nm{font-weight:500;font-size:clamp(.72rem,.62rem + .4vw,.92rem);line-height:1.2}
+.seat .co{font-size:clamp(.66rem,.6rem + .3vw,.8rem);background:var(--ink);color:#fff;border-radius:999px;padding:1px 9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat.empty{cursor:default}
+.seat.empty .face{background:transparent;border:2px dashed #C9C9D6;box-shadow:none}
+.side h3{font-size:1.05rem;margin-bottom:8px}
+.facts{display:grid;gap:9px;margin:4px 0 18px}
+.fact{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px;font-size:.95rem}
+.fact span{color:var(--muted)}
+.fact b{font-weight:500;color:var(--ink)}
+.dates{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 18px}
+.dates span{font-size:.85rem;border:1px solid var(--line);border-radius:999px;padding:3px 10px;direction:ltr;background:#fff}
+.dates span.next{background:var(--lime);border-color:var(--lime);font-weight:600;color:var(--ink)}
+.dates span.past{opacity:.45}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--lime);color:var(--ink);border:0;border-radius:999px;padding:12px 22px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.ghost{background:#fff;border:1px solid var(--line)}
+.btn[disabled]{opacity:.6;cursor:default}
+
+/* person sheet */
+dialog{border:0;border-radius:24px;padding:0;width:min(440px,calc(100% - 32px));box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(26,28,44,.55)}
+.ps-top{background:var(--grad);color:#fff;padding:26px 24px 20px;text-align:center;position:relative}
+.ps-top img.face,.ps-top .face{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #fff;margin:0 auto 10px;display:grid;place-items:center;background:#fff;color:var(--plum);font-size:1.6rem;font-family:var(--f-display)}
+.ps-top h2{color:#fff}
+.ps-top p{margin:4px 0 0;color:rgba(255,255,255,.8);font-size:.95rem}
+.ps-close{position:absolute;top:12px;inset-inline-start:12px;background:rgba(255,255,255,.15);border:0;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem}
+.ps-body{padding:20px 24px 24px;display:grid;gap:14px}
+.ps-co{display:flex;align-items:center;gap:12px}
+.ps-co img{width:52px;height:52px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:#fff;padding:4px}
+.ps-co b{display:block;font-family:var(--f-display);font-weight:500;color:var(--ink)}
+.ps-co small{color:var(--muted)}
+.ps-tag{color:var(--text);font-style:italic}
+.ps-links{display:flex;flex-wrap:wrap;gap:8px}
+.ps-links a{font-size:.88rem;border:1px solid var(--line);border-radius:999px;padding:4px 12px;text-decoration:none;color:var(--ink)}
+.ps-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* profile form */
+.pgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:22px}
+fieldset{border:0;padding:0;margin:0 0 24px}
+legend{font-family:var(--f-display);font-weight:500;color:var(--ink);font-size:1.15rem;margin-bottom:12px;padding:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.full{grid-column:1/-1}
+label span{display:block;font-size:.86rem;font-weight:500;color:var(--muted);margin-bottom:5px}
+label small{display:block;color:var(--muted);font-size:.8rem;margin-top:4px}
+input,select,textarea{width:100%;font:inherit;font-weight:400;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--purple);outline-offset:1px;border-color:transparent}
+input[readonly]{background:var(--paper);color:var(--muted)}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;bottom:0;background:#fff;padding:14px 0 2px;border-top:1px solid var(--line)}
+.msg{font-size:.95rem}.msg.ok{color:#2E7D32}.msg.err{color:#B3261E}
+.up{display:grid;gap:12px}
+.upbox{display:flex;align-items:center;gap:14px}
+.upbox img,.upbox .ph{width:76px;height:76px;object-fit:cover;border-radius:50%;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;color:var(--muted);font-size:.8rem}
+.upbox.logo img,.upbox.logo .ph{border-radius:16px;object-fit:contain;padding:6px;background:#fff}
+.upbox label{cursor:pointer}
+.upbox input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+
+/* templates */
+.tpl{display:grid;gap:16px;margin-top:22px}
+details.card{padding:0;overflow:hidden}
+details summary{list-style:none;cursor:pointer;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details summary::-webkit-details-marker{display:none}
+details summary h3{font-size:1.15rem}
+details summary small{color:var(--muted);display:block;font-weight:400}
+details summary .n{font-family:var(--f-display);color:var(--plum);font-size:1.5rem;min-width:2ch}
+details[open] summary{border-bottom:1px solid var(--line)}
+.tpl-body{padding:20px 24px;display:grid;gap:14px}
+.tpl-body ul{margin:0;padding-inline-start:20px}
+.prompt{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 16px;white-space:pre-wrap;font-size:.93rem;line-height:1.6;position:relative}
+.copy{justify-self:start}
+.secret{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-inline-start:5px solid var(--lime);border-radius:16px;padding:12px 16px;margin-bottom:22px;font-size:.95rem}
+.secret b{color:var(--ink);font-weight:600}
+.secret svg{flex:none;width:22px;height:22px;color:var(--plum)}
+.onb{display:grid;gap:10px;margin:18px 0 0}
+.onb h2{font-size:1.15rem}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.step{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;display:grid;gap:4px;text-align:start;cursor:pointer;font-size:.92rem}
+.step.done{opacity:.55}
+.step b{font-weight:600;color:var(--ink)}
+.doc{max-height:56vh;overflow:auto}
+.doc h3{font-size:1.02rem;margin:16px 0 4px}
+.doc p{margin:0}
+.doc-ver{color:var(--muted);font-size:.85rem;margin:2px 0 0}
+.sigwrap{margin-top:14px}
+.sigwrap>span{display:block;font-size:.86rem;font-weight:500;color:var(--muted);margin-bottom:5px}
+canvas#pad{display:block;width:100%;height:160px;border:1.5px dashed #B9B9CC;border-radius:16px;background:#FCFCFE;touch-action:none}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:400}
+.check input{width:20px;height:20px;margin-top:4px;flex:none}
+.locked{background:var(--paper);border-radius:14px;padding:12px 14px;color:var(--muted);font-size:.92rem;text-align:center}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 20px 30px}
+footer a{color:var(--muted)}
+@media (max-width:860px){.tablewrap,.pgrid{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.card{padding:20px}.round{width:100%}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">דילוג לתוכן</a>
+<header>
+  <div class="bar">
+    <a class="mark" href="/" aria-label="The Board, לעמוד הבית"><svg viewBox="-52 -52 104 104" aria-hidden="true"><circle r="25" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="7"><rect x="-8" y="-46" width="16" height="11" rx="4"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(45)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(90)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(135)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(180)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(225)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(270)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(315)"/></g></svg>THE BOARD</a>
+    <div class="who" id="who" hidden><a class="pill" id="crm-link" href="/crm/" hidden>CRM</a><img id="who-pic" alt=""><span id="who-name"></span><button class="pill" id="signout" type="button">יציאה</button></div>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist" hidden>
+    <button role="tab" data-tab="board" aria-selected="true">הבורד שלי</button>
+    <button role="tab" data-tab="profile" aria-selected="false">הפרופיל שלי</button>
+    <button role="tab" data-tab="templates" aria-selected="false">תבניות ופרומפטים</button>
+    <button role="tab" data-tab="nda" aria-selected="false">סודיות</button>
+    <button role="tab" data-tab="community" aria-selected="false" hidden>הקהילה</button>
+  </nav>
+</header>
+
+<main id="main">
+  <div class="secret" id="secret" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span><b>מה שקורה בבורד נשאר בבורד.</b> כולנו חתומים על NDA, ושומרים בסוד את הפרטים של החברים ושל החברות שליד השולחן.</span></div>
+  <section id="v-signin" class="card center" hidden>
+    <h1>אזור החברים</h1>
+    <p>הבורד שלך, האנשים שיושבים איתך ליד השולחן, מועדי המפגשים והתבניות להכנה לכל מפגש.</p>
+    <div class="gbtn" id="gbtn"></div>
+    <p class="msg err" id="signin-err" hidden></p>
+    <p style="font-size:.85rem;margin-top:18px">הכניסה עם חשבון Google. אנחנו משתמשים רק בשם, באימייל ובתמונה כדי לזהות אותך. <a href="/privacy.html">מדיניות הפרטיות</a></p>
+  </section>
+
+  <p id="v-loading" class="loading">טוען...</p>
+
+  <section id="v-notmember" class="card center" hidden>
+    <h1>עוד לא מצאנו אותך ברשימת החברים</h1>
+    <p id="nm-text">אזור החברים נפתח אחרי ההצטרפות לבורד או לקהילה. אם כבר הצטרפת, ייתכן שנרשמת אצלנו עם כתובת אימייל אחרת.</p>
+    <p><a href="/#join">למילוי שאלון ההתאמה</a> · <a href="mailto:info@the-board.co.il">לכתוב לנו</a></p>
+    <p><button class="btn ghost" id="switch" type="button">כניסה עם חשבון אחר</button></p>
+  </section>
+
+  <!-- My board -->
+  <section id="t-board" hidden>
+    <h1 id="board-title">הבורד שלי</h1>
+    <p class="lead" id="board-lead">לחיצה על חבר או חברה בשולחן פותחת את הכרטיס שלהם, עם וואטסאפ וטלפון.</p>
+    <div class="card onb" id="onb" hidden><h2>ההצטרפות שלך: עוד כמה צעדים</h2><div class="steps" id="steps"></div></div>
+    <div class="tablewrap">
+      <div class="round" id="round"></div>
+      <div class="card side" id="board-side"></div>
+    </div>
+  </section>
+
+  <!-- Profile -->
+  <section id="t-profile" hidden>
+    <h1>הפרופיל שלי</h1>
+    <p class="lead">מה שממלאים כאן מופיע בכרטיס שלך בבורד. השם, התמונה, החברה, הקישורים והטלפון גלויים לחברי הבורד שלך בלבד.</p>
+    <div class="pgrid">
+      <form class="card" id="profile" novalidate>
+        <fieldset>
+          <legend>עליך</legend>
+          <div class="grid">
+            <label><span>שם מלא</span><input name="name" autocomplete="name"></label>
+            <label><span>מגדר</span><select name="gender"><option value="">בחירה</option><option value="Female">אישה</option><option value="Male">גבר</option><option value="Other">אחר</option></select></label>
+            <label><span>טלפון (לוואטסאפ)</span><input name="phone" type="tel" dir="ltr" autocomplete="tel"><small>גלוי לחברי הבורד שלך בלבד</small></label>
+            <label><span>עיר</span><input name="city" autocomplete="address-level2"></label>
+            <label class="full"><span>אימייל</span><input name="email" dir="ltr" readonly></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>החברה</legend>
+          <div class="grid">
+            <label><span>שם החברה</span><input name="company" autocomplete="organization"></label>
+            <label><span>סוג החברה</span><input name="company_type" placeholder="למשל: אי-קומרס, משרד עורכי דין, סטודיו"></label>
+            <label class="full"><span>טאגליין</span><input name="tagline" placeholder="למשל: אנחנו עוזרים לחברות הייטק לדבר אנגלית בביטחון"></label>
+            <label><span>התפקיד שלך</span><select name="role"><option value="">בחירה</option><option>מייסד/ת או בעלים</option><option>מנכ״ל/ית</option><option>מייסד/ת ומנכ״ל/ית</option><option>שותף/ה</option><option>אחר</option></select></label>
+            <label><span>מספר עובדים</span><input name="employees" inputmode="numeric"></label>
+            <label class="full"><span>מה העסק עושה</span><textarea name="business" rows="3"></textarea></label>
+            <label><span>ותק העסק</span><select name="years"><option value="">בחירה</option><option>פחות משנה</option><option>שנה עד שלוש</option><option>שלוש עד עשר</option><option>יותר מעשר</option></select></label>
+            <label><span>מחזור שנתי</span><select name="revenue"><option value="">בחירה</option><option>עד ₪1M</option><option>₪1M עד ₪5M</option><option>₪5M עד ₪20M</option><option>מעל ₪20M</option><option>מעדיף/ה לא לומר</option></select><small>לא מוצג לחברי הבורד</small></label>
+            <label class="full"><span>אתר</span><input name="website" dir="ltr" placeholder="https://"></label>
+            <label><span>אינסטגרם</span><input name="instagram" dir="ltr" placeholder="@"></label>
+            <label><span>פייסבוק</span><input name="facebook" dir="ltr" placeholder="https://facebook.com/..."></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>מטרות</legend>
+          <div class="grid">
+            <label class="full"><span>האתגר המרכזי בעסק היום</span><textarea name="challenge"></textarea></label>
+            <label class="full"><span>מטרות אישיות לחצי השנה הקרובה</span><textarea name="personal_goals"></textarea></label>
+            <label class="full"><span>מטרות עסקיות לחצי השנה הקרובה</span><textarea name="business_goals"></textarea></label>
+          </div>
+        </fieldset>
+        <div class="actions"><button class="btn" id="save" type="submit">שמירה</button><span class="msg" id="msg" role="status"></span></div>
+      </form>
+      <aside class="card up">
+        <h2>תמונות</h2>
+        <div class="upbox" id="up-photo"><span class="ph">תמונה</span><div><b>תמונת פרופיל</b><br><label class="btn ghost" style="padding:8px 16px;margin-top:6px">העלאת תמונה<input type="file" accept="image/*" data-kind="photo"></label></div></div>
+        <div class="upbox logo" id="up-logo"><span class="ph">לוגו</span><div><b>הלוגו של החברה</b><br><label class="btn ghost" style="padding:8px 16px;margin-top:6px">העלאת לוגו<input type="file" accept="image/*" data-kind="logo"></label></div></div>
+        <p class="msg" id="up-msg" role="status"></p>
+        <p style="color:var(--muted);font-size:.88rem;margin:0">כברירת מחדל מוצגת תמונת חשבון ה-Google שלך. תמונה ברורה של הפנים עוזרת לכולם להכיר.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Templates -->
+  <section id="t-templates" hidden>
+    <h1>תבניות ופרומפטים</h1>
+    <p class="lead">לפני כל מפגש מכינים את חומרי החודש. לכל נושא יש תבנית של מה להביא, ופרומפט מוכן להדבקה ב-Claude שיעזור לך לבנות את זה על העסק שלך.</p>
+    <div class="tpl" id="tpl"></div>
+  </section>
+
+  <section id="t-nda" hidden>
+    <h1>הסכם סודיות (NDA)</h1>
+    <p class="lead">מה שקורה בבורד נשאר בבורד. כל חברי The Board חותמים על ההסכם הזה לפני שהם רואים את פרטי החברים האחרים.</p>
+    <div class="card" id="nda-done" hidden style="margin-top:22px"></div>
+    <div id="nda-sign" hidden style="display:grid;gap:18px;margin-top:22px">
+      <article class="card doc" id="nda-doc"></article>
+      <form class="card" id="nda-form" novalidate>
+        <div class="grid">
+          <label><span>שם מלא</span><input name="name" autocomplete="name"></label>
+          <label><span>מספר ת״ז</span><input name="id_number" inputmode="numeric" dir="ltr"></label>
+        </div>
+        <div class="sigwrap"><span>חתימה</span><canvas id="pad" aria-label="אזור החתימה"></canvas><button type="button" class="pill" style="color:var(--plum);border-color:var(--line);margin-top:8px" id="pad-clear">ניקוי</button></div>
+        <label class="check"><input type="checkbox" name="agree"> קראתי את הסכם הסודיות ואני מתחייב/ת לשמור על סודיות כל המידע על חברי הבורד והעסקים שלהם</label>
+        <div class="actions"><button class="btn" id="nda-submit" type="submit">חתימה על הסכם הסודיות</button><span class="msg" id="nda-msg" role="status"></span></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="t-community" hidden>
+    <h1>הקהילה</h1>
+    <p class="lead">בקרוב.</p>
+  </section>
+</main>
+
+<dialog id="person" aria-labelledby="ps-name"></dialog>
+<footer><a href="/">the-board.co.il</a> · <a href="/privacy.html">מדיניות פרטיות</a> · <a href="/accessibility.html">הצהרת נגישות</a> · <a href="mailto:info@the-board.co.il">info@the-board.co.il</a></footer>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var views = ["v-signin","v-loading","v-notmember","t-board","t-profile","t-templates","t-nda","t-community"];
+  var data = null, current = "board";
+  function show(v){ views.forEach(function(x){ $(x).hidden = x !== v; }); }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function api(path, opts){
+    opts = opts || {};
+    return fetch("/api/" + path, { method: opts.method || "GET", credentials: "same-origin", headers: opts.body ? { "Content-Type": "application/json" } : {}, body: opts.body ? JSON.stringify(opts.body) : undefined })
+      .then(function(r){ return r.json().then(function(j){ if (r.status === 401) { var e = new Error("auth"); throw e; } if (!j.ok) throw new Error(j.error || "error"); return j; }); });
+  }
+  function initials(n){ return String(n || "?").trim().split(/\s+/).map(function(w){ return w.charAt(0); }).slice(0,2).join(""); }
+  function face(m, cls){ return m.photo ? '<img class="' + cls + '" src="' + esc(m.photo) + '" alt="" referrerpolicy="no-referrer">' : '<span class="' + cls + '" aria-hidden="true">' + esc(initials(m.name)) + '</span>'; }
+  function waLink(phone){ var d = String(phone || "").replace(/\D/g, ""); if (!d) return ""; if (d.charAt(0) === "0") d = "972" + d.slice(1); return "https://wa.me/" + d; }
+  function url(u){ u = String(u || "").trim(); if (!u) return ""; return /^https?:\/\//i.test(u) ? u : "https://" + u; }
+  function ig(u){ u = String(u || "").trim(); if (!u) return ""; if (/^https?:/i.test(u)) return u; return "https://instagram.com/" + u.replace(/^@/, ""); }
+  var TYPE = { "Foundations board": "בורד יסודות", "Open board": "אופן בורד", "Sector board": "בורד ענפי" };
+  var MEMB = { "Board": "בורד", "Open board": "אופן בורד", "Community": "קהילה" };
+
+  /* ---------- auth ---------- */
+  function start(){
+    show("v-loading");
+    api("member").then(function(res){
+      data = res;
+      $("who").hidden = false;
+      $("crm-link").hidden = !res.admin;
+      if (!res.member) {
+        if (res.name) $("nm-text").textContent = "היי " + String(res.name).split(" ")[0] + ", אזור החברים נפתח אחרי ההצטרפות לבורד או לקהילה. אם כבר הצטרפת, ייתכן שנרשמת אצלנו עם כתובת אימייל אחרת (" + res.email + ").";
+        show("v-notmember"); return;
+      }
+      $("who-name").textContent = String(res.profile.name || "").split(" ")[0];
+      if (res.profile.photo) $("who-pic").src = res.profile.photo; else $("who-pic").hidden = true;
+      $("tabs").hidden = false;
+      renderBoard(); fillProfile(); renderTemplates(); renderSteps();
+      tab(location.hash.replace("#", "") || "board");
+    }).catch(function(err){
+      if (err.message === "auth") { show("v-signin"); initGoogle(); return; }
+      show("v-signin"); initGoogle();
+      $("signin-err").hidden = false; $("signin-err").textContent = "משהו השתבש בטעינה. נסו שוב בעוד רגע.";
+    });
+  }
+  function onCredential(r){
+    api("login", { method: "POST", body: { credential: r.credential } }).then(start).catch(function(){
+      $("signin-err").hidden = false; $("signin-err").textContent = "הכניסה לא הצליחה. נסו שוב.";
+    });
+  }
+  var gReady = false;
+  function initGoogle(){
+    if (gReady) return;
+    if (!window.google || !google.accounts) { setTimeout(initGoogle, 150); return; }
+    fetch("/api/config").then(function(r){ return r.json(); }).then(function(c){
+      google.accounts.id.initialize({ client_id: c.client_id, callback: onCredential, ux_mode: "popup", context: "signin" });
+      google.accounts.id.renderButton($("gbtn"), { theme: "outline", size: "large", shape: "pill", text: "signin_with", locale: "he", width: 280 });
+      gReady = true;
+    });
+  }
+  function signOut(){ api("logout", { method: "POST", body: {} }).catch(function(){}).then(function(){ try { google.accounts.id.disableAutoSelect(); } catch(e){} location.hash = ""; location.reload(); }); }
+  $("signout").addEventListener("click", signOut);
+  $("switch").addEventListener("click", signOut);
+
+  /* ---------- tabs ---------- */
+  function tab(name){
+    if (!data || !data.member) return;
+    if (!["board","profile","templates","nda"].includes(name)) name = "board";
+    $("secret").hidden = false;
+    if (name === "nda") renderNda();
+    current = name;
+    document.querySelectorAll("#tabs button").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"); });
+    show("t-" + name);
+    if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
+  }
+  document.querySelectorAll("#tabs button").forEach(function(b){ b.addEventListener("click", function(){ tab(b.dataset.tab); window.scrollTo(0,0); }); });
+
+  /* ---------- my board ---------- */
+  var tableIcon = '<svg viewBox="-52 -52 104 104" aria-hidden="true"><circle r="25" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="7"><rect x="-8" y="-46" width="16" height="11" rx="4"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(45)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(90)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(135)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(180)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(225)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(270)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(315)"/></g></svg>';
+  function renderBoard(){
+    var b = data.board, p = data.profile, round = $("round"), side = $("board-side");
+    if (!b) {
+      $("board-title").textContent = "הבורד שלי";
+      $("board-lead").textContent = "עוד לא שובצת לבורד. ברגע שהבורד שלך ייפתח, תראה כאן את כל מי שיושב איתך ליד השולחן.";
+      round.innerHTML = '<div class="tbl">' + tableIcon + '<b>' + esc(MEMB[p.membership] || "The Board") + '</b><span>השיבוץ בקרוב</span></div>';
+      side.innerHTML = '<h3>החברות שלך</h3><div class="facts"><div class="fact"><span>סוג</span><b>' + esc(MEMB[p.membership] || "") + '</b></div></div>';
+      return;
+    }
+    $("board-title").textContent = b.name;
+    var people = (b.members || []).slice().sort(function(a, z){ return (z.me ? 1 : 0) - (a.me ? 1 : 0); });
+    var seats = Math.max(8, people.length);
+    var html = '<div class="tbl">' + tableIcon + '<b>' + esc(b.name) + '</b>' + (b.next ? '<span>המפגש הבא: <b>' + esc(b.next) + '</b></span>' : '') + '</div>';
+    for (var i = 0; i < seats; i++) {
+      var a = -Math.PI / 2 + i * 2 * Math.PI / seats, x = 50 + 41 * Math.cos(a), y = 50 + 41 * Math.sin(a);
+      var m = people[i];
+      if (m) html += '<button class="seat' + (m.me ? ' me' : '') + '" type="button" data-i="' + i + '" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%">' + face(m, "face") + '<span class="nm">' + esc(m.name) + '</span>' + (m.company ? '<span class="co">' + esc(m.company) + '</span>' : '') + '</button>';
+      else html += '<div class="seat empty" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" aria-hidden="true"><span class="face"></span><span class="nm" style="color:var(--muted)">כיסא פנוי</span></div>';
+    }
+    round.innerHTML = html;
+    round.querySelectorAll(".seat[data-i]").forEach(function(el){ el.addEventListener("click", function(){ if (data.profile.nda !== "Yes" && !people[+el.dataset.i].me) { tab("nda"); return; } person(people[+el.dataset.i]); }); });
+    var s = '<h3>פרטי הבורד</h3><div class="facts">';
+    if (b.type) s += '<div class="fact"><span>סוג</span><b>' + esc(TYPE[b.type] || b.type) + '</b></div>';
+    if (b.next) s += '<div class="fact"><span>המפגש הבא</span><b dir="ltr">' + esc(b.next) + '</b></div>';
+    if (b.hours) s += '<div class="fact"><span>שעות</span><b dir="ltr">' + esc(b.hours) + '</b></div>';
+    if (b.location) s += '<div class="fact"><span>מיקום</span><b>' + esc(b.location === "Tel Aviv" ? "תל אביב" : b.location) + '</b></div>';
+    if (b.head) s += '<div class="fact"><span>מנחה הבורד</span><b>' + esc(b.head) + '</b></div>';
+    s += '<div class="fact"><span>חברים בשולחן</span><b>' + people.length + ' מתוך 8</b></div></div>';
+    if (b.dates && b.dates.length) {
+      var before = !!b.next;
+      s += '<h3>מועדי המפגשים</h3><div class="dates">' + b.dates.map(function(d){ var cls = d === b.next ? "next" : (before ? "past" : ""); if (d === b.next) before = false; return '<span class="' + cls + '">' + esc(d) + '</span>'; }).join("") + '</div>';
+    }
+    if (data.profile.nda !== "Yes") s += '<div class="locked">כדי לראות את פרטי הקשר של חברי הבורד ואת קבוצת הוואטסאפ, חותמים על <a href="#nda" data-go="nda">הסכם הסודיות</a>.</div>';
+    else if (b.whatsapp) s += '<a class="btn" href="' + esc(url(b.whatsapp)) + '" target="_blank" rel="noopener">לקבוצת הוואטסאפ של הבורד</a>';
+    side.innerHTML = s;
+    side.querySelectorAll("[data-go]").forEach(function(a){ a.addEventListener("click", function(ev){ ev.preventDefault(); tab(a.dataset.go); }); });
+  }
+  function person(m){
+    var dlg = $("person"), wa = waLink(m.phone), links = "";
+    if (m.website) links += '<a href="' + esc(url(m.website)) + '" target="_blank" rel="noopener">אתר</a>';
+    if (m.instagram) links += '<a href="' + esc(ig(m.instagram)) + '" target="_blank" rel="noopener">אינסטגרם</a>';
+    if (m.facebook) links += '<a href="' + esc(url(m.facebook)) + '" target="_blank" rel="noopener">פייסבוק</a>';
+    dlg.innerHTML = '<div class="ps-top"><button class="ps-close" type="button" aria-label="סגירה">✕</button>' + face(m, "face") + '<h2 id="ps-name">' + esc(m.name) + '</h2><p>' + esc([m.role, m.city].filter(Boolean).join(" · ")) + '</p></div>' +
+      '<div class="ps-body">' +
+      (m.company ? '<div class="ps-co">' + (m.logo ? '<img src="' + esc(m.logo) + '" alt="">' : '') + '<div><b>' + esc(m.company) + '</b><small>' + esc(m.company_type || "") + '</small></div></div>' : '') +
+      (m.tagline ? '<div class="ps-tag">' + esc(m.tagline) + '</div>' : '') +
+      (links ? '<div class="ps-links">' + links + '</div>' : '') +
+      (m.phone && !m.me ? '<div class="ps-actions"><a class="btn" href="' + esc(wa) + '" target="_blank" rel="noopener">וואטסאפ</a><a class="btn dark" href="tel:' + esc(String(m.phone).replace(/[^\d+]/g, "")) + '">שיחה</a></div><div style="text-align:center;color:var(--muted);direction:ltr">' + esc(m.phone) + '</div>' : '') +
+      (m.me ? '<button class="btn ghost" type="button" id="edit-me">עריכת הכרטיס שלי</button>' : '') +
+      '</div>';
+    dlg.querySelector(".ps-close").addEventListener("click", function(){ dlg.close(); });
+    var e = dlg.querySelector("#edit-me"); if (e) e.addEventListener("click", function(){ dlg.close(); tab("profile"); });
+    dlg.addEventListener("click", function(ev){ if (ev.target === dlg) dlg.close(); }, { once: true });
+    dlg.showModal();
+  }
+
+  /* ---------- profile ---------- */
+  function fillProfile(){
+    var p = data.profile, f = $("profile");
+    Array.prototype.forEach.call(f.elements, function(el){
+      if (!el.name) return;
+      var v = p[el.name] || "";
+      if (el.tagName === "SELECT" && v && !Array.prototype.some.call(el.options, function(o){ return o.value === v; })) { var o = document.createElement("option"); o.value = o.text = v; el.add(o); }
+      el.value = v;
+    });
+    setImg("up-photo", p.photo, false); setImg("up-logo", p.logo, true);
+  }
+  function setImg(id, src, logo){
+    var box = $(id), cur = box.querySelector("img, .ph");
+    if (!src) return;
+    var img = document.createElement("img"); img.src = src; img.alt = ""; img.referrerPolicy = "no-referrer";
+    cur.replaceWith(img);
+  }
+  $("profile").addEventListener("submit", function(e){
+    e.preventDefault();
+    var body = {};
+    Array.prototype.forEach.call(this.elements, function(el){ if (el.name && !el.readOnly) body[el.name] = el.value.trim(); });
+    var btn = $("save"), msg = $("msg");
+    btn.disabled = true; msg.className = "msg"; msg.textContent = "שומר...";
+    api("member", { method: "PUT", body: body }).then(function(){
+      Object.assign(data.profile, body);
+      (data.board && data.board.members || []).forEach(function(m){ if (m.me) Object.assign(m, body); });
+      renderBoard();
+      msg.textContent = "נשמר. תודה!"; msg.classList.add("ok"); renderSteps();
+    }).catch(function(err){
+      if (err.message === "auth") { location.reload(); return; }
+      msg.textContent = "השמירה לא הצליחה. נסו שוב."; msg.classList.add("err");
+    }).finally(function(){ btn.disabled = false; });
+  });
+  function resize(file, max, type){
+    return new Promise(function(resolve, reject){
+      var img = new Image(), fr = new FileReader();
+      fr.onload = function(){ img.src = fr.result; };
+      img.onload = function(){
+        var s = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas");
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        var x = c.getContext("2d"); if (type === "image/jpeg") { x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); }
+        x.drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL(type, 0.86));
+      };
+      img.onerror = reject; fr.onerror = reject; fr.readAsDataURL(file);
+    });
+  }
+  document.querySelectorAll('input[type=file]').forEach(function(inp){
+    inp.addEventListener("change", function(){
+      var file = inp.files[0], kind = inp.dataset.kind, msg = $("up-msg");
+      if (!file) return;
+      msg.className = "msg"; msg.textContent = "מעלה...";
+      resize(file, kind === "photo" ? 480 : 400, kind === "photo" ? "image/jpeg" : "image/png").then(function(d){
+        return api("upload", { method: "POST", body: { kind: kind, data: d } });
+      }).then(function(res){
+        data.profile[kind] = res.url; if (kind === "photo") data.profile.photo_uploaded = true; renderSteps();
+        (data.board && data.board.members || []).forEach(function(m){ if (m.me) m[kind] = res.url; });
+        setImg(kind === "photo" ? "up-photo" : "up-logo", res.url, kind === "logo");
+        if (kind === "photo") $("who-pic").src = res.url;
+        renderBoard();
+        msg.textContent = "התמונה עודכנה."; msg.classList.add("ok");
+      }).catch(function(){ msg.textContent = "ההעלאה לא הצליחה. נסו תמונה אחרת."; msg.classList.add("err"); });
+      inp.value = "";
+    });
+  });
+
+  /* ---------- onboarding ---------- */
+  function renderSteps(){
+    var p = data.profile;
+    var st = [
+      { k: "profile", done: !!(p.company && p.tagline && p.phone && p.city), t: "פרופיל", d: "חברה, טאגליין, עיר וטלפון" },
+      { k: "profile", done: !!(p.photo && !/googleusercontent/.test(p.photo) || p.photo_uploaded), t: "תמונה", d: "תמונת פנים ברורה" },
+      { k: "profile", done: !!p.logo, t: "לוגו", d: "הלוגו של החברה" },
+      { k: "nda", done: p.nda === "Yes", t: "הסכם סודיות", d: "חתימה על ה-NDA" }
+    ];
+    var left = st.filter(function(x){ return !x.done; }).length;
+    $("onb").hidden = left === 0;
+    $("steps").innerHTML = st.map(function(x, i){ return '<button type="button" class="step' + (x.done ? ' done' : '') + '" data-k="' + x.k + '"><b>' + (x.done ? '✓ ' : (i + 1) + '. ') + esc(x.t) + '</b><span>' + esc(x.d) + '</span></button>'; }).join("");
+    $("steps").querySelectorAll(".step").forEach(function(b){ b.addEventListener("click", function(){ tab(b.dataset.k); window.scrollTo(0, 0); }); });
+  }
+  var ndaPad = null, ndaLoaded = false;
+  function renderNda(){
+    var p = data.profile;
+    if (p.nda === "Yes") {
+      $("nda-sign").hidden = true; $("nda-done").hidden = false;
+      $("nda-done").innerHTML = '<h2>חתמת על הסכם הסודיות ✓</h2><p class="lead">' + (p.nda_date ? 'נחתם ב-' + esc(p.nda_date) + '. ' : '') + 'תודה ששומרים יחד על השולחן. מה שקורה בבורד נשאר בבורד: לא מעבירים הלאה מספרים, לקוחות, תוכניות או פרטי קשר של חברים אחרים.</p>';
+      return;
+    }
+    $("nda-done").hidden = true; $("nda-sign").hidden = false;
+    if (ndaLoaded) return;
+    ndaLoaded = true;
+    fetch("/api/doc/nda").then(function(r){ return r.json(); }).then(function(r){ $("nda-doc").innerHTML = TBSign.docHtml(r.doc); });
+    $("nda-form").name.value = p.name || "";
+    ndaPad = TBSign.pad($("pad"));
+    $("pad-clear").addEventListener("click", function(){ ndaPad.clear(); });
+  }
+  $("nda-form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var f = this, msg = $("nda-msg");
+    msg.className = "msg err";
+    if (f.name.value.trim().length < 2) { msg.textContent = "נא למלא שם מלא."; return; }
+    if (!ndaPad || ndaPad.empty()) { msg.textContent = "נא לחתום באזור החתימה."; return; }
+    if (!f.agree.checked) { msg.textContent = "יש לאשר את ההתחייבות לסודיות."; return; }
+    $("nda-submit").disabled = true; msg.className = "msg"; msg.textContent = "שומר...";
+    api("nda", { method: "POST", body: { name: f.name.value.trim(), id_number: f.id_number.value.trim(), agree: true, signature: ndaPad.data() } }).then(function(r){
+      data.profile.nda = "Yes"; data.profile.nda_date = r.signed;
+      start();
+    }).catch(function(){ $("nda-submit").disabled = false; msg.className = "msg err"; msg.textContent = "החתימה לא נשמרה. נסו שוב."; });
+  });
+
+  /* ---------- templates ---------- */
+  var TEMPLATES = [
+    { n: "0", t: "סבב הפתיחה", s: "בתחילת כל מפגש, 2 דקות לכל משתתף",
+      bring: ["ניצחון אחד מהחודש האחרון (עם מספר, אם יש)", "טעות אחת ומה למדת ממנה", "תובנה אחת שעלתה לך", "במה הבורד יכול לעזור לך החודש"],
+      prompt: "אני בעל/ת עסק וחבר/ה בבורד של בעלי עסקים. עזור לי להכין סבב פתיחה של 2 דקות למפגש החודשי.\nהעסק שלי: [תיאור קצר]\nמה קרה החודש: [נקודות חופשיות]\nנסח לי: ניצחון אחד עם מספר, טעות אחת ומה למדתי ממנה, תובנה אחת, ובקשה אחת ממוקדת מהבורד. כתוב בעברית, בגוף ראשון, קצר וכן, בלי קלישאות." },
+    { n: "1", t: "מבנה החברה ויעדים", s: "מפגש 1",
+      bring: ["תרשים מבנה ארגוני: מי עושה מה (כולל אותך)", "3 יעדים לחצי השנה, מדידים, עם תאריך", "המספרים הבסיסיים: מחזור, רווח, מספר לקוחות, מספר עובדים", "מה תקוע לך היום ולמה"],
+      prompt: "אתה יועץ אסטרטגי לעסקים קטנים ובינוניים. עזור לי להכין חומרים למפגש בורד בנושא מבנה החברה ויעדים.\nהעסק: [תיאור, תחום, שנים, מספר עובדים]\nהמספרים: [מחזור שנתי, רווח, מספר לקוחות]\nמי עושה מה היום: [רשימה]\n1. בנה לי תרשים מבנה ארגוני פשוט בטקסט, וסמן איפה אני צוואר בקבוק.\n2. הצע 3 יעדים מדידים לחצי השנה (SMART) עם מדד ותאריך לכל אחד.\n3. נסח 3 שאלות חדות שכדאי לי לשאול את הבורד.\nבעברית, תמציתי, בטבלה איפה שאפשר." },
+    { n: "2", t: "שיווק", s: "מפגש 2",
+      bring: ["מי הלקוח האידיאלי שלך (במשפט אחד)", "מאיפה הגיעו 10 הלקוחות האחרונים", "כמה עולה לך להשיג לקוח, אם ידוע", "המשפך: מאיפה מגיעים, מה קורה בדרך, איפה נופלים"],
+      prompt: "אתה מנהל שיווק מנוסה בעסקים קטנים. עזור לי להכין תוכנית שיווק למפגש בורד.\nהעסק והמוצר: [תיאור]\nהלקוח האידיאלי: [מי]\nמאיפה הגיעו הלקוחות האחרונים: [ערוצים ומספרים]\nתקציב חודשי לשיווק: [סכום]\n1. מפה לי את המשפך הנוכחי ואיפה הדליפה הגדולה.\n2. הצע 3 ערוצים לחודשיים הקרובים, עם פעולה ראשונה ומדד הצלחה לכל אחד.\n3. בנה דשבורד פשוט של 5 מספרים שכדאי לעקוב אחריהם כל שבוע.\nבעברית, פרקטי, בלי תיאוריה." },
+    { n: "3", t: "מכירות", s: "מפגש 3",
+      bring: ["שלבי תהליך המכירה שלך מליד ועד סגירה", "אחוז סגירה בכל שלב, אם ידוע", "3 ההתנגדויות שאתה שומע הכי הרבה", "תסריט שיחה נוכחי (אם יש)"],
+      prompt: "אתה מאמן מכירות לבעלי עסקים. עזור לי לבנות תהליך מכירה שעובד, לקראת מפגש בורד.\nמה אני מוכר ובכמה: [מוצר ומחיר]\nאיך נראה התהליך היום: [שלבים]\nההתנגדויות הנפוצות: [רשימה]\n1. בנה פאנל מכירה בשלבים עם מדד המרה לכל שלב.\n2. כתוב תסריט שיחה של 10 דקות לשיחת היכרות.\n3. כתוב תשובה קצרה ואמינה לכל התנגדות.\nבעברית, בשפה מדוברת וטבעית." },
+    { n: "4", t: "מוצר ושירות", s: "מפגש 4",
+      bring: ["מה אתה מוכר באמת (התוצאה, לא המוצר)", "רשימת המוצרים או השירותים והמחירים", "מה הלקוחות הכי מרוצים אומרים", "מה הכי רווחי ומה הכי מתיש"],
+      prompt: "אתה יועץ מוצר ותמחור. עזור לי לחדד את הצעת הערך שלי לקראת מפגש בורד.\nהמוצרים והשירותים שלי: [רשימה עם מחירים]\nמה לקוחות מרוצים אומרים: [ציטוטים או נקודות]\nמה רווחי ומה מתיש: [פירוט]\n1. נסח הצעת ערך חדה במשפט אחד ובשלושה משפטים.\n2. הצע מבנה מוצרים פשוט (בסיס, מתקדם, פרימיום) וסמן מה כדאי להפסיק למכור.\n3. מה 3 השאלות שהבורד צריך לאתגר אותי בהן.\nבעברית, ישיר." },
+    { n: "5", t: "כספים, תמחור ותזרים", s: "מפגש 5",
+      bring: ["דוח רווח והפסד של 6 החודשים האחרונים", "תזרים צפוי ל-3 החודשים הבאים", "עלויות קבועות ומשתנות", "איך נקבע המחיר שלך היום"],
+      prompt: "אתה סמנכ״ל כספים לעסקים קטנים. עזור לי להכין את המספרים למפגש בורד על כספים ותזרים.\nמחזור חודשי ממוצע: [סכום]\nהוצאות קבועות: [רשימה וסכומים]\nהוצאות משתנות: [רשימה]\nהמחירים שלי: [מחירון]\n1. בנה לי תבנית תזרים ל-3 חודשים (טבלה) ומלא אותה לפי הנתונים.\n2. חשב רווח גולמי לכל מוצר והצע שינוי תמחור אחד.\n3. סמן את 3 הסיכונים התזרימיים הגדולים ומה עושים איתם.\nבעברית, בטבלאות, עם הנחות ברורות. כל הסכומים לפני מע״מ." },
+    { n: "6", t: "אנשים, תפעול ותוכנית שנתית", s: "מפגש 6",
+      bring: ["מי בצוות, מה התפקיד ומה עובד או לא", "3 תהליכים שחוזרים על עצמם ואפשר לאוטמט", "ספקים ושותפים מרכזיים", "טיוטת יעדים לשנה הבאה"],
+      prompt: "אתה סמנכ״ל תפעול. עזור לי לבנות תוכנית עבודה שנתית לקראת מפגש הבורד האחרון בסדרה.\nהצוות: [מי ומה]\nתהליכים חוזרים: [רשימה]\nהיעדים לשנה הבאה: [טיוטה]\n1. בנה תוכנית עבודה שנתית לפי רבעונים, עם יעד, אחראי ומדד לכל רבעון.\n2. הצע אוטומציה או כלי AI לכל אחד מהתהליכים החוזרים.\n3. מה התפקיד הבא שכדאי לגייס ומתי.\nבעברית, בטבלה." },
+    { n: "★", t: "הכיסא החם", s: "כשאת/ה מביא/ה אתגר לשולחן",
+      bring: ["האתגר במשפט אחד", "רקע קצר: מה כבר ניסית", "המספרים הרלוונטיים", "מה בדיוק את/ה רוצה מהבורד: רעיונות, החלטה, או חיבור לאדם"],
+      prompt: "אני עומד/ת להביא אתגר לבורד של בעלי עסקים (הכיסא החם, 15 דקות). עזור לי להכין אותו.\nהאתגר: [תיאור חופשי]\nמה כבר ניסיתי: [רשימה]\nמספרים רלוונטיים: [נתונים]\nנסח לי: את האתגר במשפט אחד, רקע של 60 שניות, 3 שאלות ממוקדות לבורד, ומה תהיה הצלחה מבחינתי ביציאה מהמפגש. בעברית, קצר." }
+  ];
+  function renderTemplates(){
+    $("tpl").innerHTML = TEMPLATES.map(function(t, i){
+      return '<details class="card"' + (i === 0 ? '' : '') + '><summary><div><h3>' + esc(t.t) + '</h3><small>' + esc(t.s) + '</small></div><span class="n">' + esc(t.n) + '</span></summary><div class="tpl-body"><div><b>מה להביא</b><ul>' + t.bring.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div><div><b>פרומפט ל-Claude</b><div class="prompt">' + esc(t.prompt) + '</div></div><button class="btn ghost copy" type="button" data-i="' + i + '">העתקת הפרומפט</button></div></details>';
+    }).join("");
+    $("tpl").querySelectorAll(".copy").forEach(function(b){
+      b.addEventListener("click", function(){
+        var t = TEMPLATES[+b.dataset.i].prompt;
+        (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ b.textContent = "הועתק ✓"; setTimeout(function(){ b.textContent = "העתקת הפרומפט"; }, 1800); }).catch(function(){ b.textContent = "סמנו והעתיקו ידנית"; });
+      });
+    });
+  }
+
+  start();
+})();
+</script>
+</body>
+</html>

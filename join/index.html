@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>הסכם הצטרפות · The Board</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1A1C2C">
+<link rel="icon" href="/brand/the-board-icon-dark-bg.svg?v=2" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&family=Heebo:wght@300;400;500;700;800&display=swap">
+<link rel="stylesheet" href="/assets/sign.css">
+<script src="/assets/sign.js" defer></script>
+</head>
+<body>
+<header><div class="bar"><a class="mark" href="/">THE BOARD</a></div></header>
+<main>
+  <p id="loading" class="muted center">טוען את ההסכם...</p>
+  <section id="err" class="card center" hidden><h1>הקישור לא תקין</h1><p class="muted">ייתכן שהקישור פג או הועתק חלקית. כתבו לנו ל-<a href="mailto:info@the-board.co.il">info@the-board.co.il</a> ונשלח קישור חדש.</p></section>
+
+  <section id="signed" class="card center" hidden>
+    <h1>ההסכם נחתם ✓</h1>
+    <p id="signed-text" class="muted"></p>
+    <div id="pay"></div>
+  </section>
+
+  <section id="sign" hidden>
+    <h1 id="hello">הסכם הצטרפות</h1>
+    <p class="muted">קוראים את ההסכם, ממלאים פרטים וחותמים. החתימה נשמרת יחד עם התאריך, השעה ופרטי החותם.</p>
+    <article class="card doc" id="doc"></article>
+    <form class="card" id="form" novalidate>
+      <h2>פרטי החותם</h2>
+      <div class="grid">
+        <label><span>שם מלא</span><input name="name" required autocomplete="name"></label>
+        <label><span>מספר ת״ז</span><input name="id_number" inputmode="numeric" dir="ltr"></label>
+        <label class="full"><span>שם החברה</span><input name="company" autocomplete="organization"></label>
+      </div>
+      <div class="sigwrap"><span>חתימה</span><canvas id="pad" aria-label="אזור החתימה"></canvas><button type="button" class="link" id="clear">ניקוי</button></div>
+      <label class="check"><input type="checkbox" name="agree"> קראתי את ההסכם ואני מסכים/ה לכל תנאיו, כולל ההתחייבות לסודיות</label>
+      <div class="actions"><button class="btn" id="submit" type="submit">חתימה על ההסכם</button><span class="msg" id="msg" role="status"></span></div>
+    </form>
+  </section>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  var $ = function(id){ return document.getElementById(id); }, esc = TBSign.esc;
+  var q = new URLSearchParams(location.search), e = q.get("e") || "", t = q.get("t") || "", pad;
+  function payBlock(link, paid){
+    if (paid) return '<p><b>גם התשלום התקבל.</b> נשלח אליך מייל עם הכניסה לאזור החברים.</p><p><a class="btn" href="/members/">לאזור החברים</a></p>';
+    if (link) return '<p>השלב הבא: תשלום. אחרי התשלום תקבל/י חשבונית מס במייל ואת פרטי הכניסה לאזור החברים.</p><p><a class="btn" href="' + esc(link) + '" target="_blank" rel="noopener">לתשלום</a></p>';
+    return '<p>השלב הבא: תשלום. קישור לתשלום יישלח אליך בקרוב, ואחריו חשבונית מס ופרטי הכניסה לאזור החברים.</p>';
+  }
+  fetch("/api/join?e=" + encodeURIComponent(e) + "&t=" + encodeURIComponent(t)).then(function(r){ return r.json(); }).then(function(res){
+    $("loading").hidden = true;
+    if (!res.ok) { $("err").hidden = false; return; }
+    if (res.signed) {
+      $("signed").hidden = false; $("signed-text").textContent = "ההסכם נחתם ב-" + res.signed + ". תודה!"; $("pay").innerHTML = payBlock(res.payLink, res.paid); return;
+    }
+    $("sign").hidden = false;
+    var first = String(res.name || "").split(" ")[0];
+    $("hello").textContent = first ? "היי " + first + ", הסכם ההצטרפות שלך" : "הסכם ההצטרפות שלך";
+    $("doc").innerHTML = TBSign.docHtml(res.doc);
+    $("form").name.value = res.name || ""; $("form").company.value = res.company || "";
+    pad = TBSign.pad($("pad"));
+    $("clear").addEventListener("click", function(){ pad.clear(); });
+    $("form").addEventListener("submit", function(ev){
+      ev.preventDefault();
+      var f = this, msg = $("msg");
+      msg.className = "msg err";
+      if (f.name.value.trim().length < 2) { msg.textContent = "נא למלא שם מלא."; return; }
+      if (pad.empty()) { msg.textContent = "נא לחתום באזור החתימה."; return; }
+      if (!f.agree.checked) { msg.textContent = "יש לאשר שקראת את ההסכם."; return; }
+      $("submit").disabled = true; msg.className = "msg"; msg.textContent = "שומר את החתימה...";
+      fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ e: e, t: t, name: f.name.value.trim(), id_number: f.id_number.value.trim(), company: f.company.value.trim(), agree: true, signature: pad.data() }) })
+        .then(function(r){ return r.json(); }).then(function(r){
+          if (!r.ok) throw new Error(r.error);
+          $("sign").hidden = true; $("signed").hidden = false; window.scrollTo(0, 0);
+          $("signed-text").textContent = "ההסכם נחתם ב-" + r.signed + ". עותק נשמר אצלנו.";
+          $("pay").innerHTML = payBlock(r.payLink, r.paid);
+        }).catch(function(){ $("submit").disabled = false; msg.className = "msg err"; msg.textContent = "החתימה לא נשמרה. נסו שוב."; });
+    });
+  }).catch(function(){ $("loading").hidden = true; $("err").hidden = false; });
+});
+</script>
+</body>
+</html>

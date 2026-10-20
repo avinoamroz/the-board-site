@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CRM · The Board</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1A1C2C">
+<link rel="icon" href="/brand/the-board-icon-dark-bg.svg?v=2" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Heebo:wght@400;500;700&display=swap">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--ink:#1A1C2C;--plum:#4A3FB8;--purple:#6C5FEB;--lime:#C6F278;--paper:#F4F4F8;--line:#E1E1EA;--muted:#62667A;--red:#B3261E;--green:#2E7D32}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Inter","Heebo",system-ui,-apple-system,Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:10}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;max-width:1200px;margin:0 auto}
+.brand{font-weight:800;letter-spacing:.12em;color:#fff;text-decoration:none}
+.brand small{letter-spacing:0;font-weight:500;color:var(--lime);margin-left:6px}
+.hdr-actions{display:flex;gap:8px;align-items:center}
+.pill{border:1px solid rgba(255,255,255,.3);background:none;color:#fff;border-radius:999px;padding:5px 12px;font-size:.85rem;cursor:pointer;text-decoration:none;white-space:nowrap}
+nav{display:flex;gap:2px;max-width:1200px;margin:0 auto;padding:0 10px;overflow-x:auto}
+nav button{background:none;border:0;color:rgba(255,255,255,.7);padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;white-space:nowrap}
+nav button[aria-selected=true]{color:#fff;border-bottom-color:var(--lime)}
+main{max-width:1200px;margin:0 auto;padding:16px 16px 90px}
+.center{max-width:440px;margin:12vh auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input[type=search]{flex:1;min-width:180px;border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#fff}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip b{font-weight:700;margin-left:4px}
+.list{display:grid;gap:8px}
+.row{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;cursor:pointer;text-align:left;width:100%}
+.row:hover{border-color:#C9C9D8}
+.row .t{font-weight:600}
+.row .s{color:var(--muted);font-size:.85rem;grid-column:1}
+.row .r{grid-row:1/3;grid-column:2;align-self:center;text-align:right;display:grid;gap:4px;justify-items:end}
+.badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:600;background:#E8E6F7;white-space:nowrap}
+.st-New{background:#E8E6F7}.st-Call{background:#FFF4CC}.st-Follow-up{background:#FFD6A5}.st-Agreement{background:#DDEBFF}.st-Closed-won{background:#D9F7B0}.st-Closed-lost{background:#F3D4D4}.st-Not{background:#ECECEC;color:#555}
+.he{font-family:"Heebo",sans-serif;direction:rtl;unicode-bidi:plaintext}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;background:var(--ink);color:#fff;text-decoration:none;white-space:nowrap}
+.btn.lime{background:var(--lime);color:var(--ink)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.red{background:#fff;color:var(--red);border:1px solid #F0C7C4}
+.btn[disabled]{opacity:.5;cursor:default}
+.fab{position:fixed;right:16px;bottom:18px;z-index:9;box-shadow:0 10px 30px rgba(26,28,44,.3);border-radius:999px;padding:14px 20px}
+/* drawer */
+.drawer{position:fixed;inset:0;z-index:20;display:flex;justify-content:flex-end;background:rgba(26,28,44,.45)}
+.panel{background:var(--paper);width:min(560px,100%);height:100%;overflow:auto;display:flex;flex-direction:column}
+.ph{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;display:flex;gap:10px;align-items:flex-start;position:sticky;top:0;z-index:2}
+.ph h2{margin:0;font-size:1.2rem}
+.ph .x{margin-left:auto;background:none;border:0;font-size:1.4rem;cursor:pointer;line-height:1}
+.pb{padding:16px;display:grid;gap:14px}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
+.box h3{margin:0;font-size:.95rem}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg .full{grid-column:1/-1}
+label.f{display:grid;gap:4px;font-size:.8rem;color:var(--muted);font-weight:500}
+label.f input,label.f select,label.f textarea{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;color:var(--ink);font-size:.95rem;width:100%}
+label.f textarea{min-height:80px;resize:vertical}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:4px 10px;font-size:.88rem}
+.kv span{color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:30;font-weight:500;max-width:90vw}
+.toast.err{background:var(--red)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.bcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:8px}
+.bcard h3{margin:0;font-size:1rem;display:flex;justify-content:space-between;gap:8px}
+.seats{display:flex;flex-wrap:wrap;gap:6px}
+.mini{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;font-size:.82rem;cursor:pointer;background:#fff}
+.mini img,.mini .av{width:24px;height:24px;border-radius:50%;object-fit:cover;background:#E8E6F7;display:grid;place-items:center;font-size:.7rem;font-weight:700}
+.muted{color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:30px}
+.note{background:#FFF8E1;border:1px solid #F5E2A8;border-radius:12px;padding:10px 12px;font-size:.88rem}
+@media (max-width:640px){.fg{grid-template-columns:1fr}.kv{grid-template-columns:110px 1fr}.quick{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar"><a class="brand" href="/crm/">THE BOARD<small>CRM</small></a>
+    <div class="hdr-actions" id="hdr" hidden><a class="pill" href="https://docs.google.com/spreadsheets/d/1j96wEuywg5_pTyoH0FD_3VKD2XlrjFG3Zp-K9RfGpR4/edit" target="_blank" rel="noopener">Sheet</a><a class="pill" href="/members/">Member view</a><button class="pill" id="refresh" type="button">Refresh</button><button class="pill" id="out" type="button">Sign out</button></div>
+  </div>
+  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button></nav>
+</header>
+<main>
+  <div class="center" id="v-signin" hidden><h2>The Board CRM</h2><p class="muted">Founders only. Sign in with your Google account.</p><div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div><p class="muted" id="si-err"></p></div>
+  <div class="center" id="v-denied" hidden><h2>No access</h2><p class="muted">This account isn't on the founders list.</p><button class="btn ghost" id="out2" type="button">Use another account</button></div>
+  <p class="empty" id="v-loading">Loading…</p>
+
+  <section id="v-pipeline" hidden>
+    <div class="toolbar"><input type="search" id="q" placeholder="Search name, phone, company, source"></div>
+    <div class="chips" id="chips"></div>
+    <div class="list" id="leads"></div>
+  </section>
+  <section id="v-members" hidden>
+    <div class="toolbar"><input type="search" id="mq" placeholder="Search members"><select id="mboard" class="chip"></select></div>
+    <div class="list" id="members"></div>
+  </section>
+  <section id="v-boards" hidden>
+    <div class="toolbar"><button class="btn" id="add-board" type="button">+ New board</button></div>
+    <div class="grid3" id="boards"></div>
+  </section>
+</main>
+<button class="btn lime fab" id="add-lead" type="button" hidden>+ Lead</button>
+<div class="drawer" id="drawer" hidden><div class="panel" id="panel"></div></div>
+
+<script>
+(function(){
+  var STAGES = ["New lead","Call scheduled","Call done","Follow-up","Agreement sent","Closed won","Closed lost","Not a fit"];
+  var OPEN = ["New lead","Call scheduled","Call done","Follow-up","Agreement sent"];
+  var INTEREST = ["Board","Open board","Community","Unknown"];
+  var MEMB = ["Board","Open board","Community"];
+  var $ = function(id){ return document.getElementById(id); };
+  var D = null, view = "pipeline", stageFilter = "Open";
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function api(path, method, body){
+    return fetch("/api/" + path, { method: method || "GET", credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined })
+      .then(function(r){ return r.json().then(function(j){ if (r.status === 401) throw new Error("auth"); if (r.status === 403) throw new Error("forbidden"); if (!j.ok) throw new Error(j.detail || j.error || "error"); return j; }); });
+  }
+  function toast(t, err){ var d = document.createElement("div"); d.className = "toast" + (err ? " err" : ""); d.textContent = t; document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 3200); }
+  function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards"].forEach(function(x){ $(x).hidden = x !== id; }); }
+  function stClass(s){ return "st-" + String(s || "New").split(" ")[0] + (s === "Closed won" ? " st-Closed-won" : s === "Closed lost" ? " st-Closed-lost" : ""); }
+  function wa(p){ var d = String(p || "").replace(/\D/g, ""); if (!d) return ""; if (d[0] === "0") d = "972" + d.slice(1); return "https://wa.me/" + d; }
+  function tel(p){ return "tel:" + String(p || "").replace(/[^\d+]/g, ""); }
+  function opt(list, v){ var has = list.indexOf(v) >= 0; return (has || !v ? "" : '<option selected>' + esc(v) + '</option>') + '<option value=""></option>' + list.map(function(x){ return '<option' + (x === v ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join(""); }
+  function boardNames(){ return (D.boards || []).map(function(b){ return b["Board"]; }).filter(Boolean); }
+  function initials(n){ return String(n || "?").trim().split(/\s+/).map(function(w){ return w[0]; }).slice(0,2).join(""); }
+
+  /* ---------- auth ---------- */
+  function load(){
+    show("v-loading");
+    return api("admin/data").then(function(res){
+      D = res; $("hdr").hidden = false; $("nav").hidden = false; $("add-lead").hidden = false;
+      render();
+    }).catch(function(e){
+      if (e.message === "auth") { show("v-signin"); initGoogle(); }
+      else if (e.message === "forbidden") show("v-denied");
+      else { show("v-signin"); initGoogle(); $("si-err").textContent = "Couldn't load: " + e.message; }
+    });
+  }
+  var gReady = false;
+  function initGoogle(){
+    if (gReady) return;
+    if (!window.google || !google.accounts) { setTimeout(initGoogle, 150); return; }
+    fetch("/api/config").then(function(r){ return r.json(); }).then(function(c){
+      google.accounts.id.initialize({ client_id: c.client_id, ux_mode: "popup", callback: function(r){ api("login", "POST", { credential: r.credential }).then(load).catch(function(){ $("si-err").textContent = "Sign-in failed."; }); } });
+      google.accounts.id.renderButton($("gbtn"), { theme: "outline", size: "large", shape: "pill", width: 260 });
+      gReady = true;
+    });
+  }
+  function out(){ api("logout", "POST", {}).catch(function(){}).then(function(){ location.reload(); }); }
+  $("out").onclick = out; $("out2").onclick = out; $("refresh").onclick = function(){ load(); };
+
+  /* ---------- views ---------- */
+  document.querySelectorAll("nav button").forEach(function(b){ b.onclick = function(){ view = b.dataset.v; location.hash = view; render(); }; });
+  function render(){
+    if (!D) return;
+    if (["pipeline","members","boards"].indexOf(location.hash.slice(1)) >= 0) view = location.hash.slice(1);
+    document.querySelectorAll("nav button").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.v === view); });
+    show("v-" + view);
+    $("add-lead").hidden = view !== "pipeline";
+    if (view === "pipeline") renderLeads();
+    if (view === "members") renderMembers();
+    if (view === "boards") renderBoards();
+  }
+  function renderLeads(){
+    var q = $("q").value.trim().toLowerCase();
+    var leads = D.leads.filter(function(l){ return l["Name"] || l["Phone"]; }).slice().reverse();
+    var counts = { All: leads.length, Open: 0 };
+    STAGES.forEach(function(s){ counts[s] = 0; });
+    leads.forEach(function(l){ var s = l["Stage"] || "New lead"; counts[s] = (counts[s] || 0) + 1; if (OPEN.indexOf(s) >= 0) counts.Open++; });
+    $("chips").innerHTML = ["Open","All"].concat(STAGES).map(function(s){ return '<button class="chip" aria-pressed="' + (stageFilter === s) + '" data-s="' + esc(s) + '">' + esc(s) + '<b>' + (counts[s] || 0) + '</b></button>'; }).join("");
+    $("chips").querySelectorAll(".chip").forEach(function(c){ c.onclick = function(){ stageFilter = c.dataset.s; renderLeads(); }; });
+    var rows = leads.filter(function(l){
+      var s = l["Stage"] || "New lead";
+      if (stageFilter === "Open" && OPEN.indexOf(s) < 0) return false;
+      if (stageFilter !== "Open" && stageFilter !== "All" && s !== stageFilter) return false;
+      if (!q) return true;
+      return [l["Name"], l["Phone"], l["Email"], l["Company & field"], l["utm_source"], l["utm_campaign"], l["utm_content"]].join(" ").toLowerCase().indexOf(q) >= 0;
+    });
+    $("leads").innerHTML = rows.length ? rows.map(function(l){
+      var src = [l["utm_source"], l["utm_medium"], l["utm_content"]].filter(Boolean).join(" / ");
+      return '<button class="row" data-r="' + l._row + '"><span class="t he">' + esc(l["Name"]) + '</span><span class="s"><span class="he">' + esc(l["Company & field"]) + '</span>' + (src ? ' · ' + esc(src) : '') + '</span><span class="r"><span class="badge ' + stClass(l["Stage"]) + '">' + esc(l["Stage"] || "New lead") + '</span><span class="muted" style="font-size:.78rem">' + esc(l["Date"]) + (l["Owner"] ? ' · ' + esc(l["Owner"]) : '') + '</span></span></button>';
+    }).join("") : '<p class="empty">No leads here.</p>';
+    $("leads").querySelectorAll(".row").forEach(function(b){ b.onclick = function(){ openLead(+b.dataset.r); }; });
+  }
+  $("q").oninput = renderLeads;
+
+  function drawer(html){ $("panel").innerHTML = html; $("drawer").hidden = false; $("panel").scrollTop = 0; var x = $("panel").querySelector(".x"); if (x) x.onclick = closeDrawer; }
+  function closeDrawer(){ $("drawer").hidden = true; }
+  $("drawer").onclick = function(e){ if (e.target === $("drawer")) closeDrawer(); };
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeDrawer(); });
+  function vals(root){ var o = {}; root.querySelectorAll("[data-f]").forEach(function(el){ o[el.dataset.f] = el.value.trim(); }); return o; }
+  function busy(btn, p){ btn.disabled = true; return p.finally(function(){ btn.disabled = false; }); }
+
+  /* ---------- lead detail ---------- */
+  function openLead(row){
+    var l = D.leads.find(function(x){ return x._row === row; }); if (!l) return;
+    var member = D.members.find(function(m){ return (m["Email (Google)"] || "").toLowerCase() === (l["Email"] || "").toLowerCase() && l["Email"]; });
+    var src = ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].map(function(k){ return l[k]; }).filter(Boolean).join(" / ") || "direct";
+    var steps = [
+      ["Agreement", l["Agreement signed"] ? "Signed " + l["Agreement signed"] : (l["Agreement sent"] ? "Sent " + l["Agreement sent"] : "Not sent")],
+      ["Payment", l["Payment"] || "Not paid"],
+      ["Member", member ? (member["Board"] ? "Seated: " + member["Board"] : "Created, not seated") : "Not yet"]
+    ];
+    drawer(
+      '<div class="ph"><div><h2 class="he">' + esc(l["Name"]) + '</h2><span class="badge ' + stClass(l["Stage"]) + '">' + esc(l["Stage"] || "New lead") + '</span> <span class="muted" style="font-size:.85rem">' + esc(l["Date"]) + ' ' + esc(l["Time"]) + '</span></div><button class="x" aria-label="Close">×</button></div>' +
+      '<div class="pb">' +
+      '<div class="quick">' + (l["Phone"] ? '<a class="btn" href="' + tel(l["Phone"]) + '">Call</a><a class="btn lime" href="' + wa(l["Phone"]) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + (l["Email"] ? '<a class="btn ghost" href="mailto:' + esc(l["Email"]) + '">Email</a>' : '') + '</div>' +
+      '<div class="box"><h3>Deal</h3><div class="fg">' +
+        '<label class="f">Stage<select data-f="Stage">' + opt(STAGES, l["Stage"] || "New lead") + '</select></label>' +
+        '<label class="f">Interested in<select data-f="Interested in">' + opt(INTEREST, l["Interested in"]) + '</select></label>' +
+        '<label class="f">Owner<select data-f="Owner">' + opt(["Adi","Noam","Ethan"], l["Owner"]) + '</select></label>' +
+        '<label class="f">Deal value (ex VAT)<input data-f="Deal value (ex VAT)" inputmode="numeric" value="' + esc(l["Deal value (ex VAT)"]) + '" placeholder="4000"></label>' +
+        '<label class="f">Call date<input type="date" data-f="Call date" value="' + esc(l["Call date"]) + '"></label>' +
+        '<label class="f">Next follow-up<input type="date" data-f="Next follow-up" value="' + esc(l["Next follow-up"]) + '"></label>' +
+        '<label class="f full">Notes<textarea data-f="Notes" class="he">' + esc(l["Notes"]) + '</textarea></label>' +
+        '<label class="f full">Call summary link (Granola)<input data-f="Call summary (link)" value="' + esc(l["Call summary (link)"]) + '"></label>' +
+      '</div><div class="actions"><button class="btn" id="save-lead">Save</button></div></div>' +
+      '<div class="box"><h3>Close the deal</h3><div class="kv">' + steps.map(function(s){ return '<span>' + s[0] + '</span><b>' + esc(s[1]) + '</b>'; }).join("") + '</div>' +
+        '<div class="fg"><label class="f full">Payment link (Grow)<input id="paylink" value="' + esc(l["Payment link"]) + '" placeholder="Paste the Grow payment link"></label></div>' +
+        '<div class="actions"><button class="btn lime" id="send-agr">' + (l["Agreement sent"] ? 'Resend agreement' : 'Send agreement') + '</button><button class="btn ghost" id="mark-paid">Mark paid</button><button class="btn ghost" disabled title="Connecting next week">Charge with Grow (soon)</button></div>' +
+        '<p class="muted" style="margin:0;font-size:.82rem">Signed + paid creates the member automatically and emails you all. You can also add them directly:</p>' +
+        '<div class="actions"><button class="btn ghost" id="direct">Close won + add to a board now</button></div></div>' +
+      '<div class="box"><h3>Not a fit</h3><div class="fg"><label class="f full">Reason (goes into the email, in Hebrew)<input id="mreason" class="he" value="' + esc(l["Lost reason"]) + '" placeholder="למשל: העסק עוד בשלב מוקדם מדי"></label></div><label class="muted" style="font-size:.85rem"><input type="checkbox" id="msend" checked> Send them the polite "not a fit right now" email</label><div class="actions"><button class="btn red" id="misfit">Mark not a fit</button></div></div>' +
+      '<div class="box"><h3>Details</h3><div class="fg">' +
+        '<label class="f">Name<input data-f="Name" class="he" value="' + esc(l["Name"]) + '"></label>' +
+        '<label class="f">Phone<input data-f="Phone" value="' + esc(l["Phone"]) + '"></label>' +
+        '<label class="f">Email<input data-f="Email" value="' + esc(l["Email"]) + '"></label>' +
+        '<label class="f">Company & field<input data-f="Company & field" class="he" value="' + esc(l["Company & field"]) + '"></label>' +
+      '</div><div class="kv">' +
+        [["Board (form)", l["Board (form)"]], ["Role", l["Role"]], ["Years", l["Years in business"]], ["Revenue", l["Annual revenue"]], ["Challenge", l["Main challenge"]], ["Shares numbers", l["Will share numbers"]], ["1st Friday", l["Can commit to 1st Friday"]], ["Source", src], ["First touch", l["First touch source"]], ["Referrer", l["Referrer"]], ["Landing", l["Landing page"]], ["Invoice", l["Invoice"]]].map(function(p){ return '<span>' + p[0] + '</span><span class="he" style="color:var(--ink)">' + esc(p[1] || "") + '</span>'; }).join("") +
+      '</div></div></div>');
+    var p = $("panel");
+    $("save-lead").onclick = function(){ var f = vals(p); busy(this, api("admin/lead", "PUT", { row: row, fields: f }).then(function(){ Object.assign(l, f); toast("Saved"); renderLeads(); })).catch(function(e){ toast(e.message, 1); }); };
+    $("send-agr").onclick = function(){
+      var f = vals(p); if (!f["Email"]) { toast("Add an email first", 1); return; }
+      busy(this, api("admin/lead", "PUT", { row: row, fields: f }).then(function(){ return api("admin/agreement", "POST", { row: row, email: f["Email"], amount: f["Deal value (ex VAT)"], interest: f["Interested in"], payLink: $("paylink").value.trim() }); })
+        .then(function(){ toast("Agreement sent to " + f["Email"]); return load().then(function(){ openLead(row); }); })).catch(function(e){ toast(e.message, 1); });
+    };
+    $("mark-paid").onclick = function(){
+      var inv = prompt("Invoice link (optional). Grow will fill this automatically once connected:", l["Invoice"] || "");
+      if (inv === null) return;
+      busy(this, api("admin/paid", "POST", { row: row, invoice: inv.trim(), amount: vals(p)["Deal value (ex VAT)"] }).then(function(r){ toast(r.onboarded ? "Paid. New member created, emails sent." : r.waitingForSignature ? "Paid. Waiting for the agreement signature." : "Paid."); return load().then(function(){ openLead(row); }); })).catch(function(e){ toast(e.message, 1); });
+    };
+    $("misfit").onclick = function(){
+      var reason = $("mreason").value.trim(), send = $("msend").checked;
+      if (send && !l["Email"]) { toast("No email on this lead", 1); return; }
+      if (!confirm(send ? "Mark as not a fit and send the email?" : "Mark as not a fit?")) return;
+      busy(this, api("admin/misfit", "POST", { row: row, reason: reason, send: send }).then(function(){ toast(send ? "Marked and emailed" : "Marked"); return load().then(closeDrawer); })).catch(function(e){ toast(e.message, 1); });
+    };
+    $("direct").onclick = function(){ closeForm(l); };
+  }
+  function closeForm(l){
+    var f = { email: l["Email"], amount: l["Deal value (ex VAT)"] || "4000" };
+    drawer('<div class="ph"><div><h2 class="he">' + esc(l["Name"]) + '</h2><span class="muted">Close won + seat on a board</span></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box"><div class="fg">' +
+      '<label class="f full">Email (their Google sign-in)<input id="c-email" value="' + esc(f.email) + '"></label>' +
+      '<label class="f">Membership<select id="c-memb">' + opt(MEMB, l["Interested in"] && l["Interested in"] !== "Unknown" ? l["Interested in"] : "Board") + '</select></label>' +
+      '<label class="f">Board<select id="c-board">' + opt(boardNames(), "") + '</select></label>' +
+      '<label class="f">Amount (ex VAT)<input id="c-amount" inputmode="numeric" value="' + esc(f.amount) + '"></label>' +
+      '<label class="f">Payment<select id="c-pay">' + opt(["Paid","Partially paid","Awaiting payment"], "Awaiting payment") + '</select></label>' +
+      '</div><div class="actions"><button class="btn lime" id="c-go">Close won</button></div><p class="muted" style="margin:0;font-size:.82rem">No agreement email is sent this way. Use "Send agreement" if they still need to sign.</p></div></div>');
+    $("c-go").onclick = function(){
+      var email = $("c-email").value.trim(); if (!email) { toast("Email required", 1); return; }
+      busy(this, api("admin/close", "POST", { row: l._row, email: email, membership: $("c-memb").value, board: $("c-board").value, amount: $("c-amount").value, payment: $("c-pay").value })
+        .then(function(){ toast("Closed won. Member created."); return load().then(closeDrawer); })).catch(function(e){ toast(e.message, 1); });
+    };
+  }
+  $("add-lead").onclick = function(){
+    drawer('<div class="ph"><div><h2>New lead</h2><span class="muted">For calls and events</span></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box"><div class="fg">' +
+      '<label class="f">Name<input data-f="Name" class="he" autocomplete="off"></label><label class="f">Phone<input data-f="Phone" type="tel"></label>' +
+      '<label class="f">Email<input data-f="Email" type="email"></label><label class="f">Company & field<input data-f="Company & field" class="he"></label>' +
+      '<label class="f">Interested in<select data-f="Interested in">' + opt(INTEREST, "Board") + '</select></label><label class="f">Stage<select data-f="Stage">' + opt(STAGES, "Call done") + '</select></label>' +
+      '<label class="f">Source<select data-f="utm_source">' + opt(["event","bizdev","meta","whatsapp","partner","linkedin","referral"], "event") + '</select></label><label class="f">Detail (event / partner name)<input data-f="utm_campaign"></label>' +
+      '<label class="f">Owner<select data-f="Owner">' + opt(["Adi","Noam","Ethan"], "Adi") + '</select></label><label class="f">Deal value (ex VAT)<input data-f="Deal value (ex VAT)" inputmode="numeric" value="4000"></label>' +
+      '<label class="f full">Notes<textarea data-f="Notes" class="he"></textarea></label></div><div class="actions"><button class="btn lime" id="nl-go">Add lead</button></div></div></div>');
+    $("nl-go").onclick = function(){ var f = vals($("panel")); if (!f["Name"]) { toast("Name required", 1); return; } f["utm_medium"] = f["utm_source"] === "event" ? "offline" : ""; busy(this, api("admin/lead", "POST", { fields: f }).then(function(){ toast("Lead added"); return load().then(closeDrawer); })).catch(function(e){ toast(e.message, 1); }); };
+  };
+
+  /* ---------- members ---------- */
+  function renderMembers(){
+    var sel = $("mboard"), cur = sel.value;
+    sel.innerHTML = '<option value="">All boards</option><option value="__none">Not seated</option>' + boardNames().map(function(b){ return '<option>' + esc(b) + '</option>'; }).join("");
+    sel.value = cur;
+    var q = $("mq").value.trim().toLowerCase();
+    var rows = D.members.filter(function(m){ return m["Email (Google)"] || m["Full name"]; }).filter(function(m){
+      if (sel.value === "__none" && m["Board"]) return false;
+      if (sel.value && sel.value !== "__none" && m["Board"] !== sel.value) return false;
+      return !q || [m["Full name"], m["Company"], m["Phone"], m["Email (Google)"]].join(" ").toLowerCase().indexOf(q) >= 0;
+    });
+    $("members").innerHTML = rows.length ? rows.map(function(m){
+      return '<button class="row" data-r="' + m._row + '"><span class="t he">' + esc(m["Full name"] || m["Email (Google)"]) + '</span><span class="s"><span class="he">' + esc(m["Company"]) + '</span> · ' + esc(m["Membership"] || "") + '</span><span class="r"><span class="badge" style="background:' + (m["Board"] ? '#D9F7B0' : '#FFF4CC') + '">' + esc(m["Board"] || "Not seated") + '</span><span class="muted" style="font-size:.78rem">' + esc(m["Status"] || "") + (m["NDA signed"] === "Yes" ? " · NDA ✓" : " · NDA pending") + '</span></span></button>';
+    }).join("") : '<p class="empty">No members yet.</p>';
+    $("members").querySelectorAll(".row").forEach(function(b){ b.onclick = function(){ openMember(+b.dataset.r); }; });
+  }
+  $("mq").oninput = renderMembers; $("mboard").onchange = renderMembers;
+  function openMember(row){
+    var m = D.members.find(function(x){ return x._row === row; }); if (!m) return;
+    drawer('<div class="ph">' + (m["Photo"] ? '<img src="' + esc(m["Photo"]) + '" alt="" referrerpolicy="no-referrer" style="width:44px;height:44px;border-radius:50%;object-fit:cover">' : '') + '<div><h2 class="he">' + esc(m["Full name"]) + '</h2><span class="muted he">' + esc(m["Company"]) + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb">' +
+      '<div class="quick">' + (m["Phone"] ? '<a class="btn" href="' + tel(m["Phone"]) + '">Call</a><a class="btn lime" href="' + wa(m["Phone"]) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '<a class="btn ghost" href="mailto:' + esc(m["Email (Google)"]) + '">Email</a></div>' +
+      '<div class="box"><h3>Membership</h3><div class="fg">' +
+        '<label class="f">Board<select data-f="Board">' + opt(boardNames(), m["Board"]) + '</select></label>' +
+        '<label class="f">Membership<select data-f="Membership">' + opt(MEMB, m["Membership"]) + '</select></label>' +
+        '<label class="f">Status<select data-f="Status">' + opt(["Active","Paused","Ended"], m["Status"]) + '</select></label>' +
+        '<label class="f">Payment<select data-f="Payment">' + opt(["Paid","Partially paid","Awaiting payment"], m["Payment"]) + '</select></label>' +
+        '<label class="f">Paid (ex VAT)<input data-f="Paid (ex VAT)" value="' + esc(m["Paid (ex VAT)"]) + '"></label>' +
+        '<label class="f">Joined<input type="date" data-f="Joined" value="' + esc(m["Joined"]) + '"></label>' +
+        '<label class="f full">Invoice link<input data-f="Invoice" value="' + esc(m["Invoice"]) + '"></label>' +
+        '<label class="f full">Internal notes (founders only)<textarea data-f="Internal notes" class="he">' + esc(m["Internal notes"]) + '</textarea></label>' +
+      '</div><div class="actions"><button class="btn" id="save-m">Save</button></div></div>' +
+      '<div class="box"><h3>Profile</h3><div class="kv">' + [["Email", m["Email (Google)"]], ["Gender", m["Gender"]], ["City", m["City"]], ["Company type", m["Company type"]], ["Tagline", m["Tagline"]], ["Role", m["Role"]], ["Website", m["Website"]], ["Instagram", m["Instagram"]], ["Facebook", m["Facebook"]], ["Revenue", m["Annual revenue"]], ["Employees", m["Employees"]], ["Challenge", m["Main challenge"]], ["Personal goals", m["Personal goals"]], ["Business goals", m["Business goals"]], ["NDA", (m["NDA signed"] || "No") + (m["NDA date"] ? " · " + m["NDA date"] : "")], ["Agreement", m["Agreement"]], ["Profile updated", m["Profile updated"]]].map(function(p){ return '<span>' + p[0] + '</span><span class="he" style="color:var(--ink)">' + esc(p[1] || "") + '</span>'; }).join("") + '</div>' + (m["Logo"] ? '<img src="' + esc(m["Logo"]) + '" alt="logo" style="max-width:120px;max-height:80px;object-fit:contain">' : '') + '</div></div>');
+    $("save-m").onclick = function(){ var f = vals($("panel")); busy(this, api("admin/member", "PUT", { row: row, fields: f }).then(function(){ Object.assign(m, f); toast("Saved"); renderMembers(); })).catch(function(e){ toast(e.message, 1); }); };
+  }
+
+  /* ---------- boards ---------- */
+  function renderBoards(){
+    $("boards").innerHTML = D.boards.filter(function(b){ return b["Board"]; }).map(function(b){
+      var people = D.members.filter(function(m){ return m["Board"] === b["Board"] && m["Status"] !== "Ended"; });
+      return '<div class="bcard"><h3><span>' + esc(b["Board"]) + ' <span class="muted he" style="font-weight:400">' + esc(b["Name in Hebrew (members see this)"]) + '</span></span><span class="badge" style="background:' + (people.length >= 8 ? '#F3D4D4' : '#D9F7B0') + '">' + people.length + '/8</span></h3><div class="muted" style="font-size:.85rem">' + esc(b["Type"]) + ' · ' + esc(b["Start"]) + ' → ' + esc(b["Last session"]) + (b["Head of Board"] ? ' · Head: ' + esc(b["Head of Board"]) : '') + '</div><div class="seats">' +
+        people.map(function(m){ return '<span class="mini" data-m="' + m._row + '">' + (m["Photo"] ? '<img src="' + esc(m["Photo"]) + '" alt="" referrerpolicy="no-referrer">' : '<span class="av">' + esc(initials(m["Full name"])) + '</span>') + '<span class="he">' + esc(m["Full name"]) + '</span></span>'; }).join("") +
+        '</div><div class="actions"><button class="btn ghost" data-b="' + b._row + '">Edit board</button></div></div>';
+    }).join("") || '<p class="empty">No boards yet.</p>';
+    $("boards").querySelectorAll("[data-m]").forEach(function(x){ x.onclick = function(){ openMember(+x.dataset.m); }; });
+    $("boards").querySelectorAll("[data-b]").forEach(function(x){ x.onclick = function(){ openBoard(+x.dataset.b); }; });
+  }
+  $("add-board").onclick = function(){ openBoard(0); };
+  function openBoard(row){
+    var b = D.boards.find(function(x){ return x._row === row; }) || {};
+    var F = [["Board","Board (English, internal)"],["Name in Hebrew (members see this)","Name in Hebrew (members see this)"],["Type","Type"],["Start","Start (d.m.yy)"],["Last session","Last session (d.m.yy)"],["Session dates","Session dates (comma separated, d.m.yy)"],["Head of Board","Head of Board"],["Location","Location"],["Hours","Hours"],["WhatsApp group","WhatsApp group link"],["Notes","Notes"]];
+    drawer('<div class="ph"><div><h2>' + (row ? esc(b["Board"]) : "New board") + '</h2></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box"><div class="fg">' +
+      F.map(function(f){ var full = ["Session dates","Notes","WhatsApp group"].indexOf(f[0]) >= 0 ? " full" : ""; if (f[0] === "Type") return '<label class="f">Type<select data-f="Type">' + opt(["Foundations board","Open board","Sector board"], b["Type"]) + '</select></label>'; return '<label class="f' + full + '">' + esc(f[1]) + '<input data-f="' + esc(f[0]) + '" value="' + esc(b[f[0]]) + '"' + (f[0].indexOf("Hebrew") >= 0 ? ' class="he"' : '') + '></label>'; }).join("") +
+      '</div><div class="actions"><button class="btn" id="save-b">Save</button></div></div></div>');
+    $("save-b").onclick = function(){ var f = vals($("panel")); if (!f["Board"]) { toast("Board name required", 1); return; } busy(this, api("admin/board", "PUT", { row: row || 0, fields: f }).then(function(){ toast("Saved"); return load().then(closeDrawer); })).catch(function(e){ toast(e.message, 1); }); };
+  }
+
+  window.addEventListener("hashchange", render);
+  load();
+})();
+</script>
+</body>
+</html>

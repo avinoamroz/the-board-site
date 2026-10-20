@@ -2,6 +2,7 @@
 // Sign-in with Google, member profile + board view, and the founders' CRM.
 // Data lives in the Google Sheet "The Board CRM"; reads and writes go through
 // a Make "sheet pipe" scenario. Secrets live in the D1 table `config`.
+import { DOCS, renderDoc } from '../_docs.js';
 
 const MEMBER_EDITABLE = {
   'Full name': 'name', 'Gender': 'gender', 'Phone': 'phone', 'City': 'city', 'Company': 'company',
@@ -10,10 +11,10 @@ const MEMBER_EDITABLE = {
   'Instagram': 'instagram', 'Facebook': 'facebook', 'Main challenge': 'challenge',
   'Personal goals': 'personal_goals', 'Business goals': 'business_goals'
 };
-const MEMBER_READONLY = { 'Email (Google)': 'email', 'Membership': 'membership', 'Board': 'board', 'Status': 'status', 'Joined': 'joined', 'Logo': 'logo', 'Photo': 'photo' };
+const MEMBER_READONLY = { 'Email (Google)': 'email', 'Membership': 'membership', 'Board': 'board', 'Status': 'status', 'Joined': 'joined', 'Logo': 'logo', 'Photo': 'photo', 'NDA signed': 'nda', 'NDA date': 'nda_date', 'Invoice': 'invoice' };
 const MATE_FIELDS = ['name', 'gender', 'phone', 'city', 'company', 'company_type', 'tagline', 'website', 'instagram', 'facebook', 'logo', 'photo', 'role'];
-const LEAD_EDITABLE = ['Stage', 'Interested in', 'Board (form)', 'Name', 'Phone', 'Email', 'Company & field', 'Role', 'Owner', 'Call date', 'Next follow-up', 'Deal value (ex VAT)', 'Lost reason', 'Notes', 'Call summary (link)', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
-const MEMBER_ADMIN = ['Membership', 'Board', 'Status', 'Joined', 'Payment', 'Paid (ex VAT)', 'NDA signed', 'Internal notes'];
+const LEAD_EDITABLE = ['Stage', 'Interested in', 'Board (form)', 'Name', 'Phone', 'Email', 'Company & field', 'Role', 'Owner', 'Call date', 'Next follow-up', 'Deal value (ex VAT)', 'Lost reason', 'Notes', 'Call summary (link)', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'Payment', 'Payment link', 'Invoice'];
+const MEMBER_ADMIN = ['Membership', 'Board', 'Status', 'Joined', 'Payment', 'Paid (ex VAT)', 'NDA signed', 'Internal notes', 'Invoice'];
 const BOARD_EDITABLE = ['Board', 'Type', 'Start', 'Last session', 'Session dates', 'Head of Board', 'Location', 'Hours', 'WhatsApp group', 'Notes', 'Name in Hebrew (members see this)'];
 const COOKIE = 'tb_s';
 const MAX_AGE = 60 * 60 * 24 * 30;
@@ -118,6 +119,61 @@ function memberView(m) {
   return o;
 }
 
+/* ---------- headers, mail, onboarding ---------- */
+const LEAD_EXTRA = ['Agreement sent', 'Agreement signed', 'Payment', 'Payment link', 'Invoice'];
+const MEMBER_EXTRA = ['NDA date', 'Agreement', 'Invoice', 'Onboarded'];
+async function ensureHeaders(c, tab, t, needed) {
+  const missing = needed.filter(h => !t.head.includes(h));
+  if (!missing.length) return;
+  const start = t.head.length;
+  await pipe(c, 'POST', '/values:batchUpdate', { valueInputOption: 'RAW', data: [{ range: `'${tab}'!${colLetter(start)}1`, values: [missing] }] });
+  t.head = t.head.concat(missing);
+}
+async function mail(c, to, subject, html, cc) {
+  if (!c.mail_url || !to) return;
+  await fetch(c.mail_url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: c.pipe_key, to, subject, html: wrapMail(html), cc: cc || [] }) });
+}
+function wrapMail(inner) {
+  return `<div dir="rtl" style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.7;color:#2B2E42;max-width:560px;margin:0 auto">
+<div style="background:#1A1C2C;color:#fff;padding:18px 24px;border-radius:16px 16px 0 0;font-weight:800;letter-spacing:.12em;direction:ltr;text-align:right">THE BOARD</div>
+<div style="border:1px solid #DCDCE6;border-top:0;padding:24px;border-radius:0 0 16px 16px">${inner}</div>
+<p style="font-size:13px;color:#565A70;text-align:center;margin-top:14px">The Board · <a href="https://the-board.co.il" style="color:#565A70">the-board.co.il</a> · info@the-board.co.il</p></div>`;
+}
+const btnHtml = (href, label) => `<p style="margin:22px 0"><a href="${href}" style="background:#C6F278;color:#1A1C2C;text-decoration:none;font-weight:700;padding:12px 26px;border-radius:999px;display:inline-block">${label}</a></p>`;
+const escH = s => String(s == null ? '' : s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const firstName = n => String(n || '').trim().split(/\s+/)[0] || '';
+async function joinToken(c, email) { return (await hmac(c.session_secret, 'join:' + norm(email))).slice(0, 32); }
+async function joinLink(c, email) { return `https://the-board.co.il/join/?e=${encodeURIComponent(email)}&t=${await joinToken(c, email)}`; }
+const MEMB_HE = { 'Board': 'בורד', 'Open board': 'אופן בורד', 'Community': 'קהילה' };
+function agreementVars(c, lead) {
+  const interest = lead['Interested in'] && lead['Interested in'] !== 'Unknown' ? lead['Interested in'] : 'Board';
+  const price = lead['Deal value (ex VAT)'] ? `${lead['Deal value (ex VAT)']} ₪` : '4,000 ₪';
+  return { operator: c.company_legal || 'The Board (פרטי הישות המשפטית יושלמו לפני החתימה)', membership: MEMB_HE[interest] || interest, board: lead['Board (form)'] || 'ייקבע בתיאום', price };
+}
+async function maybeOnboard(c, d, lead) {
+  // Signed + paid -> becomes a boarder, team gets notified, member gets a welcome email.
+  if (!lead['Agreement signed'] || lead['Payment'] !== 'Paid') return false;
+  const email = norm(lead['Email']) && String(lead['Email']).toLowerCase();
+  await ensureHeaders(c, 'Members', d.Members, MEMBER_EXTRA);
+  const existing = d.Members.rows.find(m => norm(m['Email (Google)']) === norm(email));
+  const interest = lead['Interested in'] && lead['Interested in'] !== 'Unknown' ? lead['Interested in'] : 'Board';
+  const mf = { 'Membership': interest, 'Status': 'Active', 'Payment': 'Paid', 'Paid (ex VAT)': lead['Deal value (ex VAT)'] || '', 'Agreement': lead['Agreement signed'], 'Invoice': lead['Invoice'] || '' };
+  if (existing && existing['Onboarded']) return false;
+  if (existing) await writeCells(c, 'Members', d.Members.head, existing._row, Object.assign(mf, { 'Onboarded': nowStamp() }));
+  else await appendRow(c, 'Members', d.Members.head, Object.assign({
+    'Email (Google)': email, 'Full name': lead['Name'], 'Phone': lead['Phone'], 'Company': lead['Company & field'], 'Role': lead['Role'],
+    'Years in business': lead['Years in business'], 'Annual revenue': lead['Annual revenue'], 'Main challenge': lead['Main challenge'],
+    'Joined': today(), 'NDA signed': 'No', 'Board': '', 'Onboarded': nowStamp()
+  }, mf));
+  await writeCells(c, 'Leads', d.Leads.head, lead._row, { 'Stage': 'Closed won' });
+  const team = (c.team_emails || '').split(',').filter(Boolean);
+  await mail(c, team[0], `בורדר חדש: ${lead['Name']} (חתם ושילם)`,
+    `<p><b>${escH(lead['Name'])}</b> חתם/ה על ההסכם ושילם/ה. נוצר כרטיס חבר ב-CRM.</p><p>${escH(lead['Company & field'])} · ${escH(lead['Phone'])} · ${escH(email)}</p><p>${escH(lead['Board (form)'] || '')}</p><p>נשאר לשבץ לבורד.</p>${btnHtml('https://the-board.co.il/crm/#members', 'לשיבוץ ב-CRM')}`, team.slice(1));
+  await mail(c, email, 'ברוכים הבאים ל-The Board',
+    `<p>היי ${escH(firstName(lead['Name']))},</p><p>איזה כיף שהצטרפת! קיבלנו את ההסכם החתום ואת התשלום, והמקום שלך ליד השולחן שמור.</p><p>השלב הבא: נכנסים לאזור החברים עם חשבון ה-Google של הכתובת הזו (<span dir="ltr">${escH(email)}</span>), משלימים את הפרופיל, מעלים תמונה ולוגו וחותמים על הסכם הסודיות. שם גם תראו את הבורד שלכם, את מועדי המפגשים ואת האנשים שיושבים איתכם ליד השולחן.</p>${btnHtml('https://the-board.co.il/members/', 'כניסה לאזור החברים')}<p>חשבונית המס נשלחת אליך בנפרד ותישמר גם באזור החברים.</p><p>נתראה ליד השולחן,<br>נועם, עדי ואיתן</p>`);
+  return true;
+}
+
 /* ---------- images ---------- */
 async function saveImage(env, c, kind, email, dataUrl) {
   const m = String(dataUrl || '').match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
@@ -141,6 +197,37 @@ export async function onRequest(context) {
       return new Response(Uint8Array.from(atob(row.data), ch => ch.charCodeAt(0)), { headers: { 'Content-Type': row.mime, 'Cache-Control': 'public, max-age=31536000, immutable' } });
     }
     if (route === 'config' && method === 'GET') return json({ client_id: c.client_id });
+    if (route.startsWith('doc/') && method === 'GET') {
+      const name = route.slice(4);
+      if (!DOCS[name]) return bad('doc', 404);
+      return json({ ok: true, doc: renderDoc(name, { operator: c.company_legal || 'The Board' }) });
+    }
+    if (route === 'join' && (method === 'GET' || method === 'POST')) {
+      // Membership agreement, opened from the emailed link (no sign-in needed).
+      const u = new URL(request.url);
+      const body = method === 'POST' ? await request.json() : {};
+      const email = String(body.e || u.searchParams.get('e') || '').toLowerCase();
+      const t = body.t || u.searchParams.get('t') || '';
+      if (!email || t !== await joinToken(c, email)) return bad('link', 403);
+      const d = await readTabs(c, ['Leads', 'Members']);
+      await ensureHeaders(c, 'Leads', d.Leads, LEAD_EXTRA);
+      const lead = [...d.Leads.rows].reverse().find(l => norm(l['Email']) === norm(email));
+      if (!lead) return bad('lead', 404);
+      const doc = renderDoc('agreement', agreementVars(c, lead));
+      const payLink = lead['Payment link'] || c.payment_link || '';
+      if (method === 'GET') return json({ ok: true, name: lead['Name'], company: lead['Company & field'], signed: lead['Agreement signed'] || '', paid: lead['Payment'] === 'Paid', payLink, doc });
+      const name = String(body.name || '').trim(), sig = String(body.signature || '');
+      if (name.length < 2 || !/^data:image\/png;base64,/.test(sig) || sig.length > 400000 || !body.agree) return bad('sign');
+      const stamp = nowStamp();
+      await env.DB.prepare('INSERT INTO signatures (doc, version, email, name, id_number, company, signed_at, ip, ua, signature, text_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
+        .bind('agreement', doc.version, email, name, String(body.id_number || '').slice(0, 20), String(body.company || '').slice(0, 200), stamp, request.headers.get('CF-Connecting-IP') || '', (request.headers.get('User-Agent') || '').slice(0, 300), sig, await sha(JSON.stringify(doc.sections))).run();
+      lead['Agreement signed'] = stamp;
+      await writeCells(c, 'Leads', d.Leads.head, lead._row, { 'Agreement signed': stamp, 'Stage': lead['Payment'] === 'Paid' ? 'Closed won' : 'Agreement sent' });
+      const team = (c.team_emails || '').split(',').filter(Boolean);
+      await mail(c, team[0], `ההסכם נחתם: ${lead['Name']}`, `<p><b>${escH(lead['Name'])}</b> חתם/ה על הסכם ההצטרפות (${escH(stamp)}).</p><p>${lead['Payment'] === 'Paid' ? 'התשלום כבר התקבל.' : 'ממתין לתשלום.'}</p>${btnHtml('https://the-board.co.il/crm/', 'ל-CRM')}`, team.slice(1));
+      const onboarded = await maybeOnboard(c, d, lead);
+      return json({ ok: true, signed: stamp, paid: lead['Payment'] === 'Paid', onboarded, payLink });
+    }
     if (route === 'login' && method === 'POST') {
       const { credential } = await request.json();
       const r = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(credential || ''));
@@ -177,9 +264,12 @@ export async function onRequest(context) {
       if (me['Board']) {
         const b = d.Boards.rows.find(x => x['Board'] === me['Board']);
         board = b ? boardView(b) : { key: me['Board'], name: me['Board'], dates: [] };
+        if (me['NDA signed'] !== 'Yes') board.whatsapp = '';
         board.members = d.Members.rows.filter(m => m['Board'] === me['Board'] && m['Status'] !== 'Ended').map(m => {
           const v = memberView(m); const o = {}; MATE_FIELDS.forEach(k => { o[k] = v[k]; });
-          o.me = norm(m['Email (Google)']) === norm(s.email); return o;
+          o.me = norm(m['Email (Google)']) === norm(s.email);
+          if (!o.me && me['NDA signed'] !== 'Yes') { o.phone = ''; o.website = ''; o.instagram = ''; o.facebook = ''; }
+          return o;
         });
       }
       return json({ ok: true, member: true, admin: s.admin, profile, board });
@@ -208,12 +298,30 @@ export async function onRequest(context) {
       return json({ ok: true, url });
     }
 
+    if (route === 'nda' && method === 'POST') {
+      const body = await request.json();
+      const d = await readTabs(c, ['Members']);
+      await ensureHeaders(c, 'Members', d.Members, MEMBER_EXTRA);
+      const me = d.Members.rows.find(m => norm(m['Email (Google)']) === norm(s.email));
+      if (!me) return bad('not_member', 403);
+      const name = String(body.name || '').trim(), sig = String(body.signature || '');
+      if (name.length < 2 || !/^data:image\/png;base64,/.test(sig) || sig.length > 400000 || !body.agree) return bad('sign');
+      const doc = renderDoc('nda', { operator: c.company_legal || 'The Board' });
+      const stamp = nowStamp();
+      await env.DB.prepare('INSERT INTO signatures (doc, version, email, name, id_number, company, signed_at, ip, ua, signature, text_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
+        .bind('nda', doc.version, s.email, name, String(body.id_number || '').slice(0, 20), me['Company'] || '', stamp, request.headers.get('CF-Connecting-IP') || '', (request.headers.get('User-Agent') || '').slice(0, 300), sig, await sha(JSON.stringify(doc.sections))).run();
+      await writeCells(c, 'Members', d.Members.head, me._row, { 'NDA signed': 'Yes', 'NDA date': stamp });
+      return json({ ok: true, signed: stamp });
+    }
+
     /* ----- admin ----- */
     if (route.startsWith('admin/')) {
       if (!s.admin) return bad('forbidden', 403);
       const r = route.slice(6);
       if (r === 'data' && method === 'GET') {
         const d = await readTabs(c, ['Leads', 'Members', 'Boards', 'Sessions']);
+        await ensureHeaders(c, 'Leads', d.Leads, LEAD_EXTRA);
+        await ensureHeaders(c, 'Members', d.Members, MEMBER_EXTRA);
         return json({ ok: true, leads: d.Leads.rows, members: d.Members.rows, boards: d.Boards.rows, sessions: d.Sessions.rows, heads: { leads: d.Leads.head, members: d.Members.head, boards: d.Boards.head } });
       }
       const body = method === 'GET' ? {} : await request.json();
@@ -252,6 +360,50 @@ export async function onRequest(context) {
           }, mf));
         }
         return json({ ok: true });
+      }
+      if (r === 'agreement' && method === 'POST') {
+        // Send the membership agreement link to a lead.
+        const d = await readTabs(c, ['Leads']);
+        await ensureHeaders(c, 'Leads', d.Leads, LEAD_EXTRA);
+        const lead = d.Leads.rows.find(l => l._row === +body.row);
+        if (!lead) return bad('lead');
+        const email = String(body.email || lead['Email'] || '').trim().toLowerCase();
+        if (!email) return bad('email');
+        const f = { 'Agreement sent': nowStamp(), 'Stage': 'Agreement sent', 'Email': email };
+        if (body.amount) f['Deal value (ex VAT)'] = body.amount;
+        if (body.interest) f['Interested in'] = body.interest;
+        if (body.payLink != null) f['Payment link'] = body.payLink;
+        await writeCells(c, 'Leads', d.Leads.head, lead._row, f);
+        const link = await joinLink(c, email);
+        await mail(c, email, 'הסכם ההצטרפות שלך ל-The Board',
+          `<p>היי ${escH(firstName(lead['Name']))},</p><p>שמחנו לדבר! מצורף הקישור להסכם ההצטרפות ל-The Board. קוראים, חותמים דיגיטלית (לוקח שתי דקות), ומיד אחרי זה מגיעים לתשלום.</p>${btnHtml(link, 'לקריאה וחתימה על ההסכם')}<p>יש שאלה? פשוט להשיב למייל הזה.</p><p>נועם, עדי ואיתן</p>`);
+        return json({ ok: true, link });
+      }
+      if (r === 'misfit' && method === 'POST') {
+        const d = await readTabs(c, ['Leads']);
+        const lead = d.Leads.rows.find(l => l._row === +body.row);
+        if (!lead) return bad('lead');
+        const reason = String(body.reason || '').trim();
+        await writeCells(c, 'Leads', d.Leads.head, lead._row, { 'Stage': 'Not a fit', 'Lost reason': reason });
+        if (body.send && lead['Email']) {
+          await mail(c, String(lead['Email']).toLowerCase(), 'לגבי ההצטרפות ל-The Board',
+            `<p>היי ${escH(firstName(lead['Name']))},</p><p>תודה שמילאת את שאלון ההתאמה ושהקדשת לנו מזמנך.</p><p>אחרי שעברנו על הפרטים, נראה שכרגע אין לנו בורד שמתאים לך${reason ? ', ' + escH(reason) : ''}. אנחנו מקפידים על שולחנות שבהם כל המשתתפים נמצאים בשלב דומה, כדי שכל אחד ירוויח מהשולחן באמת.</p><p>אנחנו פותחים בורדים חדשים כל הזמן, ובהם גם בורדים ענפיים. ברגע שייפתח בורד שמתאים לך, נשמח לחזור אליך.</p><p>בהצלחה בינתיים,<br>נועם, עדי ואיתן<br>The Board</p>`);
+        }
+        return json({ ok: true });
+      }
+      if (r === 'paid' && method === 'POST') {
+        // Mark a lead as paid (manually until Grow is connected), then onboard if the agreement is signed.
+        const d = await readTabs(c, ['Leads', 'Members']);
+        await ensureHeaders(c, 'Leads', d.Leads, LEAD_EXTRA);
+        const lead = d.Leads.rows.find(l => l._row === +body.row);
+        if (!lead) return bad('lead');
+        const f = { 'Payment': 'Paid' };
+        if (body.invoice) f['Invoice'] = body.invoice;
+        if (body.amount) f['Deal value (ex VAT)'] = body.amount;
+        await writeCells(c, 'Leads', d.Leads.head, lead._row, f);
+        Object.assign(lead, f);
+        const onboarded = await maybeOnboard(c, d, lead);
+        return json({ ok: true, onboarded, waitingForSignature: !lead['Agreement signed'] });
       }
       if (r === 'member' && method === 'PUT') {
         const d = await readTabs(c, ['Members']);

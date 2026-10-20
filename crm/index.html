@@ -70,6 +70,25 @@ label.f textarea{min-height:80px;resize:vertical}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:30;font-weight:500;max-width:90vw}
 .toast.err{background:var(--red)}
+.calcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.calhead{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-bottom:10px}.calhead h3{margin:0;font-size:1rem}.calhead .muted{font-size:.82rem}
+.calscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bcal{display:grid;grid-template-columns:170px repeat(12,minmax(48px,1fr));gap:4px 0;min-width:780px}
+@media (max-width:600px){.bcal{grid-template-columns:118px repeat(12,48px);min-width:0}.bcal .lbl b{font-size:.8rem}}
+.bcal .c{grid-row:var(--r);grid-column:var(--c);min-width:0}
+.bcal .mo{text-align:center;font-size:.78rem;line-height:1.2;padding:2px 0 6px;border-bottom:1px solid var(--line)}.bcal .mo b{display:block;font-weight:600}.bcal .mo span{color:var(--muted);font-variant-numeric:tabular-nums}
+.bcal .mo.now{background:#F1FBE3;border-radius:8px 8px 0 0}
+.bcal .lbl{position:sticky;left:0;z-index:2;background:#fff;display:flex;flex-direction:column;justify-content:center;padding-right:8px;cursor:pointer;line-height:1.25;min-height:44px}
+.bcal .lbl b{display:flex;align-items:center;gap:6px;font-size:.88rem}.bcal .lbl b i{width:10px;height:10px;border-radius:50%;background:var(--k);flex:none}
+.bcal .lbl small{color:var(--muted);font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bcal .lbl small.warn{color:#B4532A}
+.bcal .s{display:grid;place-items:center;margin-block:5px;background:color-mix(in srgb,var(--k) 28%,#fff);cursor:pointer}
+.bcal .s.first{border-radius:999px 0 0 999px}.bcal .s.last{border-radius:0 999px 999px 0}.bcal .s.first.last{border-radius:999px}
+.bcal .s span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--k);color:var(--ink);font-weight:700;font-size:.8rem}
+.bcal .s.past span{opacity:.45}
+.bcal .sec{grid-column:var(--c) / span var(--n);margin:5px 0 5px 3px;border:1.5px dashed var(--k);border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:.76rem;color:var(--ink);background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--k) 16%,#fff) 0 7px,#fff 7px 14px);overflow:hidden;white-space:nowrap;cursor:pointer}
+.bcal .e{border-left:1px dashed #EEEEF3}
+.callegend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:.78rem;color:var(--muted)}.callegend span{border:1px solid var(--line);border-radius:999px;padding:2px 10px}.callegend b{color:var(--ink)}
 .grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .bcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:8px}
 .bcard h3{margin:0;font-size:1rem;display:flex;justify-content:space-between;gap:8px}
@@ -105,6 +124,7 @@ label.f textarea{min-height:80px;resize:vertical}
   </section>
   <section id="v-boards" hidden>
     <div class="toolbar"><button class="btn" id="add-board" type="button">+ New board</button></div>
+    <div class="calcard" id="bcal-wrap"><div class="calhead"><h3>Board calendar</h3><span class="muted">First Friday of every month · 6 foundation sessions per board, then it continues as a sector board · tap a board to edit</span></div><div class="calscroll"><div class="bcal" id="bcal"></div></div><div class="callegend" id="bcal-legend"></div></div>
     <div class="grid3" id="boards"></div>
   </section>
 </main>
@@ -323,7 +343,43 @@ label.f textarea{min-height:80px;resize:vertical}
 
   /* ---------- boards ---------- */
   function chairName(b){ var e = String(b["Chairman (email)"] || "").toLowerCase(); var m = e && D.members.find(function(x){ return String(x["Email (Google)"]).toLowerCase() === e; }); return m ? m["Full name"] : (b["Head of Board"] || ""); }
+  /* ---------- board calendar ---------- */
+  var BCOL = ["#A6E05A","#8F84FF","#FF9D7A","#5BC8F0","#F5C451","#F27BB7","#6FD3B0","#C9A0FF"];
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function pd(t){ var m = String(t).trim().match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/); if (!m) return null; var y = +m[3]; if (y < 100) y += 2000; return new Date(y, m[2] - 1, +m[1]); }
+  function bdates(b){ return String(b["Session dates"] || "").split(/[,;\n]+/).map(pd).filter(Boolean).sort(function(a, c){ return a - c; }); }
+  function firstFriday(y, m){ var d = new Date(y, m, 1); d.setDate(1 + ((5 - d.getDay() + 7) % 7)); return d; }
+  function renderCal(){
+    var list = D.boards.filter(function(b){ return b["Board"]; });
+    var now = new Date(); now.setHours(0, 0, 0, 0);
+    var starts = list.map(function(b){ return bdates(b)[0]; }).filter(function(d){ return d && d >= new Date(now.getFullYear(), now.getMonth() - 1, 1); });
+    var s0 = starts.length ? new Date(Math.min.apply(null, starts)) : now;
+    var y0 = s0.getFullYear(), m0 = s0.getMonth();
+    var months = []; for (var i = 0; i < 12; i++) months.push(firstFriday(y0 + Math.floor((m0 + i) / 12), (m0 + i) % 12));
+    var idx = function(d){ return (d.getFullYear() - y0) * 12 + d.getMonth() - m0; };
+    var h = '<div class="c" style="--r:1;--c:1"></div>' + months.map(function(d, i){ var cur = d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); return '<div class="c mo' + (cur ? ' now' : '') + '" style="--r:1;--c:' + (i + 2) + '"><b>' + MON[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2) + '</b><span>' + d.getDate() + '.' + (d.getMonth() + 1) + '</span></div>'; }).join("");
+    list.forEach(function(b, r){
+      var k = BCOL[r % BCOL.length], R = r + 2, ds = bdates(b);
+      var seated = D.members.filter(function(m){ return m["Board"] === b["Board"] && m["Status"] !== "Ended"; }).length;
+      var ch = chairName(b);
+      h += '<div class="c lbl" style="--r:' + R + ';--c:1;--k:' + k + '" data-b="' + b._row + '"><b><i></i>' + esc(b["Board"]) + '</b><small>' + seated + '/8 seated' + (ch ? ' · <span class="he">' + esc(ch) + '</span>' : '') + '</small>' + (ch ? '' : '<small class="warn">No chairman yet</small>') + '</div>';
+      var used = {};
+      ds.forEach(function(d, n){
+        var c = idx(d); if (c < 0 || c > 11) return; used[c] = 1;
+        var cls = (n === 0 ? ' first' : '') + (n === ds.length - 1 ? ' last' : '') + (d < now ? ' past' : '');
+        h += '<div class="c s' + cls + '" style="--r:' + R + ';--c:' + (c + 2) + ';--k:' + k + '" data-b="' + b._row + '" title="' + esc(b["Board"]) + ', session ' + (n + 1) + ' · ' + d.getDate() + '.' + (d.getMonth() + 1) + '.' + String(d.getFullYear()).slice(2) + '"><span>' + (n + 1) + '</span></div>';
+      });
+      var last = ds.length ? idx(ds[ds.length - 1]) : 11;
+      var after = (b["Type"] || "Foundations board") === "Foundations board" && ds.length ? Math.max(last + 1, 0) : 12;
+      for (var c = 0; c < Math.min(after, 12); c++) if (!used[c]) h += '<div class="c e" style="--r:' + R + ';--c:' + (c + 2) + '"></div>';
+      if (after < 12) { var n = 12 - after; h += '<div class="c sec" style="--r:' + R + ';--c:' + (after + 2) + ';--n:' + n + ';--k:' + k + '" data-b="' + b._row + '" title="Continues as a sector board">' + (n >= 3 ? 'Sector board · RE · EC · SE' : n === 2 ? 'Sector board' : 'Sector') + '</div>'; }
+    });
+    $("bcal").innerHTML = h;
+    $("bcal-legend").innerHTML = '<span>Sector boards:</span><span><b>RE</b> Real Estate · נדל״ן</span><span><b>EC</b> E-Commerce · אי-קומרס</span><span><b>SE</b> Services · שירותים</span><span>more coming</span>';
+    $("bcal").querySelectorAll("[data-b]").forEach(function(x){ x.onclick = function(){ openBoard(+x.dataset.b); }; });
+  }
   function renderBoards(){
+    try { renderCal(); } catch (e) { $("bcal").innerHTML = '<p class="empty">Calendar could not be drawn: ' + esc(e.message) + '</p>'; }
     $("boards").innerHTML = D.boards.filter(function(b){ return b["Board"]; }).map(function(b){
       var people = D.members.filter(function(m){ return m["Board"] === b["Board"] && m["Status"] !== "Ended"; });
       return '<div class="bcard"><h3><span>' + esc(b["Board"]) + ' <span class="muted he" style="font-weight:400">' + esc(b["Name in Hebrew (members see this)"]) + '</span></span><span class="badge" style="background:' + (people.length >= 8 ? '#F3D4D4' : '#D9F7B0') + '">' + people.length + '/8</span></h3><div class="muted" style="font-size:.85rem">' + esc(b["Type"]) + ' · ' + esc(b["Start"]) + ' → ' + esc(b["Last session"]) + (chairName(b) ? ' · Chairman: <span class="he">' + esc(chairName(b)) + '</span>' : ' · <b style="color:#B4532A">No chairman yet</b>') + '</div><div class="seats">' +

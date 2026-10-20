@@ -1,3 +1,6 @@
 /download/*
   Content-Disposition: attachment
   X-Robots-Tag: noindex, nofollow
+/tools/*
+  X-Robots-Tag: noindex, nofollow
+  Access-Control-Allow-Origin: *

@@ -30,7 +30,7 @@
     <h1 id="hello">הסכם הצטרפות</h1>
     <p class="muted">קוראים את ההסכם, ממלאים פרטים וחותמים. החתימה נשמרת יחד עם התאריך, השעה ופרטי החותם.</p>
     <article class="card doc" id="doc"></article>
-    <form class="card" id="form" novalidate>
+    <form class="card" id="form" novalidate onsubmit="return false">
       <h2>פרטי החותם</h2>
       <div class="grid">
         <label><span>שם מלא</span><input name="name" required autocomplete="name"></label>
@@ -62,17 +62,17 @@ document.addEventListener("DOMContentLoaded", function(){
     var first = String(res.name || "").split(" ")[0];
     $("hello").textContent = first ? "היי " + first + ", הסכם ההצטרפות שלך" : "הסכם ההצטרפות שלך";
     $("doc").innerHTML = TBSign.docHtml(res.doc);
-    $("form").name.value = res.name || ""; $("form").company.value = res.company || "";
-    pad = TBSign.mount($("sig"), { nameInput: $("form").name });
+    $("form").elements["name"].value = res.name || ""; $("form").company.value = res.company || "";
+    pad = TBSign.mount($("sig"), { nameInput: $("form").elements["name"] });
     $("form").addEventListener("submit", function(ev){
       ev.preventDefault();
       var f = this, msg = $("msg");
       msg.className = "msg err";
-      if (f.name.value.trim().length < 2) { msg.textContent = "נא למלא שם מלא."; return; }
+      if (f.elements["name"].value.trim().length < 2) { msg.textContent = "נא למלא שם מלא."; return; }
       if (pad.empty()) { msg.textContent = pad.mode() === "type" ? "נא להקליד את השם לחתימה." : "נא לחתום באזור החתימה."; return; }
       if (!f.agree.checked) { msg.textContent = "יש לאשר שקראת את ההסכם."; return; }
       $("submit").disabled = true; msg.className = "msg"; msg.textContent = "שומר את החתימה...";
-      pad.data().then(function(sig){ return fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ e: e, t: t, name: f.name.value.trim(), id_number: f.id_number.value.trim(), company: f.company.value.trim(), agree: true, signature: sig, mode: pad.mode() }) }); })
+      pad.data().then(function(sig){ return fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ e: e, t: t, name: f.elements["name"].value.trim(), id_number: f.id_number.value.trim(), company: f.company.value.trim(), agree: true, signature: sig, mode: pad.mode() }) }); })
         .then(function(r){ return r.json(); }).then(function(r){
           if (!r.ok) throw new Error(r.error);
           $("sign").hidden = true; $("signed").hidden = false; window.scrollTo(0, 0);

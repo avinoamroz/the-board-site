@@ -799,13 +799,39 @@ footer .mark{margin:0}
   var msg = document.getElementById("f-msg");
   var btn = document.getElementById("f-submit");
   function val(id){ return (document.getElementById(id).value || "").trim(); }
-  function src(){
-    try {
-      var p = new URLSearchParams(location.search);
-      var u = ["utm_source","utm_medium","utm_campaign"].map(function(k){ return p.get(k); }).filter(Boolean).join("/");
-      return u || document.referrer || "direct";
-    } catch(e){ return "direct"; }
+  var KEYS = ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"];
+  function store(k, v){ try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch(e){ return null; } }
+  function touch(){
+    var t = {}, p;
+    try { p = new URLSearchParams(location.search); } catch(e){ p = null; }
+    KEYS.forEach(function(k){ var v = p && p.get(k); if (v) t[k] = v.toLowerCase().trim(); });
+    var ref = "";
+    try { ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./,"") : ""; } catch(e){}
+    if (ref === location.hostname.replace(/^www\./,"")) ref = "";
+    if (!t.utm_source && ref) {
+      var map = [[/instagram/,"meta","ig"],[/facebook|fb\./,"meta","fb"],[/google\./,"google","organic"],[/linkedin|lnkd/,"linkedin","organic"],[/whatsapp|wa\.me/,"whatsapp","organic"],[/t\.co$|twitter|x\.com/,"x","organic"]];
+      var hit = map.filter(function(m){ return m[0].test(ref); })[0];
+      t.utm_source = hit ? hit[1] : ref; t.utm_medium = hit ? hit[2] : "referral"; t.utm_campaign = "organic";
+    }
+    t.ref = ref; t.landing = location.pathname + location.search; t.at = new Date().toISOString().slice(0,16).replace("T"," ");
+    return t;
   }
+  (function(){
+    var t = touch();
+    if (!store("tb_first")) store("tb_first", t);
+    if (t.utm_source) store("tb_last", t);
+  })();
+  function attribution(){
+    var first = store("tb_first") || {}, last = store("tb_last") || first, out = {};
+    KEYS.forEach(function(k){ out[k] = last[k] || ""; });
+    if (!out.utm_source) { out.utm_source = "direct"; out.utm_medium = "none"; }
+    out.ref = last.ref || first.ref || "";
+    out.landing = first.landing || "";
+    out.first_visit = first.at || "";
+    out.first_source = [first.utm_source, first.utm_medium, first.utm_campaign].filter(Boolean).join("/") || "direct";
+    return out;
+  }
+  function src(){ var a = attribution(); return [a.utm_source, a.utm_medium, a.utm_campaign].filter(Boolean).join("/"); }
   document.querySelectorAll("[data-board]").forEach(function(a){
     a.addEventListener("click", function(){ document.getElementById("f-board").value = a.getAttribute("data-board"); });
   });
@@ -828,11 +854,11 @@ footer .mark{margin:0}
     fetch(HOOK, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
+      body: JSON.stringify(Object.assign({
         name: name, phone: phone, email: val("f-email"),
         business: val("f-business"), message: val("f-message"), board: val("f-board"), role: val("f-role"), years: val("f-years"), revenue: val("f-revenue"), share_numbers: val("f-numbers"), commitment: val("f-commit"), type: "fit_check", consent: "yes",
         website: val("f-website"), src: src()
-      })
+      }, attribution()))
     }).then(function(r){
       if (!r.ok) throw new Error(r.status);
       form.reset();

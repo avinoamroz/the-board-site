@@ -38,3 +38,5 @@ Instructions for Claude when anyone on the team (Noam, Adi, Ethan) asks to chang
 - Secrets (sheet pipe key, session secret) live in the D1 database `the-board-config`, table `config`. Never put secrets in this repo, it is public.
 - Make scenarios: 18 (questionnaire to Leads + team email), 19 (sheet pipe used by the API), 20 (mailer).
 - Do not change the API, sign-in or signing logic unless explicitly asked.
+- Make scenario 21 is the calendar pipe: seating a member on a board (CRM close, member board/status change, new member) sends them a Google Calendar invite for every upcoming session, from the "The Board · מפגשי הבורדים" calendar on Noam's account. Changing a board's dates, hours, location or Hebrew name updates everyone's invites. Location and hours come from the Boards tab (Hours as HH:MM-HH:MM).
+- Language switch: `/assets/i18n.js` adds an EN/עב button to the member area and the agreement page. Hebrew stays the source; when you add Hebrew UI text there, add its English to the `EN` dictionary in that file.

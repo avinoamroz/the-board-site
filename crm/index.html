@@ -217,7 +217,7 @@ label.f textarea{min-height:80px;resize:vertical}
       '<div class="box"><h3>Deal</h3><div class="fg">' +
         '<label class="f">Stage<select data-f="Stage">' + opt(STAGES, l["Stage"] || "New lead") + '</select></label>' +
         '<label class="f">Interested in<select data-f="Interested in">' + opt(INTEREST, l["Interested in"]) + '</select></label>' +
-        '<label class="f">Owner<select data-f="Owner">' + opt(["Adi","Noam","Ethan"], l["Owner"]) + '</select></label>' +
+        '<label class="f">Owner<select data-f="Owner">' + opt(["Adi","Noam","Ethan"], l["Owner"] || "Adi") + '</select></label>' +
         '<label class="f">Deal value (ex VAT)<input data-f="Deal value (ex VAT)" inputmode="numeric" value="' + esc(l["Deal value (ex VAT)"]) + '" placeholder="4000"></label>' +
         '<label class="f">Call date<input type="date" data-f="Call date" value="' + esc(l["Call date"]) + '"></label>' +
         '<label class="f">Next follow-up<input type="date" data-f="Next follow-up" value="' + esc(l["Next follow-up"]) + '"></label>' +
@@ -315,7 +315,9 @@ label.f textarea{min-height:80px;resize:vertical}
         '<label class="f full">Invoice link<input data-f="Invoice" value="' + esc(m["Invoice"]) + '"></label>' +
         '<label class="f full">Internal notes (founders only)<textarea data-f="Internal notes" class="he">' + esc(m["Internal notes"]) + '</textarea></label>' +
       '</div><div class="actions"><button class="btn" id="save-m">Save</button></div></div>' +
+      '<div class="box"><h3>Calendar invites</h3><p class="muted" style="margin:0 0 10px">Seating someone on a board sends them a Google Calendar invite for every upcoming session (with the location). They approve it in their own calendar.</p><p style="margin:0 0 10px"><b>' + esc(m["Calendar"] || "Not sent yet") + '</b></p><div class="actions"><button class="btn ghost" id="cal-m"' + (m["Board"] ? '' : ' disabled') + '>Send / refresh invites</button></div></div>' +
       '<div class="box"><h3>Profile</h3><div class="kv">' + [["Email", m["Email (Google)"]], ["Gender", m["Gender"]], ["City", m["City"]], ["Company type", m["Company type"]], ["Tagline", m["Tagline"]], ["Role", m["Role"]], ["Website", m["Website"]], ["Instagram", m["Instagram"]], ["Facebook", m["Facebook"]], ["Revenue", m["Annual revenue"]], ["Employees", m["Employees"]], ["Challenge", m["Main challenge"]], ["Personal goals", m["Personal goals"]], ["Business goals", m["Business goals"]], ["NDA", (m["NDA signed"] || "No") + (m["NDA date"] ? " · " + m["NDA date"] : "")], ["Agreement", m["Agreement"]], ["Profile updated", m["Profile updated"]]].map(function(p){ return '<span>' + p[0] + '</span><span class="he" style="color:var(--ink)">' + esc(p[1] || "") + '</span>'; }).join("") + '</div>' + (m["Logo"] ? '<img src="' + esc(m["Logo"]) + '" alt="logo" style="max-width:120px;max-height:80px;object-fit:contain">' : '') + '</div></div>');
+    $("cal-m").onclick = function(){ busy(this, api("admin/calendar", "POST", { row: row }).then(function(r){ m["Calendar"] = r.sent ? "Sent just now · " + r.sent + " invites" : m["Calendar"]; toast(r.sent ? "Sent " + r.sent + " invites" : "No upcoming sessions to send", !r.sent); openMember(row); })).catch(function(e){ toast(e.message, 1); }); };
     $("save-m").onclick = function(){ var f = vals($("panel")); busy(this, api("admin/member", "PUT", { row: row, fields: f }).then(function(){ Object.assign(m, f); toast("Saved"); renderMembers(); })).catch(function(e){ toast(e.message, 1); }); };
   }
 

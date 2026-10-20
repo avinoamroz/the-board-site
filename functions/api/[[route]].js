@@ -11,7 +11,7 @@ const MEMBER_EDITABLE = {
   'Instagram': 'instagram', 'Facebook': 'facebook', 'Main challenge': 'challenge',
   'Personal goals': 'personal_goals', 'Business goals': 'business_goals'
 };
-const MEMBER_READONLY = { 'Email (Google)': 'email', 'Membership': 'membership', 'Board': 'board', 'Status': 'status', 'Joined': 'joined', 'Logo': 'logo', 'Photo': 'photo', 'NDA signed': 'nda', 'NDA date': 'nda_date', 'Invoice': 'invoice' };
+const MEMBER_READONLY = { 'Email (Google)': 'email', 'Membership': 'membership', 'Board': 'board', 'Status': 'status', 'Joined': 'joined', 'Logo': 'logo', 'Photo': 'photo', 'NDA signed': 'nda', 'NDA date': 'nda_date', 'Invoice': 'invoice', 'Calendar': 'calendar' };
 const MATE_FIELDS = ['name', 'gender', 'phone', 'city', 'company', 'company_type', 'tagline', 'website', 'instagram', 'facebook', 'logo', 'photo', 'role'];
 const LEAD_EDITABLE = ['Stage', 'Interested in', 'Board (form)', 'Name', 'Phone', 'Email', 'Company & field', 'Role', 'Owner', 'Call date', 'Next follow-up', 'Deal value (ex VAT)', 'Lost reason', 'Notes', 'Call summary (link)', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'Payment', 'Payment link', 'Invoice'];
 const MEMBER_ADMIN = ['Membership', 'Board', 'Status', 'Joined', 'Payment', 'Paid (ex VAT)', 'NDA signed', 'Internal notes', 'Invoice'];
@@ -174,6 +174,77 @@ async function maybeOnboard(c, d, lead) {
   return true;
 }
 
+/* ---------- calendar invites ----------
+   Every seated member gets one Google Calendar invite per upcoming session of their board,
+   sent from the "The Board" calendar on Noam's account (Make scenario 21). They accept (Yes)
+   in their own calendar, which is how we know the date works for them. Event ids are
+   deterministic (board + date + email), so re-syncing updates instead of duplicating. */
+const MEMBER_CAL = ['Calendar'];
+async function cal(c, method, path, body) {
+  if (!c.cal_url || !c.cal_id) return { status: 0 };
+  const r = await fetch(c.cal_url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: c.pipe_key, method, url: `/v3/calendars/${encodeURIComponent(c.cal_id)}${path}`, body }) });
+  try { return await r.json(); } catch (e) { return { status: 0 }; }
+}
+async function eventId(board, date, email) {
+  const h = await crypto.subtle.digest('SHA-256', enc.encode(`${board}|${date}|${norm(email)}`));
+  return 'tb' + [...new Uint8Array(h)].slice(0, 16).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function ymd(d) { const x = parseIL(d); return x ? x.toISOString().slice(0, 10) : ''; }
+function upcoming(dates) { const t = today(); return dates.filter(d => { const y = ymd(d); return y && y >= t; }); }
+function sessionEvent(b, date, email) {
+  const v = boardView(b);
+  const [from, to] = (String(v.hours || '').match(/(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/) || [, '10:00', '15:00']).slice(1).map(s => s.padStart(5, '0'));
+  const idx = v.dates.indexOf(date) + 1;
+  return {
+    summary: `The Board · ${v.name}${idx ? ` · מפגש ${idx}` : ''}`,
+    location: v.location || '',
+    description: `מפגש ${v.name} של The Board.\n\nמיקום: ${v.location || 'יעודכן'}\nשעות: ${from} עד ${to}\n\nנא לאשר את ההזמנה (Yes) כדי שהמפגש יישמר ביומן שלך ונדע שהתאריך פנוי. אם יש התנגשות, כתבו לנו: info@the-board.co.il\n\nחומרי ההכנה למפגש: https://the-board.co.il/members/\n\nמה שקורה בבורד נשאר בבורד.`,
+    start: { dateTime: `${ymd(date)}T${from}:00`, timeZone: 'Asia/Jerusalem' },
+    end: { dateTime: `${ymd(date)}T${to}:00`, timeZone: 'Asia/Jerusalem' },
+    attendees: [{ email }],
+    guestsCanInviteOthers: false, guestsCanSeeOtherGuests: false,
+    reminders: { useDefault: false, overrides: [{ method: 'email', minutes: 3 * 24 * 60 }, { method: 'popup', minutes: 24 * 60 }] }
+  };
+}
+// Sync one member's invites. prevBoard: the board they were on before (its upcoming invites are cancelled).
+// details: true when the board's date, time or location changed (existing invites are updated first).
+async function syncMemberCalendar(c, email, boardKey, prevBoardKey, opts = {}) {
+  if (!c.cal_url || !c.cal_id || !email) return { sent: 0 };
+  const d = await readTabs(c, ['Boards', 'Members']);
+  const m = d.Members.rows.find(x => norm(x['Email (Google)']) === norm(email));
+  const active = m && m['Status'] !== 'Ended' && m['Status'] !== 'Paused';
+  const find = k => d.Boards.rows.find(x => x['Board'] === k);
+  const cancel = async (k, dates) => { for (const dt of dates) await cal(c, 'DELETE', `/events/${await eventId(k, dt, email)}?sendUpdates=all`); };
+  if (prevBoardKey && prevBoardKey !== boardKey && find(prevBoardKey)) await cancel(prevBoardKey, upcoming(boardView(find(prevBoardKey)).dates));
+  if (opts.removedDates && boardKey) await cancel(boardKey, opts.removedDates);
+  const b = boardKey && find(boardKey);
+  let sent = 0;
+  if (b && active) {
+    for (const dt of upcoming(boardView(b).dates)) {
+      const id = await eventId(boardKey, dt, email), ev = sessionEvent(b, dt, email);
+      let r = opts.details ? await cal(c, 'PATCH', `/events/${id}?sendUpdates=all`, Object.assign({}, ev, { status: 'confirmed', attendees: undefined })) : { status: 0 };
+      if (r.status !== 200) r = await cal(c, 'POST', `/events?sendUpdates=all`, Object.assign({ id }, ev));
+      if (r.status !== 200) r = await cal(c, 'PATCH', `/events/${id}?sendUpdates=all`, Object.assign({}, ev, { status: 'confirmed' })); // invite existed before (e.g. re-seated)
+      if (r.status === 200) sent++;
+    }
+  } else if (b && !active) await cancel(boardKey, upcoming(boardView(b).dates));
+  if (m) {
+    await ensureHeaders(c, 'Members', d.Members, MEMBER_CAL);
+    await writeCells(c, 'Members', d.Members.head, m._row, { 'Calendar': sent ? `${nowStamp()} · ${sent} invites (${boardKey})` : '' });
+  }
+  return { sent };
+}
+// Each member's sync runs as its own request (keeps every call well under the per-request limits).
+async function queueCalendar(c, context, jobs) {
+  const list = jobs.filter(j => j && j.email);
+  if (!list.length || !c.cal_url) return;
+  const origin = new URL(context.request.url).origin;
+  context.waitUntil(Promise.all(list.map(async j => {
+    const payload = JSON.stringify(j);
+    await fetch(origin + '/api/calsync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ job: payload, sig: await hmac(c.session_secret, 'cal:' + payload) }) }).catch(() => {});
+  })));
+}
+
 /* ---------- images ---------- */
 async function saveImage(env, c, kind, email, dataUrl) {
   const m = String(dataUrl || '').match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
@@ -237,6 +308,13 @@ export async function onRequest(context) {
       const s = { email: String(p.email).toLowerCase(), name: p.name || '', picture: p.picture || '', exp: Date.now() + MAX_AGE * 1000 };
       const admin = (c.admins || '').split(',').map(norm).includes(norm(s.email));
       return json({ ok: true, email: s.email, name: s.name, picture: s.picture, admin }, 200, { 'Set-Cookie': await makeCookie(s, c) });
+    }
+    if (route === 'calsync' && method === 'POST') {
+      // Internal: queued by queueCalendar, signed with the session secret.
+      const { job, sig } = await request.json();
+      if (!job || sig !== await hmac(c.session_secret, 'cal:' + job)) return bad('sig', 403);
+      const j = JSON.parse(job);
+      return json(Object.assign({ ok: true }, await syncMemberCalendar(c, j.email, j.board, j.prev, j)));
     }
     if (route === 'logout') return json({ ok: true }, 200, { 'Set-Cookie': `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
 
@@ -359,6 +437,8 @@ export async function onRequest(context) {
             'Main challenge': lead['Main challenge'], 'Joined': today(), 'NDA signed': 'No'
           }, mf));
         }
+        const prev = existing ? existing['Board'] : '';
+        if (mf['Board'] || prev) await queueCalendar(c, context, [{ email, board: mf['Board'], prev }]);
         return json({ ok: true });
       }
       if (r === 'agreement' && method === 'POST') {
@@ -410,6 +490,10 @@ export async function onRequest(context) {
         const allowed = MEMBER_ADMIN.concat(Object.keys(MEMBER_EDITABLE));
         const f = {}; allowed.forEach(h => { if (h in body.fields) f[h] = body.fields[h]; });
         await writeCells(c, 'Members', d.Members.head, +body.row, f);
+        const was = d.Members.rows.find(m => m._row === +body.row);
+        if (was && (('Board' in f && f['Board'] !== was['Board']) || ('Status' in f && f['Status'] !== was['Status']))) {
+          await queueCalendar(c, context, [{ email: was['Email (Google)'], board: 'Board' in f ? f['Board'] : was['Board'], prev: was['Board'] }]);
+        }
         return json({ ok: true });
       }
       if (r === 'member' && method === 'POST') {
@@ -420,13 +504,32 @@ export async function onRequest(context) {
         const f = { 'Email (Google)': email, 'Joined': today(), 'Status': 'Active' };
         MEMBER_ADMIN.concat(Object.keys(MEMBER_EDITABLE)).forEach(h => { if (h in body.fields) f[h] = body.fields[h]; });
         await appendRow(c, 'Members', d.Members.head, f);
+        if (f['Board']) await queueCalendar(c, context, [{ email, board: f['Board'] }]);
         return json({ ok: true });
       }
+      if (r === 'calendar' && method === 'POST') {
+        // Resend / refresh one member's calendar invites (button in the CRM member drawer).
+        const d = await readTabs(c, ['Members']);
+        const m = d.Members.rows.find(x => x._row === +body.row);
+        if (!m || !m['Board']) return bad('board');
+        const out = await syncMemberCalendar(c, m['Email (Google)'], m['Board'], '', { details: true });
+        return json({ ok: true, sent: out.sent });
+      }
       if (r === 'board' && method === 'PUT') {
-        const d = await readTabs(c, ['Boards']);
+        const d = await readTabs(c, ['Boards', 'Members']);
         const f = {}; BOARD_EDITABLE.forEach(h => { if (h in body.fields) f[h] = body.fields[h]; });
         if (body.row) await writeCells(c, 'Boards', d.Boards.head, +body.row, f);
         else await appendRow(c, 'Boards', d.Boards.head, f);
+        const was = body.row && d.Boards.rows.find(b => b._row === +body.row);
+        if (was) {
+          const changed = ['Session dates', 'Location', 'Hours', 'Name in Hebrew (members see this)'].some(h => h in f && f[h] !== was[h]);
+          if (changed) {
+            const now = boardView(Object.assign({}, was, f)).dates;
+            const removedDates = upcoming(boardView(was).dates).filter(x => !now.includes(x));
+            const seated = d.Members.rows.filter(m => m['Board'] === was['Board'] && m['Status'] !== 'Ended' && m['Email (Google)']);
+            await queueCalendar(c, context, seated.map(m => ({ email: m['Email (Google)'], board: was['Board'], details: true, removedDates })));
+          }
+        }
         return json({ ok: true });
       }
       return bad('not found', 404);

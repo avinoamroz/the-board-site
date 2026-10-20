@@ -9,6 +9,7 @@
 <link rel="icon" href="/brand/the-board-icon-dark-bg.svg?v=2" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png?v=2">
 <script src="/assets/sign.js" defer></script>
+<script src="/assets/i18n.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&family=Heebo:wght@300;400;500;700;800&display=swap">
@@ -149,6 +150,7 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .sigwrap>span{display:block;font-size:.86rem;font-weight:500;color:var(--muted);margin-bottom:5px}
 .check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:400}
 .check input{width:20px;height:20px;margin-top:4px;flex:none}
+.cal-note{margin:12px 0 0;background:var(--paper);border-radius:14px;padding:12px 14px;font-size:.9rem;line-height:1.6}
 .locked{background:var(--paper);border-radius:14px;padding:12px 14px;color:var(--muted);font-size:.92rem;text-align:center}
 @media (max-width:860px){.steps{grid-template-columns:1fr 1fr}}
 footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 20px 30px}
@@ -161,7 +163,8 @@ footer a{color:var(--muted)}
 <header>
   <div class="bar">
     <a class="mark" href="/" aria-label="The Board, לעמוד הבית"><svg viewBox="-52 -52 104 104" aria-hidden="true"><circle r="25" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="7"><rect x="-8" y="-46" width="16" height="11" rx="4"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(45)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(90)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(135)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(180)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(225)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(270)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(315)"/></g></svg>THE BOARD</a>
-    <div class="who" id="who" hidden><a class="pill" id="crm-link" href="/crm/" hidden>CRM</a><img id="who-pic" alt=""><span id="who-name"></span><button class="pill" id="signout" type="button">יציאה</button></div>
+    <div style="display:flex;gap:10px;align-items:center"><span data-lang-slot></span>
+    <div class="who" id="who" hidden><a class="pill" id="crm-link" href="/crm/" hidden>CRM</a><img id="who-pic" alt=""><span id="who-name"></span><button class="pill" id="signout" type="button">יציאה</button></div></div>
   </div>
   <nav class="tabs" id="tabs" role="tablist" hidden>
     <button role="tab" data-tab="board" aria-selected="true">הבורד שלי</button>
@@ -395,6 +398,7 @@ footer a{color:var(--muted)}
     if (b.dates && b.dates.length) {
       var before = !!b.next;
       s += '<h3>מועדי המפגשים</h3><div class="dates">' + b.dates.map(function(d){ var cls = d === b.next ? "next" : (before ? "past" : ""); if (d === b.next) before = false; return '<span class="' + cls + '">' + esc(d) + '</span>'; }).join("") + '</div>';
+      if (data.profile.calendar) s += '<p class="cal-note">📅 שלחנו לך הזמנה ליומן Google לכל מפגש, עם המיקום. נא לאשר אותן ביומן (Yes) כדי לוודא שאין התנגשות. יש התנגשות? כתבו לנו ל-<a href="mailto:info@the-board.co.il">info@the-board.co.il</a>.</p>';
     }
     if (data.profile.nda !== "Yes") s += '<div class="locked">כדי לראות את פרטי הקשר של חברי הבורד ואת קבוצת הוואטסאפ, חותמים על <a href="#nda" data-go="nda">הסכם הסודיות</a>.</div>';
     else if (b.whatsapp) s += '<a class="btn" href="' + esc(url(b.whatsapp)) + '" target="_blank" rel="noopener">לקבוצת הוואטסאפ של הבורד</a>';

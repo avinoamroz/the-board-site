@@ -147,7 +147,6 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .doc-ver{color:var(--muted);font-size:.85rem;margin:2px 0 0}
 .sigwrap{margin-top:14px}
 .sigwrap>span{display:block;font-size:.86rem;font-weight:500;color:var(--muted);margin-bottom:5px}
-canvas#pad{display:block;width:100%;height:160px;border:1.5px dashed #B9B9CC;border-radius:16px;background:#FCFCFE;touch-action:none}
 .check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:400}
 .check input{width:20px;height:20px;margin-top:4px;flex:none}
 .locked{background:var(--paper);border-radius:14px;padding:12px 14px;color:var(--muted);font-size:.92rem;text-align:center}
@@ -273,7 +272,7 @@ footer a{color:var(--muted)}
           <label><span>שם מלא</span><input name="name" autocomplete="name"></label>
           <label><span>מספר ת״ז</span><input name="id_number" inputmode="numeric" dir="ltr"></label>
         </div>
-        <div class="sigwrap"><span>חתימה</span><canvas id="pad" aria-label="אזור החתימה"></canvas><button type="button" class="pill" style="color:var(--plum);border-color:var(--line);margin-top:8px" id="pad-clear">ניקוי</button></div>
+        <div class="sigwrap"><span>חתימה</span><div id="sig"></div></div>
         <label class="check"><input type="checkbox" name="agree"> קראתי את הסכם הסודיות ואני מתחייב/ת לשמור על סודיות כל המידע על חברי הבורד והעסקים שלהם</label>
         <div class="actions"><button class="btn" id="nda-submit" type="submit">חתימה על הסכם הסודיות</button><span class="msg" id="nda-msg" role="status"></span></div>
       </form>
@@ -514,18 +513,17 @@ footer a{color:var(--muted)}
     ndaLoaded = true;
     fetch("/api/doc/nda").then(function(r){ return r.json(); }).then(function(r){ $("nda-doc").innerHTML = TBSign.docHtml(r.doc); });
     $("nda-form").name.value = p.name || "";
-    ndaPad = TBSign.pad($("pad"));
-    $("pad-clear").addEventListener("click", function(){ ndaPad.clear(); });
+    ndaPad = TBSign.mount($("sig"), { nameInput: $("nda-form").name });
   }
   $("nda-form").addEventListener("submit", function(ev){
     ev.preventDefault();
     var f = this, msg = $("nda-msg");
     msg.className = "msg err";
     if (f.name.value.trim().length < 2) { msg.textContent = "נא למלא שם מלא."; return; }
-    if (!ndaPad || ndaPad.empty()) { msg.textContent = "נא לחתום באזור החתימה."; return; }
+    if (!ndaPad || ndaPad.empty()) { msg.textContent = ndaPad && ndaPad.mode() === "type" ? "נא להקליד את השם לחתימה." : "נא לחתום באזור החתימה."; return; }
     if (!f.agree.checked) { msg.textContent = "יש לאשר את ההתחייבות לסודיות."; return; }
     $("nda-submit").disabled = true; msg.className = "msg"; msg.textContent = "שומר...";
-    api("nda", { method: "POST", body: { name: f.name.value.trim(), id_number: f.id_number.value.trim(), agree: true, signature: ndaPad.data() } }).then(function(r){
+    ndaPad.data().then(function(sig){ return api("nda", { method: "POST", body: { name: f.name.value.trim(), id_number: f.id_number.value.trim(), agree: true, signature: sig } }); }).then(function(r){
       data.profile.nda = "Yes"; data.profile.nda_date = r.signed;
       start();
     }).catch(function(){ $("nda-submit").disabled = false; msg.className = "msg err"; msg.textContent = "החתימה לא נשמרה. נסו שוב."; });

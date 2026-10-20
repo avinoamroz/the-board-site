@@ -36,7 +36,7 @@
         <label><span>מספר ת״ז</span><input name="id_number" inputmode="numeric" dir="ltr"></label>
         <label class="full"><span>שם החברה</span><input name="company" autocomplete="organization"></label>
       </div>
-      <div class="sigwrap"><span>חתימה</span><canvas id="pad" aria-label="אזור החתימה"></canvas><button type="button" class="link" id="clear">ניקוי</button></div>
+      <div class="sigwrap"><span>חתימה</span><div id="sig"></div></div>
       <label class="check"><input type="checkbox" name="agree"> קראתי את ההסכם ואני מסכים/ה לכל תנאיו, כולל ההתחייבות לסודיות</label>
       <div class="actions"><button class="btn" id="submit" type="submit">חתימה על ההסכם</button><span class="msg" id="msg" role="status"></span></div>
     </form>
@@ -62,17 +62,16 @@ document.addEventListener("DOMContentLoaded", function(){
     $("hello").textContent = first ? "היי " + first + ", הסכם ההצטרפות שלך" : "הסכם ההצטרפות שלך";
     $("doc").innerHTML = TBSign.docHtml(res.doc);
     $("form").name.value = res.name || ""; $("form").company.value = res.company || "";
-    pad = TBSign.pad($("pad"));
-    $("clear").addEventListener("click", function(){ pad.clear(); });
+    pad = TBSign.mount($("sig"), { nameInput: $("form").name });
     $("form").addEventListener("submit", function(ev){
       ev.preventDefault();
       var f = this, msg = $("msg");
       msg.className = "msg err";
       if (f.name.value.trim().length < 2) { msg.textContent = "נא למלא שם מלא."; return; }
-      if (pad.empty()) { msg.textContent = "נא לחתום באזור החתימה."; return; }
+      if (pad.empty()) { msg.textContent = pad.mode() === "type" ? "נא להקליד את השם לחתימה." : "נא לחתום באזור החתימה."; return; }
       if (!f.agree.checked) { msg.textContent = "יש לאשר שקראת את ההסכם."; return; }
       $("submit").disabled = true; msg.className = "msg"; msg.textContent = "שומר את החתימה...";
-      fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ e: e, t: t, name: f.name.value.trim(), id_number: f.id_number.value.trim(), company: f.company.value.trim(), agree: true, signature: pad.data() }) })
+      pad.data().then(function(sig){ return fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ e: e, t: t, name: f.name.value.trim(), id_number: f.id_number.value.trim(), company: f.company.value.trim(), agree: true, signature: sig, mode: pad.mode() }) }); })
         .then(function(r){ return r.json(); }).then(function(r){
           if (!r.ok) throw new Error(r.error);
           $("sign").hidden = true; $("signed").hidden = false; window.scrollTo(0, 0);

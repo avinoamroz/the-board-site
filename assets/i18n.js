@@ -59,13 +59,13 @@
     "📅 שלחנו לך הזמנה ליומן Google לכל מפגש, עם המיקום. נא לאשר אותן ביומן (Yes) כדי לוודא שאין התנגשות. יש התנגשות? כתבו לנו ל-": "📅 We've sent you a Google Calendar invite for every session, with the location. Please accept them (Yes) so we know there are no clashes. Have a clash? Write to us at",
     "משרדי KPMG, קומה 3, משרד Ocean": "KPMG offices, floor 3, Ocean room", "משרדי KPMG, קומה 3, משרד Ocean, תל אביב": "KPMG offices, floor 3, Ocean room, Tel Aviv",
     "בורד דצמבר": "December board", "בורד ינואר": "January board", "בורד פברואר": "February board", "בורד מרץ": "March board",
-    "גרסה": "Version"
+    "ראש הבורד": "Head of Board", "שם מלא בעברית": "Full name in Hebrew", "שם מלא באנגלית": "Full name in English", "גרסה": "Version"
   };
   var PATTERNS = [
     [/^שלום (.+)$/, "Hello $1"], [/^היי (.+), הסכם ההצטרפות שלך$/, "Hi $1, your membership agreement"],
     [/^היי (.+), אזור החברים נפתח אחרי ההצטרפות לבורד או לקהילה\. אם כבר הצטרפת, ייתכן שנרשמת אצלנו עם כתובת אימייל אחרת \((.+)\)\.$/, "Hi $1, the members area opens once you join a board or the community. If you already joined, you may have registered with a different email address ($2)."],
     [/^ההסכם נחתם ב-(.+)\. תודה!$/, "The agreement was signed on $1. Thank you!"], [/^ההסכם נחתם ב-(.+)\. עותק נשמר אצלנו\.$/, "The agreement was signed on $1. A copy is saved with us."],
-    [/^נחתם ב-(.+)\. $/, "Signed on $1. "], [/^(\d+) מתוך 8$/, "$1 of 8"], [/^גרסה (.+)$/, "Version $1"]
+    [/^נחתם ב-(.+)\. $/, "Signed on $1. "], [/^(\d+) מתוך (\d+)$/, "$1 of $2"], [/^גרסה (.+)$/, "Version $1"]
   ];
   var KEY = "tb_lang", lang = "he";
   try { lang = localStorage.getItem(KEY) || "he"; } catch(e){}

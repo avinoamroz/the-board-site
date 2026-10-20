@@ -9,7 +9,7 @@
 <link rel="icon" href="/brand/the-board-icon-dark-bg.svg?v=2" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png?v=2">
 <script src="/assets/sign.js?v=20261020b" defer></script>
-<script src="/assets/i18n.js?v=20261020b" defer></script>
+<script src="/assets/i18n.js?v=20261020c" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&family=Heebo:wght@300;400;500;700;800&display=swap">
@@ -214,7 +214,8 @@ footer a{color:var(--muted)}
         <fieldset>
           <legend>עליך</legend>
           <div class="grid">
-            <label><span>שם מלא</span><input name="name" autocomplete="name"></label>
+            <label><span>שם מלא בעברית</span><input name="name" autocomplete="name"></label>
+            <label><span>שם מלא באנגלית</span><input name="name_en" dir="ltr" placeholder="Full name in English"></label>
             <label><span>מגדר</span><select name="gender"><option value="">בחירה</option><option value="Female">אישה</option><option value="Male">גבר</option><option value="Other">אחר</option></select></label>
             <label><span>טלפון (לוואטסאפ)</span><input name="phone" type="tel" dir="ltr" autocomplete="tel"><small>גלוי לחברי הבורד שלך בלבד</small></label>
             <label><span>עיר</span><input name="city" autocomplete="address-level2"></label>
@@ -304,6 +305,8 @@ footer a{color:var(--muted)}
       .then(function(r){ return r.json().then(function(j){ if (r.status === 401) { var e = new Error("auth"); throw e; } if (!j.ok) throw new Error(j.error || "error"); return j; }); });
   }
   function initials(n){ return String(n || "?").trim().split(/\s+/).map(function(w){ return w.charAt(0); }).slice(0,2).join(""); }
+  function nm(m){ return (window.TBLang && TBLang.get() === "en" && m.name_en) ? m.name_en : m.name; }
+  function other(m){ var o = nm(m) === m.name ? m.name_en : m.name; return o && o !== nm(m) ? o : ""; }
   function face(m, cls){ return m.photo ? '<img class="' + cls + '" src="' + esc(m.photo) + '" alt="" referrerpolicy="no-referrer">' : '<span class="' + cls + '" aria-hidden="true">' + esc(initials(m.name)) + '</span>'; }
   function waLink(phone){ var d = String(phone || "").replace(/\D/g, ""); if (!d) return ""; if (d.charAt(0) === "0") d = "972" + d.slice(1); return "https://wa.me/" + d; }
   function url(u){ u = String(u || "").trim(); if (!u) return ""; return /^https?:\/\//i.test(u) ? u : "https://" + u; }
@@ -367,6 +370,7 @@ footer a{color:var(--muted)}
 
   /* ---------- my board ---------- */
   var tableIcon = '<svg viewBox="-52 -52 104 104" aria-hidden="true"><circle r="25" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="7"><rect x="-8" y="-46" width="16" height="11" rx="4"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(45)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(90)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(135)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(180)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(225)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(270)"/><rect x="-8" y="-46" width="16" height="11" rx="4" transform="rotate(315)"/></g></svg>';
+  window.addEventListener("tb-lang", function(){ try { if (data && data.profile) renderBoard(); } catch(e){} });
   function renderBoard(){
     var b = data.board, p = data.profile, round = $("round"), side = $("board-side");
     if (!b) {
@@ -378,12 +382,12 @@ footer a{color:var(--muted)}
     }
     $("board-title").textContent = b.name;
     var people = (b.members || []).slice().sort(function(a, z){ return (z.me ? 1 : 0) - (a.me ? 1 : 0); });
-    var seats = Math.max(8, people.length);
+    var seats = Math.max(people.length, Math.min(8, Math.max(6, people.length + (people.length >= 6 ? 1 : 0)))); // 6 chairs by default, an extra empty chair appears as the table fills, up to 8
     var html = '<div class="tbl">' + tableIcon + '<b>' + esc(b.name) + '</b>' + (b.next ? '<span>המפגש הבא: <b>' + esc(b.next) + '</b></span>' : '') + '</div>';
     for (var i = 0; i < seats; i++) {
       var a = -Math.PI / 2 + i * 2 * Math.PI / seats, x = 50 + 41 * Math.cos(a), y = 50 + 41 * Math.sin(a);
       var m = people[i];
-      if (m) html += '<button class="seat' + (m.me ? ' me' : '') + '" type="button" data-i="' + i + '" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%">' + face(m, "face") + '<span class="nm">' + esc(m.name) + '</span>' + (m.company ? '<span class="co">' + esc(m.company) + '</span>' : '') + '</button>';
+      if (m) html += '<button class="seat' + (m.me ? ' me' : '') + '" type="button" data-i="' + i + '" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%">' + face(m, "face") + '<span class="nm" data-no-tr>' + esc(nm(m)) + '</span>' + (m.company ? '<span class="co">' + esc(m.company) + '</span>' : '') + '</button>';
       else html += '<div class="seat empty" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" aria-hidden="true"><span class="face"></span><span class="nm" style="color:var(--muted)">כיסא פנוי</span></div>';
     }
     round.innerHTML = html;
@@ -393,8 +397,8 @@ footer a{color:var(--muted)}
     if (b.next) s += '<div class="fact"><span>המפגש הבא</span><b dir="ltr">' + esc(b.next) + '</b></div>';
     if (b.hours) s += '<div class="fact"><span>שעות</span><b dir="ltr">' + esc(b.hours) + '</b></div>';
     if (b.location) s += '<div class="fact"><span>מיקום</span><b>' + esc(b.location === "Tel Aviv" ? "תל אביב" : b.location) + '</b></div>';
-    if (b.head) s += '<div class="fact"><span>מנחה הבורד</span><b>' + esc(b.head) + '</b></div>';
-    s += '<div class="fact"><span>חברים בשולחן</span><b>' + people.length + ' מתוך 8</b></div></div>';
+    if (b.head) s += '<div class="fact"><span>ראש הבורד</span><b>' + esc(b.head) + '</b></div>';
+    s += '<div class="fact"><span>חברים בשולחן</span><b>' + people.length + ' מתוך ' + seats + '</b></div></div>';
     if (b.dates && b.dates.length) {
       var before = !!b.next;
       s += '<h3>מועדי המפגשים</h3><div class="dates">' + b.dates.map(function(d){ var cls = d === b.next ? "next" : (before ? "past" : ""); if (d === b.next) before = false; return '<span class="' + cls + '">' + esc(d) + '</span>'; }).join("") + '</div>';
@@ -410,7 +414,7 @@ footer a{color:var(--muted)}
     if (m.website) links += '<a href="' + esc(url(m.website)) + '" target="_blank" rel="noopener">אתר</a>';
     if (m.instagram) links += '<a href="' + esc(ig(m.instagram)) + '" target="_blank" rel="noopener">אינסטגרם</a>';
     if (m.facebook) links += '<a href="' + esc(url(m.facebook)) + '" target="_blank" rel="noopener">פייסבוק</a>';
-    dlg.innerHTML = '<div class="ps-top"><button class="ps-close" type="button" aria-label="סגירה">✕</button>' + face(m, "face") + '<h2 id="ps-name">' + esc(m.name) + '</h2><p>' + esc([m.role, m.city].filter(Boolean).join(" · ")) + '</p></div>' +
+    dlg.innerHTML = '<div class="ps-top"><button class="ps-close" type="button" aria-label="סגירה">✕</button>' + face(m, "face") + '<h2 id="ps-name" data-no-tr>' + esc(nm(m)) + '</h2>' + (other(m) ? '<p class="ps-en" data-no-tr>' + esc(other(m)) + '</p>' : '') + '<p>' + esc([m.role, m.city].filter(Boolean).join(" · ")) + '</p></div>' +
       '<div class="ps-body">' +
       (m.company ? '<div class="ps-co">' + (m.logo ? '<img src="' + esc(m.logo) + '" alt="">' : '') + '<div><b>' + esc(m.company) + '</b><small>' + esc(m.company_type || "") + '</small></div></div>' : '') +
       (m.tagline ? '<div class="ps-tag">' + esc(m.tagline) + '</div>' : '') +

@@ -150,8 +150,10 @@ details[open] summary{border-bottom:1px solid var(--line)}
 .sigwrap>span{display:block;font-size:.86rem;font-weight:500;color:var(--muted);margin-bottom:5px}
 .check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:400}
 .check input{width:20px;height:20px;margin-top:4px;flex:none}
-.seat.veiled .face{display:grid;place-items:center;background:repeating-linear-gradient(135deg,#ECEBF6 0 8px,#F7F6FC 8px 16px);border:2px dashed #B9B5E6;color:var(--plum,#4A3FB8);font-family:"Rubik",sans-serif;font-weight:700;font-size:1.6rem}
-.seat.veiled .co{background:#E4E1FA;color:#4A3FB8}
+.seat.veiled{cursor:default}
+.seat.veiled .face{color:#CFCEDC;background:#F4F3F8;overflow:hidden;align-items:end}
+.seat.veiled .face svg{width:78%;height:78%;display:block;margin:0 auto -6%}
+.seat.veiled .nm{color:var(--muted);font-weight:400}
 .veil-face{display:grid;place-items:center;width:92px;height:92px;margin:0 auto;border-radius:50%;background:rgba(255,255,255,.12);border:2px dashed rgba(255,255,255,.5);color:#fff;font-size:2.4rem;font-weight:700}
 .cal-note{margin:12px 0 0;background:var(--paper);border-radius:14px;padding:12px 14px;font-size:.9rem;line-height:1.6}
 .locked{background:var(--paper);border-radius:14px;padding:12px 14px;color:var(--muted);font-size:.92rem;text-align:center}
@@ -390,13 +392,13 @@ footer a{color:var(--muted)}
     for (var i = 0; i < seats; i++) {
       var a = -Math.PI / 2 + i * 2 * Math.PI / seats, x = 50 + 41 * Math.cos(a), y = 50 + 41 * Math.sin(a);
       var m = people[i];
-      if (m && m.hidden) html += '<button class="seat veiled" type="button" data-i="' + i + '" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" title="' + esc(veilText(b)) + '"><span class="face" aria-hidden="true">?</span><span class="nm">' + esc(m.sector || (m.gender === "Female" ? "בעלת עסק" : "בעל/ת עסק")) + '</span><span class="co">ייחשף ב-' + esc(b.reveal) + '</span></button>';
+      if (m && m.hidden) html += '<div class="seat veiled" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" title="' + esc(veilText(b)) + '"><span class="face" aria-hidden="true">' + SIL + '</span>' + (m.sector ? '<span class="nm">' + esc(m.sector) + '</span>' : '') + '</div>';
       else if (m) html += '<button class="seat' + (m.me ? ' me' : '') + '" type="button" data-i="' + i + '" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%">' + face(m, "face") + '<span class="nm" data-no-tr>' + esc(nm(m)) + '</span>' + (m.company ? '<span class="co">' + esc(m.company) + '</span>' : '') + '</button>';
-      else if (b.hidden) html += '<div class="seat veiled" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" title="' + esc(veilText(b)) + '"><span class="face" aria-hidden="true">?</span><span class="nm">כיסא בבורד</span><span class="co">ייחשף ב-' + esc(b.reveal) + '</span></div>';
+      else if (b.hidden) html += '<div class="seat veiled" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" title="' + esc(veilText(b)) + '"><span class="face" aria-hidden="true">' + SIL + '</span></div>';
       else html += '<div class="seat empty" style="left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%" aria-hidden="true"><span class="face"></span><span class="nm" style="color:var(--muted)">כיסא פנוי</span></div>';
     }
     round.innerHTML = html;
-    round.querySelectorAll(".seat[data-i]").forEach(function(el){ el.addEventListener("click", function(){ if (people[+el.dataset.i].hidden) { veiled(people[+el.dataset.i], b); return; } if (data.profile.nda !== "Yes" && !people[+el.dataset.i].me) { tab("nda"); return; } person(people[+el.dataset.i]); }); });
+    round.querySelectorAll(".seat[data-i]").forEach(function(el){ el.addEventListener("click", function(){ if (data.profile.nda !== "Yes" && !people[+el.dataset.i].me) { tab("nda"); return; } person(people[+el.dataset.i]); }); });
     var s = '<h3>פרטי הבורד</h3><div class="facts">';
     if (b.type) s += '<div class="fact"><span>סוג</span><b>' + esc(TYPE[b.type] || b.type) + '</b></div>';
     if (b.next) s += '<div class="fact"><span>המפגש הבא</span><b dir="ltr">' + esc(b.next) + '</b></div>';
@@ -415,13 +417,8 @@ footer a{color:var(--muted)}
     side.innerHTML = s;
     side.querySelectorAll("[data-go]").forEach(function(a){ a.addEventListener("click", function(ev){ ev.preventDefault(); tab(a.dataset.go); }); });
   }
+  var SIL = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4.2" fill="currentColor"/><path d="M4 21c.8-4.2 4-6.5 8-6.5s7.2 2.3 8 6.5" fill="currentColor"/></svg>';
   function veilText(b){ return "השמות והפנים של חברי הבורד ייחשפו בפתיחת הבורד, ב-" + b.reveal + "."; }
-  function veiled(m, b){
-    var dlg = $("person");
-    dlg.innerHTML = '<div class="ps-top"><button class="ps-close" type="button" aria-label="סגירה">✕</button><span class="face veil-face" aria-hidden="true">?</span><h2 id="ps-name">' + esc(m.sector || "חבר/ה בבורד") + '</h2><p>חבר/ה בבורד שלך</p></div><div class="ps-body"><div class="ps-tag">' + esc(veilText(b)) + ' עד אז רואים רק את התחום של כל אחד ליד השולחן.</div></div>';
-    dlg.querySelector(".ps-close").addEventListener("click", function(){ dlg.close(); });
-    dlg.showModal();
-  }
   function person(m){
     var dlg = $("person"), wa = waLink(m.phone), links = "";
     if (m.website) links += '<a href="' + esc(url(m.website)) + '" target="_blank" rel="noopener">אתר</a>';

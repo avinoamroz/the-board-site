@@ -3,6 +3,7 @@
 // Data lives in the Google Sheet "The Board CRM"; reads and writes go through
 // a Make "sheet pipe" scenario. Secrets live in the D1 table `config`.
 import { DOCS, renderDoc } from '../_docs.js';
+import { TEMPLATES } from '../_templates.js';
 
 const MEMBER_EDITABLE = {
   'Full name': 'name', 'Name in English': 'name_en', 'Gender': 'gender', 'Phone': 'phone', 'City': 'city', 'Company': 'company',
@@ -254,6 +255,26 @@ async function queueCalendar(c, context, jobs) {
   })));
 }
 
+
+/* ---------- templates: unlocked session by session ----------
+   Titles are always visible. Session 1 (plus the opening round and the hot seat) opens when the
+   first session starts; session k+1 opens when session k ends. Content of locked templates is never sent.
+   Admins see everything, with a note of when members get it. */
+function templatesFor(boardRow, admin) {
+  const nowIL = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jerusalem' }).slice(0, 16).replace(' ', 'T');
+  const v = boardRow ? boardView(boardRow) : { dates: [], hours: '' };
+  const [from, to] = (String(v.hours || '').match(/(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/) || [, '10:00', '15:00']).slice(1).map(x => x.padStart(5, '0'));
+  const at = (i, t) => v.dates[i] ? `${ymd(v.dates[i])}T${t}` : '';
+  return TEMPLATES.map(t => {
+    const k = /^\d$/.test(t.n) && t.n !== '0' ? +t.n : 1;
+    const opensAt = k === 1 ? at(0, from) : at(k - 2, to);
+    const label = !v.dates.length ? 'נפתח במפגש הראשון' : k === 1 ? `נפתח במפגש הראשון, ${v.dates[0]}` : (v.dates[k - 2] ? `נפתח בסיום המפגש של ${v.dates[k - 2]}` : 'נפתח בהמשך');
+    const open = !!opensAt && nowIL >= opensAt;
+    if (open) return Object.assign({ open: true }, t);
+    if (admin) return Object.assign({ open: true, preview: 'פתוח לך כמנהל. לחברים: ' + label.replace('נפתח', 'ייפתח') }, t);
+    return { n: t.n, t: t.t, s: t.s, open: false, opens: label };
+  });
+}
 /* ---------- images ---------- */
 async function saveImage(env, c, kind, email, dataUrl) {
   const m = String(dataUrl || '').match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
@@ -368,12 +389,13 @@ export async function onRequest(context) {
         board.members = d.Members.rows.filter(m => m['Board'] === me['Board'] && m['Status'] !== 'Ended').map(m => {
           const v = memberView(m); const o = {}; MATE_FIELDS.forEach(k => { o[k] = v[k]; });
           o.me = norm(m['Email (Google)']) === norm(s.email);
-          if (board.hidden && !o.me) return { hidden: true, me: false, sector: SECTOR_HE[m['Sector']] || m['Sector'] || '', gender: m['Gender'] || '' };
+          if (board.hidden && !o.me) return { hidden: true, me: false, sector: SECTOR_HE[m['Sector']] || m['Sector'] || m['Company type'] || '', gender: m['Gender'] || '' };
           if (!o.me && me['NDA signed'] !== 'Yes') { o.phone = ''; o.website = ''; o.instagram = ''; o.facebook = ''; }
           return o;
         });
       }
-      return json({ ok: true, member: true, admin: s.admin, profile, board });
+      const bRow = me['Board'] ? d.Boards.rows.find(x => x['Board'] === me['Board']) : null;
+      return json({ ok: true, member: true, admin: s.admin, profile, board, templates: templatesFor(bRow, s.admin) });
     }
     if (route === 'member' && method === 'PUT') {
       const body = await request.json();

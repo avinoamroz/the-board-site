@@ -5,17 +5,25 @@
 import { DOCS, renderDoc } from '../_docs.js';
 
 const MEMBER_EDITABLE = {
-  'Full name': 'name', 'Gender': 'gender', 'Phone': 'phone', 'City': 'city', 'Company': 'company',
+  'Full name': 'name', 'Name in English': 'name_en', 'Gender': 'gender', 'Phone': 'phone', 'City': 'city', 'Company': 'company',
   'Company type': 'company_type', 'Tagline': 'tagline', 'What the business does': 'business', 'Role': 'role',
   'Years in business': 'years', 'Annual revenue': 'revenue', 'Employees': 'employees', 'Website': 'website',
   'Instagram': 'instagram', 'Facebook': 'facebook', 'Main challenge': 'challenge',
   'Personal goals': 'personal_goals', 'Business goals': 'business_goals'
 };
 const MEMBER_READONLY = { 'Email (Google)': 'email', 'Membership': 'membership', 'Board': 'board', 'Status': 'status', 'Joined': 'joined', 'Logo': 'logo', 'Photo': 'photo', 'NDA signed': 'nda', 'NDA date': 'nda_date', 'Invoice': 'invoice', 'Calendar': 'calendar' };
-const MATE_FIELDS = ['name', 'gender', 'phone', 'city', 'company', 'company_type', 'tagline', 'website', 'instagram', 'facebook', 'logo', 'photo', 'role'];
+const MATE_FIELDS = ['name', 'name_en', 'gender', 'phone', 'city', 'company', 'company_type', 'tagline', 'website', 'instagram', 'facebook', 'logo', 'photo', 'role'];
 const LEAD_EDITABLE = ['Stage', 'Interested in', 'Board (form)', 'Name', 'Phone', 'Email', 'Company & field', 'Role', 'Owner', 'Call date', 'Next follow-up', 'Deal value (ex VAT)', 'Lost reason', 'Notes', 'Call summary (link)', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'Payment', 'Payment link', 'Invoice'];
 const MEMBER_ADMIN = ['Membership', 'Board', 'Status', 'Joined', 'Payment', 'Paid (ex VAT)', 'NDA signed', 'Internal notes', 'Invoice'];
-const BOARD_EDITABLE = ['Board', 'Type', 'Start', 'Last session', 'Session dates', 'Head of Board', 'Location', 'Hours', 'WhatsApp group', 'Notes', 'Name in Hebrew (members see this)'];
+const BOARD_EDITABLE = ['Board', 'Type', 'Start', 'Last session', 'Session dates', 'Head of Board', 'Location', 'Hours', 'WhatsApp group', 'Notes', 'Name in Hebrew (members see this)', 'Chairman (email)'];
+const BOARD_EXTRA = ['Chairman (email)'];
+// The chairman is picked by an admin in the CRM: a member (by email) or a free-text name in "Head of Board".
+function chairOf(b, members) {
+  const e = norm(b['Chairman (email)']);
+  const m = e && members.find(x => norm(x['Email (Google)']) === e);
+  if (m) return { name: m['Full name'] || '', name_en: m['Name in English'] || '', company: m['Company'] || '', role: m['Role'] || '', photo: m['Photo'] || '' };
+  return b['Head of Board'] ? { name: b['Head of Board'], company: '', role: '', photo: '' } : null;
+}
 const COOKIE = 'tb_s';
 const MAX_AGE = 60 * 60 * 24 * 30;
 
@@ -121,7 +129,7 @@ function memberView(m) {
 
 /* ---------- headers, mail, onboarding ---------- */
 const LEAD_EXTRA = ['Agreement sent', 'Agreement signed', 'Payment', 'Payment link', 'Invoice'];
-const MEMBER_EXTRA = ['NDA date', 'Agreement', 'Invoice', 'Onboarded'];
+const MEMBER_EXTRA = ['NDA date', 'Agreement', 'Invoice', 'Onboarded', 'Name in English'];
 async function ensureHeaders(c, tab, t, needed) {
   const missing = needed.filter(h => !t.head.includes(h));
   if (!missing.length) return;
@@ -268,6 +276,12 @@ export async function onRequest(context) {
       return new Response(Uint8Array.from(atob(row.data), ch => ch.charCodeAt(0)), { headers: { 'Content-Type': row.mime, 'Cache-Control': 'public, max-age=31536000, immutable' } });
     }
     if (route === 'config' && method === 'GET') return json({ client_id: c.client_id });
+    if (route === 'boards' && method === 'GET') {
+      // Public: board names and their chairman, for the landing page cards.
+      const d = await readTabs(c, ['Boards', 'Members']);
+      const boards = d.Boards.rows.filter(b => b['Board']).map(b => ({ key: b['Board'], name: b['Name in Hebrew (members see this)'] || b['Board'], chair: chairOf(b, d.Members.rows) }));
+      return json({ ok: true, boards }, 200, { 'Cache-Control': 'public, max-age=300' });
+    }
     if (route.startsWith('doc/') && method === 'GET') {
       const name = route.slice(4);
       if (!DOCS[name]) return bad('doc', 404);
@@ -342,6 +356,8 @@ export async function onRequest(context) {
       if (me['Board']) {
         const b = d.Boards.rows.find(x => x['Board'] === me['Board']);
         board = b ? boardView(b) : { key: me['Board'], name: me['Board'], dates: [] };
+        const ch = b && chairOf(b, d.Members.rows);
+        board.head = ch ? ch.name : '';
         if (me['NDA signed'] !== 'Yes') board.whatsapp = '';
         board.members = d.Members.rows.filter(m => m['Board'] === me['Board'] && m['Status'] !== 'Ended').map(m => {
           const v = memberView(m); const o = {}; MATE_FIELDS.forEach(k => { o[k] = v[k]; });
@@ -357,6 +373,7 @@ export async function onRequest(context) {
       const d = await readTabs(c, ['Members']);
       const me = d.Members.rows.find(m => norm(m['Email (Google)']) === norm(s.email));
       if (!me) return bad('not_member', 403);
+      await ensureHeaders(c, 'Members', d.Members, MEMBER_EXTRA);
       const f = {};
       Object.entries(MEMBER_EDITABLE).forEach(([h, k]) => { if (k in body) f[h] = body[k]; });
       f['Profile updated'] = nowStamp();
@@ -400,6 +417,7 @@ export async function onRequest(context) {
         const d = await readTabs(c, ['Leads', 'Members', 'Boards', 'Sessions']);
         await ensureHeaders(c, 'Leads', d.Leads, LEAD_EXTRA);
         await ensureHeaders(c, 'Members', d.Members, MEMBER_EXTRA);
+        await ensureHeaders(c, 'Boards', d.Boards, BOARD_EXTRA);
         return json({ ok: true, leads: d.Leads.rows, members: d.Members.rows, boards: d.Boards.rows, sessions: d.Sessions.rows, heads: { leads: d.Leads.head, members: d.Members.head, boards: d.Boards.head } });
       }
       const body = method === 'GET' ? {} : await request.json();

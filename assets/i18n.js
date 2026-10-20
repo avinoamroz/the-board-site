@@ -59,7 +59,7 @@
     "📅 שלחנו לך הזמנה ליומן Google לכל מפגש, עם המיקום. נא לאשר אותן ביומן (Yes) כדי לוודא שאין התנגשות. יש התנגשות? כתבו לנו ל-": "📅 We've sent you a Google Calendar invite for every session, with the location. Please accept them (Yes) so we know there are no clashes. Have a clash? Write to us at",
     "משרדי KPMG, קומה 3, משרד Ocean": "KPMG offices, floor 3, Ocean room", "משרדי KPMG, קומה 3, משרד Ocean, תל אביב": "KPMG offices, floor 3, Ocean room, Tel Aviv",
     "בורד דצמבר": "December board", "בורד ינואר": "January board", "בורד פברואר": "February board", "בורד מרץ": "March board",
-    "גרסה": "Version"
+    "יו״ר הבורד": "Board chairman", "שם מלא בעברית": "Full name in Hebrew", "שם מלא באנגלית": "Full name in English", "גרסה": "Version"
   };
   var PATTERNS = [
     [/^שלום (.+)$/, "Hello $1"], [/^היי (.+), הסכם ההצטרפות שלך$/, "Hi $1, your membership agreement"],

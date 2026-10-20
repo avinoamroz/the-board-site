@@ -14,9 +14,10 @@ const MEMBER_EDITABLE = {
 const MEMBER_READONLY = { 'Email (Google)': 'email', 'Membership': 'membership', 'Board': 'board', 'Status': 'status', 'Joined': 'joined', 'Logo': 'logo', 'Photo': 'photo', 'NDA signed': 'nda', 'NDA date': 'nda_date', 'Invoice': 'invoice', 'Calendar': 'calendar' };
 const MATE_FIELDS = ['name', 'name_en', 'gender', 'phone', 'city', 'company', 'company_type', 'tagline', 'website', 'instagram', 'facebook', 'logo', 'photo', 'role'];
 const LEAD_EDITABLE = ['Stage', 'Interested in', 'Board (form)', 'Name', 'Phone', 'Email', 'Company & field', 'Role', 'Owner', 'Call date', 'Next follow-up', 'Deal value (ex VAT)', 'Lost reason', 'Notes', 'Call summary (link)', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'Payment', 'Payment link', 'Invoice'];
-const MEMBER_ADMIN = ['Membership', 'Board', 'Status', 'Joined', 'Payment', 'Paid (ex VAT)', 'NDA signed', 'Internal notes', 'Invoice'];
+const MEMBER_ADMIN = ['Sector', 'Membership', 'Board', 'Status', 'Joined', 'Payment', 'Paid (ex VAT)', 'NDA signed', 'Internal notes', 'Invoice'];
 const BOARD_EDITABLE = ['Board', 'Type', 'Start', 'Last session', 'Session dates', 'Head of Board', 'Location', 'Hours', 'WhatsApp group', 'Notes', 'Name in Hebrew (members see this)', 'Chairman (email)'];
 const BOARD_EXTRA = ['Chairman (email)'];
+const SECTOR_HE = { 'Real Estate': 'נדל״ן', 'E-Commerce': 'אי-קומרס', 'Services': 'שירותים' };
 // The chairman is picked by an admin in the CRM: a member (by email) or a free-text name in "Head of Board".
 function chairOf(b, members) {
   const e = norm(b['Chairman (email)']);
@@ -129,7 +130,7 @@ function memberView(m) {
 
 /* ---------- headers, mail, onboarding ---------- */
 const LEAD_EXTRA = ['Agreement sent', 'Agreement signed', 'Payment', 'Payment link', 'Invoice'];
-const MEMBER_EXTRA = ['NDA date', 'Agreement', 'Invoice', 'Onboarded', 'Name in English'];
+const MEMBER_EXTRA = ['NDA date', 'Agreement', 'Invoice', 'Onboarded', 'Name in English', 'Sector'];
 async function ensureHeaders(c, tab, t, needed) {
   const missing = needed.filter(h => !t.head.includes(h));
   if (!missing.length) return;
@@ -359,9 +360,15 @@ export async function onRequest(context) {
         const ch = b && chairOf(b, d.Members.rows);
         board.head = ch ? ch.name : '';
         if (me['NDA signed'] !== 'Yes') board.whatsapp = '';
+        // Before the first session, boardmates stay anonymous: only their field (sector) is shown.
+        const first = board.dates && board.dates.length ? parseIL(board.dates[0]) : null;
+        const t0 = new Date(); t0.setUTCHours(0, 0, 0, 0);
+        board.reveal = board.dates && board.dates[0] || '';
+        board.hidden = !!(first && first > t0);
         board.members = d.Members.rows.filter(m => m['Board'] === me['Board'] && m['Status'] !== 'Ended').map(m => {
           const v = memberView(m); const o = {}; MATE_FIELDS.forEach(k => { o[k] = v[k]; });
           o.me = norm(m['Email (Google)']) === norm(s.email);
+          if (board.hidden && !o.me) return { hidden: true, me: false, sector: SECTOR_HE[m['Sector']] || m['Sector'] || '', gender: m['Gender'] || '' };
           if (!o.me && me['NDA signed'] !== 'Yes') { o.phone = ''; o.website = ''; o.instagram = ''; o.facebook = ''; }
           return o;
         });

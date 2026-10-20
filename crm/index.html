@@ -327,6 +327,7 @@ label.f textarea{min-height:80px;resize:vertical}
       '<div class="quick">' + (m["Phone"] ? '<a class="btn" href="' + tel(m["Phone"]) + '">Call</a><a class="btn lime" href="' + wa(m["Phone"]) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '<a class="btn ghost" href="mailto:' + esc(m["Email (Google)"]) + '">Email</a></div>' +
       '<div class="box"><h3>Membership</h3><div class="fg">' +
         '<label class="f">Board<select data-f="Board">' + opt(boardNames(), m["Board"]) + '</select></label>' +
+        '<label class="f">Sector (shown before the board starts)<select data-f="Sector">' + opt(["Real Estate","E-Commerce","Services"], m["Sector"]) + '</select></label>' +
         '<label class="f">Membership<select data-f="Membership">' + opt(MEMB, m["Membership"]) + '</select></label>' +
         '<label class="f">Status<select data-f="Status">' + opt(["Active","Paused","Ended"], m["Status"]) + '</select></label>' +
         '<label class="f">Payment<select data-f="Payment">' + opt(["Paid","Partially paid","Awaiting payment"], m["Payment"]) + '</select></label>' +

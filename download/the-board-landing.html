@@ -456,6 +456,41 @@ footer .mark{margin:0}
   .reveal,.hl{opacity:1;transform:none}
   .js .hl:not(.in){background-size:100% 100%}
 }
+
+/* Board calendar: 12 months, every board runs 6 sessions, one colour per board */
+.board-cal{margin-top:56px;border-radius:28px;padding:28px 22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.14)}
+.cal-head{max-width:680px;margin-bottom:22px}
+.cal-head .kicker{margin:0 0 6px}
+.cal-head h3{font-size:clamp(1.6rem,1.2rem + 1.2vw,2.2rem);color:#fff}
+.cal-head p{color:rgba(255,255,255,.78);margin:10px 0 0;font-size:1rem}
+.bcal{--b1:#C6F278;--b2:#8F84FF;--b3:#FF9D7A;--b4:#5BC8F0;display:grid;grid-template-columns:132px repeat(12,minmax(0,1fr));gap:6px 0;align-items:stretch}
+.bc{grid-row:calc(var(--r) + 1);grid-column:calc(var(--c) + 1);min-width:0}
+.bc.corner{display:flex;align-items:flex-end;font-size:.82rem;color:rgba(255,255,255,.6);padding-bottom:6px}
+.bc.mo{text-align:center;padding:6px 2px 8px;border-bottom:1px solid rgba(255,255,255,.14);line-height:1.25}
+.bc.mo b{display:block;font-weight:500;font-size:.92rem;color:#fff}
+.bc.mo time{display:block;font-size:.78rem;color:rgba(255,255,255,.62);font-variant-numeric:tabular-nums;letter-spacing:.03em;direction:ltr}
+.bc.lbl{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:1rem;color:#fff;padding-inline-end:10px;white-space:nowrap}
+.bc.lbl i{width:12px;height:12px;border-radius:50%;flex:none;background:var(--c-b)}
+.b1{--c-b:var(--b1)}.b2{--c-b:var(--b2)}.b3{--c-b:var(--b3)}.b4{--c-b:var(--b4)}
+.bc.e{border-inline-start:1px dashed rgba(255,255,255,.07);min-height:46px}
+.bc.s{position:relative;display:grid;place-items:center;min-height:46px;margin-block:4px;background:color-mix(in srgb,var(--c-b) 26%,transparent);cursor:default}
+.bc.s.first{border-start-start-radius:999px;border-end-start-radius:999px}
+.bc.s.last{border-start-end-radius:999px;border-end-end-radius:999px}
+.bc.s span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--c-b);color:var(--ink);font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums}
+.bc.s small{display:none}
+.cal-note{margin:18px 0 0;font-size:.88rem;color:rgba(255,255,255,.62)}
+@media (max-width:760px){
+  .board-cal{padding:22px 14px}
+  .bcal{grid-template-columns:76px repeat(4,minmax(0,1fr));gap:0 6px}
+  .bc{grid-row:calc(var(--c) + 1);grid-column:calc(var(--r) + 1)}
+  .bc.corner{font-size:.72rem;line-height:1.2}
+  .bc.mo{text-align:start;border-bottom:0;border-inline-start:0;padding:8px 0;display:flex;flex-direction:column;justify-content:center}
+  .bc.lbl{flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;font-size:.78rem;white-space:normal;text-align:center;line-height:1.15;padding:0 0 8px}
+  .bc.e{border-inline-start:0;border-top:1px dashed rgba(255,255,255,.07);min-height:52px}
+  .bc.s{margin-block:0;margin-inline:6px;min-height:52px}
+  .bc.s.first{border-radius:999px 999px 0 0}
+  .bc.s.last{border-radius:0 0 999px 999px}
+}
 </style>
 </head>
 <body>
@@ -623,6 +658,77 @@ footer .mark{margin:0}
           </div>
         </div>
       </div>
+    </div>
+    <div class="board-cal reveal" id="calendar">
+      <div class="cal-head"><p class="kicker">לוח השנה</p><h3>מפגש אחד בחודש, שישי ראשון</h3><p>כל הבורדים נפגשים יחד באותו יום, בשישי הראשון של כל חודש, 10:00 עד 15:00. כל בורד נפתח בחודש אחר ומלווה אותך שישה מפגשים, נושא אחר בכל פעם.</p></div>
+      <div class="bcal" role="table" aria-label="לוח המפגשים של הבורדים לשנה הקרובה">
+      <div class="bc corner" style="--r:0;--c:0" role="columnheader"><span>המפגש החודשי</span></div>
+      <div class="bc mo" style="--r:0;--c:1" role="columnheader"><b>דצמבר</b><time datetime="2026-12-04">4.12.26</time></div>
+      <div class="bc mo" style="--r:0;--c:2" role="columnheader"><b>ינואר</b><time datetime="2027-01-01">1.1.27</time></div>
+      <div class="bc mo" style="--r:0;--c:3" role="columnheader"><b>פברואר</b><time datetime="2027-02-05">5.2.27</time></div>
+      <div class="bc mo" style="--r:0;--c:4" role="columnheader"><b>מרץ</b><time datetime="2027-03-05">5.3.27</time></div>
+      <div class="bc mo" style="--r:0;--c:5" role="columnheader"><b>אפריל</b><time datetime="2027-04-02">2.4.27</time></div>
+      <div class="bc mo" style="--r:0;--c:6" role="columnheader"><b>מאי</b><time datetime="2027-05-07">7.5.27</time></div>
+      <div class="bc mo" style="--r:0;--c:7" role="columnheader"><b>יוני</b><time datetime="2027-06-04">4.6.27</time></div>
+      <div class="bc mo" style="--r:0;--c:8" role="columnheader"><b>יולי</b><time datetime="2027-07-02">2.7.27</time></div>
+      <div class="bc mo" style="--r:0;--c:9" role="columnheader"><b>אוגוסט</b><time datetime="2027-08-06">6.8.27</time></div>
+      <div class="bc mo" style="--r:0;--c:10" role="columnheader"><b>ספטמבר</b><time datetime="2027-09-03">3.9.27</time></div>
+      <div class="bc mo" style="--r:0;--c:11" role="columnheader"><b>אוקטובר</b><time datetime="2027-10-01">1.10.27</time></div>
+      <div class="bc mo" style="--r:0;--c:12" role="columnheader"><b>נובמבר</b><time datetime="2027-11-05">5.11.27</time></div>
+      <div class="bc lbl b1" style="--r:1;--c:0" role="rowheader"><i aria-hidden="true"></i>בורד דצמבר</div>
+      <div class="bc s b1 first" style="--r:1;--c:1" role="cell" title="בורד דצמבר, מפגש 1: מבנה החברה ויעדים (4.12.26)"><span>1</span><small>מבנה החברה ויעדים</small></div>
+      <div class="bc s b1" style="--r:1;--c:2" role="cell" title="בורד דצמבר, מפגש 2: שיווק (1.1.27)"><span>2</span><small>שיווק</small></div>
+      <div class="bc s b1" style="--r:1;--c:3" role="cell" title="בורד דצמבר, מפגש 3: מכירות (5.2.27)"><span>3</span><small>מכירות</small></div>
+      <div class="bc s b1" style="--r:1;--c:4" role="cell" title="בורד דצמבר, מפגש 4: מוצר ושירות (5.3.27)"><span>4</span><small>מוצר ושירות</small></div>
+      <div class="bc s b1" style="--r:1;--c:5" role="cell" title="בורד דצמבר, מפגש 5: כספים, תמחור ותזרים (2.4.27)"><span>5</span><small>כספים, תמחור ותזרים</small></div>
+      <div class="bc s b1 last" style="--r:1;--c:6" role="cell" title="בורד דצמבר, מפגש 6: אנשים, תפעול ותוכנית שנתית (7.5.27)"><span>6</span><small>אנשים, תפעול ותוכנית שנתית</small></div>
+      <div class="bc e" style="--r:1;--c:7" role="cell"></div>
+      <div class="bc e" style="--r:1;--c:8" role="cell"></div>
+      <div class="bc e" style="--r:1;--c:9" role="cell"></div>
+      <div class="bc e" style="--r:1;--c:10" role="cell"></div>
+      <div class="bc e" style="--r:1;--c:11" role="cell"></div>
+      <div class="bc e" style="--r:1;--c:12" role="cell"></div>
+      <div class="bc lbl b2" style="--r:2;--c:0" role="rowheader"><i aria-hidden="true"></i>בורד ינואר</div>
+      <div class="bc e" style="--r:2;--c:1" role="cell"></div>
+      <div class="bc s b2 first" style="--r:2;--c:2" role="cell" title="בורד ינואר, מפגש 1: מבנה החברה ויעדים (1.1.27)"><span>1</span><small>מבנה החברה ויעדים</small></div>
+      <div class="bc s b2" style="--r:2;--c:3" role="cell" title="בורד ינואר, מפגש 2: שיווק (5.2.27)"><span>2</span><small>שיווק</small></div>
+      <div class="bc s b2" style="--r:2;--c:4" role="cell" title="בורד ינואר, מפגש 3: מכירות (5.3.27)"><span>3</span><small>מכירות</small></div>
+      <div class="bc s b2" style="--r:2;--c:5" role="cell" title="בורד ינואר, מפגש 4: מוצר ושירות (2.4.27)"><span>4</span><small>מוצר ושירות</small></div>
+      <div class="bc s b2" style="--r:2;--c:6" role="cell" title="בורד ינואר, מפגש 5: כספים, תמחור ותזרים (7.5.27)"><span>5</span><small>כספים, תמחור ותזרים</small></div>
+      <div class="bc s b2 last" style="--r:2;--c:7" role="cell" title="בורד ינואר, מפגש 6: אנשים, תפעול ותוכנית שנתית (4.6.27)"><span>6</span><small>אנשים, תפעול ותוכנית שנתית</small></div>
+      <div class="bc e" style="--r:2;--c:8" role="cell"></div>
+      <div class="bc e" style="--r:2;--c:9" role="cell"></div>
+      <div class="bc e" style="--r:2;--c:10" role="cell"></div>
+      <div class="bc e" style="--r:2;--c:11" role="cell"></div>
+      <div class="bc e" style="--r:2;--c:12" role="cell"></div>
+      <div class="bc lbl b3" style="--r:3;--c:0" role="rowheader"><i aria-hidden="true"></i>בורד פברואר</div>
+      <div class="bc e" style="--r:3;--c:1" role="cell"></div>
+      <div class="bc e" style="--r:3;--c:2" role="cell"></div>
+      <div class="bc s b3 first" style="--r:3;--c:3" role="cell" title="בורד פברואר, מפגש 1: מבנה החברה ויעדים (5.2.27)"><span>1</span><small>מבנה החברה ויעדים</small></div>
+      <div class="bc s b3" style="--r:3;--c:4" role="cell" title="בורד פברואר, מפגש 2: שיווק (5.3.27)"><span>2</span><small>שיווק</small></div>
+      <div class="bc s b3" style="--r:3;--c:5" role="cell" title="בורד פברואר, מפגש 3: מכירות (2.4.27)"><span>3</span><small>מכירות</small></div>
+      <div class="bc s b3" style="--r:3;--c:6" role="cell" title="בורד פברואר, מפגש 4: מוצר ושירות (7.5.27)"><span>4</span><small>מוצר ושירות</small></div>
+      <div class="bc s b3" style="--r:3;--c:7" role="cell" title="בורד פברואר, מפגש 5: כספים, תמחור ותזרים (4.6.27)"><span>5</span><small>כספים, תמחור ותזרים</small></div>
+      <div class="bc s b3 last" style="--r:3;--c:8" role="cell" title="בורד פברואר, מפגש 6: אנשים, תפעול ותוכנית שנתית (2.7.27)"><span>6</span><small>אנשים, תפעול ותוכנית שנתית</small></div>
+      <div class="bc e" style="--r:3;--c:9" role="cell"></div>
+      <div class="bc e" style="--r:3;--c:10" role="cell"></div>
+      <div class="bc e" style="--r:3;--c:11" role="cell"></div>
+      <div class="bc e" style="--r:3;--c:12" role="cell"></div>
+      <div class="bc lbl b4" style="--r:4;--c:0" role="rowheader"><i aria-hidden="true"></i>בורד מרץ</div>
+      <div class="bc e" style="--r:4;--c:1" role="cell"></div>
+      <div class="bc e" style="--r:4;--c:2" role="cell"></div>
+      <div class="bc e" style="--r:4;--c:3" role="cell"></div>
+      <div class="bc s b4 first" style="--r:4;--c:4" role="cell" title="בורד מרץ, מפגש 1: מבנה החברה ויעדים (5.3.27)"><span>1</span><small>מבנה החברה ויעדים</small></div>
+      <div class="bc s b4" style="--r:4;--c:5" role="cell" title="בורד מרץ, מפגש 2: שיווק (2.4.27)"><span>2</span><small>שיווק</small></div>
+      <div class="bc s b4" style="--r:4;--c:6" role="cell" title="בורד מרץ, מפגש 3: מכירות (7.5.27)"><span>3</span><small>מכירות</small></div>
+      <div class="bc s b4" style="--r:4;--c:7" role="cell" title="בורד מרץ, מפגש 4: מוצר ושירות (4.6.27)"><span>4</span><small>מוצר ושירות</small></div>
+      <div class="bc s b4" style="--r:4;--c:8" role="cell" title="בורד מרץ, מפגש 5: כספים, תמחור ותזרים (2.7.27)"><span>5</span><small>כספים, תמחור ותזרים</small></div>
+      <div class="bc s b4 last" style="--r:4;--c:9" role="cell" title="בורד מרץ, מפגש 6: אנשים, תפעול ותוכנית שנתית (6.8.27)"><span>6</span><small>אנשים, תפעול ותוכנית שנתית</small></div>
+      <div class="bc e" style="--r:4;--c:10" role="cell"></div>
+      <div class="bc e" style="--r:4;--c:11" role="cell"></div>
+      <div class="bc e" style="--r:4;--c:12" role="cell"></div>
+      </div>
+      <p class="cal-note">בורדים חדשים נפתחים כל חודש. המספר בכל משבצת הוא מספר המפגש בבורד, ומעבר עליו מציג את נושא המפגש.</p>
     </div>
     <div class="price reveal" id="price">
       <div class="price-tag">

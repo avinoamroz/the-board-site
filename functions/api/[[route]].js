@@ -275,6 +275,24 @@ function templatesFor(boardRow, admin) {
     return { n: t.n, t: t.t, s: t.s, open: false, opens: label };
   });
 }
+/* ---------- suppliers and partner contracts ----------
+   Founders add a supplier/partner in the CRM, optionally edit the contract text, then email the signing
+   link (or copy it to WhatsApp). The partner reads and signs on screen at /sign/; the signature is kept in D1
+   (doc 'affiliate', email 'supplier:<ID>') and the row in the Suppliers tab turns to Signed. */
+const SUPPLIER_EDITABLE = ['Name', 'Type', 'Contact name', 'Email', 'Phone', 'Company ID', 'Contract', 'Commission %', 'Status', 'Notes', 'Referral code'];
+const ilDate = () => new Date().toLocaleDateString('he-IL', { timeZone: 'Asia/Jerusalem', day: 'numeric', month: 'numeric', year: 'numeric' });
+async function supplierToken(c, id) { return (await hmac(c.session_secret, 'supplier:' + id)).slice(0, 32); }
+async function supplierLink(c, id) { return `https://the-board.co.il/sign/?s=${encodeURIComponent(id)}&t=${await supplierToken(c, id)}`; }
+async function supplierDoc(env, c, sup, date) {
+  const custom = await env.DB.prepare('SELECT doc FROM contracts WHERE supplier_id = ?').bind(sup['ID']).first();
+  const vars = { partner: sup['Name'] || '', commission: sup['Commission %'] || '20', date: date || ilDate(), operator: c.company_legal || 'The Board' };
+  const base = renderDoc(sup['Contract'] || 'affiliate', vars);
+  if (!custom) return base;
+  const d = JSON.parse(custom.doc);
+  const sub = t => String(t || '').replace(/\{\{(\w+)\}\}/g, (m, k) => vars[k] || '');
+  return { name: base.name, version: base.version + '.custom', title: sub(d.title || base.title), sections: (d.sections || base.sections).map(([h, t]) => [sub(h), sub(t)]) };
+}
+
 /* ---------- images ---------- */
 async function saveImage(env, c, kind, email, dataUrl) {
   const m = String(dataUrl || '').match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
@@ -334,6 +352,36 @@ export async function onRequest(context) {
       await mail(c, team[0], `ההסכם נחתם: ${lead['Name']}`, `<p><b>${escH(lead['Name'])}</b> חתם/ה על הסכם ההצטרפות (${escH(stamp)}).</p><p>${lead['Payment'] === 'Paid' ? 'התשלום כבר התקבל.' : 'ממתין לתשלום.'}</p>${btnHtml('https://the-board.co.il/crm/', 'ל-CRM')}`, team.slice(1));
       const onboarded = await maybeOnboard(c, d, lead);
       return json({ ok: true, signed: stamp, paid: lead['Payment'] === 'Paid', onboarded, payLink });
+    }
+    if (route === 'contract' && (method === 'GET' || method === 'POST')) {
+      // Partner contract, opened from the emailed / shared link (no sign-in needed).
+      const u = new URL(request.url);
+      const body = method === 'POST' ? await request.json() : {};
+      const id = String(body.s || u.searchParams.get('s') || '');
+      const t = body.t || u.searchParams.get('t') || '';
+      if (!id || t !== await supplierToken(c, id)) return bad('link', 403);
+      const d = await readTabs(c, ['Suppliers']);
+      const sup = d.Suppliers.rows.find(r => r['ID'] === id);
+      if (!sup) return bad('supplier', 404);
+      const signed = await env.DB.prepare("SELECT name, id_number, company, signed_at, signature FROM signatures WHERE doc = 'affiliate' AND email = ? ORDER BY id DESC LIMIT 1").bind('supplier:' + id).first();
+      if (method === 'GET') {
+        const date = signed ? String(signed.signed_at).slice(0, 10).split('-').reverse().map(x => String(+x)).join('.') : '';
+        const doc = await supplierDoc(env, c, sup, date);
+        return json({ ok: true, partner: sup['Name'], contact: sup['Contact name'], companyId: sup['Company ID'], signed: signed ? { name: signed.name, idNumber: signed.id_number, role: sup['Signer role'] || '', company: signed.company, at: signed.signed_at, signature: signed.signature } : null, doc });
+      }
+      if (signed) return bad('already', 409);
+      const name = String(body.name || '').trim(), sig = String(body.signature || '');
+      if (name.length < 2 || !/^data:image\/png;base64,/.test(sig) || sig.length > 400000 || !body.agree) return bad('sign');
+      const doc = await supplierDoc(env, c, sup);
+      const stamp = nowStamp();
+      await env.DB.prepare('INSERT INTO signatures (doc, version, email, name, id_number, company, signed_at, ip, ua, signature, text_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
+        .bind('affiliate', doc.version, 'supplier:' + id, name, String(body.id_number || '').slice(0, 20), String(body.company || sup['Name'] || '').slice(0, 200), stamp, request.headers.get('CF-Connecting-IP') || '', (request.headers.get('User-Agent') || '').slice(0, 300), sig, await sha(JSON.stringify(doc))).run();
+      await writeCells(c, 'Suppliers', d.Suppliers.head, sup._row, { 'Status': 'Signed', 'Signed': stamp, 'Signer': name, 'Signer ID': String(body.id_number || ''), 'Signer role': String(body.role || '') });
+      const link = await supplierLink(c, id);
+      const team = (c.team_emails || '').split(',').filter(Boolean);
+      await mail(c, team[0], `ההסכם נחתם: ${sup['Name']}`, `<p><b>${escH(name)}</b> חתם/ה על ${escH(doc.title)} (${escH(stamp)}).</p>${btnHtml(link, 'לצפייה בהסכם החתום')}`, team.slice(1));
+      if (sup['Email']) await mail(c, String(sup['Email']).toLowerCase(), `העתק ההסכם החתום: ${doc.title}`, `<p>היי ${escH(firstName(sup['Contact name'] || name))},</p><p>תודה! ההסכם נחתם ב-${escH(stamp)}. בקישור הזה אפשר לראות את ההסכם החתום ולשמור אותו כ-PDF בכל עת.</p>${btnHtml(link, 'להסכם החתום')}<p>נועם, עדי ואיתן<br>The Board</p>`);
+      return json({ ok: true, signed: stamp });
     }
     if (route === 'login' && method === 'POST') {
       const { credential } = await request.json();
@@ -443,11 +491,11 @@ export async function onRequest(context) {
       if (!s.admin) return bad('forbidden', 403);
       const r = route.slice(6);
       if (r === 'data' && method === 'GET') {
-        const d = await readTabs(c, ['Leads', 'Members', 'Boards', 'Sessions']);
+        const d = await readTabs(c, ['Leads', 'Members', 'Boards', 'Sessions', 'Suppliers']);
         await ensureHeaders(c, 'Leads', d.Leads, LEAD_EXTRA);
         await ensureHeaders(c, 'Members', d.Members, MEMBER_EXTRA);
         await ensureHeaders(c, 'Boards', d.Boards, BOARD_EXTRA);
-        return json({ ok: true, leads: d.Leads.rows, members: d.Members.rows, boards: d.Boards.rows, sessions: d.Sessions.rows, heads: { leads: d.Leads.head, members: d.Members.head, boards: d.Boards.head } });
+        return json({ ok: true, leads: d.Leads.rows, members: d.Members.rows, boards: d.Boards.rows, sessions: d.Sessions.rows, suppliers: d.Suppliers.rows, heads: { leads: d.Leads.head, members: d.Members.head, boards: d.Boards.head } });
       }
       const body = method === 'GET' ? {} : await request.json();
       if (r === 'lead' && method === 'PUT') {
@@ -553,6 +601,50 @@ export async function onRequest(context) {
         await appendRow(c, 'Members', d.Members.head, f);
         if (f['Board']) await queueCalendar(c, context, [{ email, board: f['Board'] }]);
         return json({ ok: true });
+      }
+      if (r === 'supplier' && (method === 'PUT' || method === 'POST')) {
+        const d = await readTabs(c, ['Suppliers']);
+        const f = {}; SUPPLIER_EDITABLE.forEach(h => { if (body.fields && h in body.fields) f[h] = body.fields[h]; });
+        if (method === 'POST') {
+          const id = 'S' + Date.now().toString(36).toUpperCase();
+          await appendRow(c, 'Suppliers', d.Suppliers.head, Object.assign({ 'ID': id, 'Created': today(), 'Status': 'Draft', 'Contract': 'affiliate', 'Commission %': '20' }, f));
+          return json({ ok: true, id });
+        }
+        const sup = d.Suppliers.rows.find(x => x._row === +body.row);
+        if (!sup) return bad('supplier');
+        if (sup['Status'] === 'Signed') { delete f['Commission %']; delete f['Name']; }
+        await writeCells(c, 'Suppliers', d.Suppliers.head, sup._row, f);
+        return json({ ok: true });
+      }
+      if (r === 'contract' && (method === 'GET' || method === 'PUT' || method === 'POST')) {
+        // GET: the contract text for the editor + the signing link. PUT: save edited text. POST: send / mark sent.
+        const u = new URL(request.url);
+        const d = await readTabs(c, ['Suppliers']);
+        const row = method === 'GET' ? +u.searchParams.get('row') : +body.row;
+        const sup = d.Suppliers.rows.find(x => x._row === row);
+        if (!sup || !sup['ID']) return bad('supplier');
+        const link = await supplierLink(c, sup['ID']);
+        if (method === 'GET') {
+          const custom = await env.DB.prepare('SELECT doc FROM contracts WHERE supplier_id = ?').bind(sup['ID']).first();
+          const tpl = DOCS[sup['Contract'] || 'affiliate'];
+          return json({ ok: true, link, custom: !!custom, doc: custom ? JSON.parse(custom.doc) : { title: tpl.title, sections: tpl.sections } });
+        }
+        if (sup['Status'] === 'Signed') return bad('signed');
+        if (method === 'PUT') {
+          if (body.reset) { await env.DB.prepare('DELETE FROM contracts WHERE supplier_id = ?').bind(sup['ID']).run(); return json({ ok: true }); }
+          const doc = { title: String(body.doc && body.doc.title || '').slice(0, 300), sections: (body.doc && body.doc.sections || []).slice(0, 40).map(x => [String(x[0] || '').slice(0, 200), String(x[1] || '').slice(0, 8000)]).filter(x => x[0] || x[1]) };
+          await env.DB.prepare('INSERT OR REPLACE INTO contracts (supplier_id, doc, updated) VALUES (?, ?, ?)').bind(sup['ID'], JSON.stringify(doc), nowStamp()).run();
+          return json({ ok: true });
+        }
+        const f = { 'Status': 'Sent', 'Sent': nowStamp() };
+        if (body.send) {
+          if (!sup['Email']) return bad('email');
+          const doc = await supplierDoc(env, c, sup);
+          await mail(c, String(sup['Email']).toLowerCase(), doc.title,
+            `<p>היי ${escH(firstName(sup['Contact name'] || sup['Name']))},</p><p>מצורף ${escH(doc.title)}. קוראים וחותמים ישירות על המסך, מהמחשב או מהטלפון, בלי להדפיס ובלי לסרוק. לוקח שתי דקות.</p>${btnHtml(link, 'לקריאה וחתימה על ההסכם')}<p>יש שאלה? פשוט להשיב למייל הזה.</p><p>נועם, עדי ואיתן<br>The Board</p>`);
+        }
+        await writeCells(c, 'Suppliers', d.Suppliers.head, sup._row, f);
+        return json({ ok: true, link });
       }
       if (r === 'calendar' && method === 'POST') {
         // Resend / refresh one member's calendar invites (button in the CRM member drawer).

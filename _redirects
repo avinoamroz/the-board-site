@@ -1,0 +1,30 @@
+# Short links. Each one lands on the home page with its UTMs, so the lead shows its source in the CRM.
+# Add a line per new partner: /code  /?utm_source=partner&utm_medium=affiliate&utm_campaign=code  302
+/EFE  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=efe  302
+/EFE/  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=efe  302
+/efe  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=efe  302
+/efe/  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=efe  302
+/FFE  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=ffe  302
+/FFE/  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=ffe  302
+/ffe  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=ffe  302
+/ffe/  /?utm_source=partner&utm_medium=affiliate&utm_campaign=efe&utm_content=ffe  302
+/IG  /?utm_source=meta&utm_medium=ig&utm_campaign=bio&utm_content=ig  302
+/IG/  /?utm_source=meta&utm_medium=ig&utm_campaign=bio&utm_content=ig  302
+/ig  /?utm_source=meta&utm_medium=ig&utm_campaign=bio&utm_content=ig  302
+/ig/  /?utm_source=meta&utm_medium=ig&utm_campaign=bio&utm_content=ig  302
+/FB  /?utm_source=meta&utm_medium=fb&utm_campaign=bio&utm_content=fb  302
+/FB/  /?utm_source=meta&utm_medium=fb&utm_campaign=bio&utm_content=fb  302
+/fb  /?utm_source=meta&utm_medium=fb&utm_campaign=bio&utm_content=fb  302
+/fb/  /?utm_source=meta&utm_medium=fb&utm_campaign=bio&utm_content=fb  302
+/N  /?utm_source=referral&utm_medium=founder&utm_campaign=noam&utm_content=n  302
+/N/  /?utm_source=referral&utm_medium=founder&utm_campaign=noam&utm_content=n  302
+/n  /?utm_source=referral&utm_medium=founder&utm_campaign=noam&utm_content=n  302
+/n/  /?utm_source=referral&utm_medium=founder&utm_campaign=noam&utm_content=n  302
+/A  /?utm_source=referral&utm_medium=founder&utm_campaign=adi&utm_content=a  302
+/A/  /?utm_source=referral&utm_medium=founder&utm_campaign=adi&utm_content=a  302
+/a  /?utm_source=referral&utm_medium=founder&utm_campaign=adi&utm_content=a  302
+/a/  /?utm_source=referral&utm_medium=founder&utm_campaign=adi&utm_content=a  302
+/E  /?utm_source=referral&utm_medium=founder&utm_campaign=ethan&utm_content=e  302
+/E/  /?utm_source=referral&utm_medium=founder&utm_campaign=ethan&utm_content=e  302
+/e  /?utm_source=referral&utm_medium=founder&utm_campaign=ethan&utm_content=e  302
+/e/  /?utm_source=referral&utm_medium=founder&utm_campaign=ethan&utm_content=e  302

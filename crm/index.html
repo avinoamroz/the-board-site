@@ -106,7 +106,7 @@ label.f textarea{min-height:80px;resize:vertical}
   <div class="bar"><a class="brand" href="/crm/">THE BOARD<small>Admin</small></a>
     <div class="hdr-actions" id="hdr" hidden><a class="pill" href="https://docs.google.com/spreadsheets/d/1j96wEuywg5_pTyoH0FD_3VKD2XlrjFG3Zp-K9RfGpR4/edit" target="_blank" rel="noopener">Sheet</a><a class="pill" href="/members/">Member view</a><button class="pill" id="refresh" type="button">Refresh</button><button class="pill" id="out" type="button">Sign out</button></div>
   </div>
-  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button></nav>
+  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button><button data-v="suppliers" aria-selected="false">Suppliers</button></nav>
 </header>
 <main>
   <div class="center" id="v-signin" hidden><h2>The Board CRM</h2><p class="muted">Founders only. Sign in with your Google account.</p><div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div><p class="muted" id="si-err"></p></div>
@@ -127,6 +127,11 @@ label.f textarea{min-height:80px;resize:vertical}
     <div class="calcard" id="bcal-wrap"><div class="calhead"><h3>Board calendar</h3><span class="muted">First Friday of every month · 6 foundation sessions per board, then it continues as a sector board · tap a board to edit</span></div><div class="calscroll"><div class="bcal" id="bcal"></div></div><div class="callegend" id="bcal-legend"></div></div>
     <div class="grid3" id="boards"></div>
   </section>
+  <section id="v-suppliers" hidden>
+    <div class="toolbar"><input type="search" id="sq" placeholder="Search suppliers and partners"><button class="btn" id="add-supplier" type="button">+ Supplier / partner</button></div>
+    <p class="muted" style="margin:0 0 10px;font-size:.88rem">Each supplier gets a contract they read and sign on screen. Send it by email from here, or copy the link and send it yourself (WhatsApp, your own email).</p>
+    <div class="list" id="suppliers"></div>
+  </section>
 </main>
 <button class="btn lime fab" id="add-lead" type="button" hidden>+ Lead</button>
 <div class="drawer" id="drawer" hidden><div class="panel" id="panel"></div></div>
@@ -145,7 +150,7 @@ label.f textarea{min-height:80px;resize:vertical}
       .then(function(r){ return r.json().then(function(j){ if (r.status === 401) throw new Error("auth"); if (r.status === 403) throw new Error("forbidden"); if (!j.ok) throw new Error(j.detail || j.error || "error"); return j; }); });
   }
   function toast(t, err){ var d = document.createElement("div"); d.className = "toast" + (err ? " err" : ""); d.textContent = t; document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 3200); }
-  function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards"].forEach(function(x){ $(x).hidden = x !== id; }); }
+  function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards","v-suppliers"].forEach(function(x){ $(x).hidden = x !== id; }); }
   function stClass(s){ return "st-" + String(s || "New").split(" ")[0] + (s === "Closed won" ? " st-Closed-won" : s === "Closed lost" ? " st-Closed-lost" : ""); }
   function wa(p){ var d = String(p || "").replace(/\D/g, ""); if (!d) return ""; if (d[0] === "0") d = "972" + d.slice(1); return "https://wa.me/" + d; }
   function tel(p){ return "tel:" + String(p || "").replace(/[^\d+]/g, ""); }
@@ -182,13 +187,14 @@ label.f textarea{min-height:80px;resize:vertical}
   document.querySelectorAll("nav button").forEach(function(b){ b.onclick = function(){ view = b.dataset.v; location.hash = view; render(); }; });
   function render(){
     if (!D) return;
-    if (["pipeline","members","boards"].indexOf(location.hash.slice(1)) >= 0) view = location.hash.slice(1);
+    if (["pipeline","members","boards","suppliers"].indexOf(location.hash.slice(1)) >= 0) view = location.hash.slice(1);
     document.querySelectorAll("nav button").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.v === view); });
     show("v-" + view);
     $("add-lead").hidden = view !== "pipeline";
     if (view === "pipeline") renderLeads();
     if (view === "members") renderMembers();
     if (view === "boards") renderBoards();
+    if (view === "suppliers") renderSuppliers();
   }
   function renderLeads(){
     var q = $("q").value.trim().toLowerCase();
@@ -400,6 +406,85 @@ label.f textarea{min-height:80px;resize:vertical}
       '</div><div class="actions"><button class="btn" id="save-b">Save</button></div></div></div>');
     $("save-b").onclick = function(){ var f = vals($("panel")); if (!f["Board"]) { toast("Board name required", 1); return; } busy(this, api("admin/board", "PUT", { row: row || 0, fields: f }).then(function(){ toast("Saved"); return load().then(closeDrawer); })).catch(function(e){ toast(e.message, 1); }); };
   }
+
+
+  /* ---------- suppliers and partner contracts ---------- */
+  var SUP_STATUS = { Draft: "#ECEBF3", Sent: "#FFF1C9", Signed: "#D9F7B0", Ended: "#F3D4D4" };
+  function renderSuppliers(){
+    var q = $("sq").value.trim().toLowerCase();
+    var rows = (D.suppliers || []).filter(function(x){ return x["ID"]; }).filter(function(x){ return !q || [x["Name"], x["Contact name"], x["Email"], x["Type"]].join(" ").toLowerCase().indexOf(q) >= 0; }).slice().reverse();
+    $("suppliers").innerHTML = rows.length ? rows.map(function(x){
+      var st = x["Status"] || "Draft";
+      return '<button class="row" data-r="' + x._row + '"><span class="t he">' + esc(x["Name"]) + '</span><span class="s"><span class="he">' + esc(x["Contact name"]) + '</span> · ' + esc(x["Type"] || "Affiliate") + ' · ' + esc(x["Commission %"] || "20") + '% ex VAT</span><span class="r"><span class="badge" style="background:' + (SUP_STATUS[st] || "#ECEBF3") + '">' + esc(st) + '</span><span class="muted" style="font-size:.78rem">' + esc(st === "Signed" ? x["Signed"] : (x["Sent"] || x["Created"] || "")) + '</span></span></button>';
+    }).join("") : '<p class="empty">No suppliers yet. Add the first one with "+ Supplier / partner".</p>';
+    $("suppliers").querySelectorAll(".row").forEach(function(b){ b.onclick = function(){ openSupplier(+b.dataset.r); }; });
+  }
+  $("sq").oninput = renderSuppliers;
+  $("add-supplier").onclick = function(){ openSupplier(0); };
+  function supFields(x){
+    return '<label class="f full">Name (company / organization)<input data-f="Name" class="he" value="' + esc(x["Name"]) + '"></label>' +
+      '<label class="f">Type<select data-f="Type">' + opt(["Affiliate","Supplier","Venue","Sponsor","Other"], x["Type"] || "Affiliate") + '</select></label>' +
+      '<label class="f">Commission % (ex VAT)<input data-f="Commission %" inputmode="decimal" value="' + esc(x["Commission %"] || "20") + '"></label>' +
+      '<label class="f">Contact name<input data-f="Contact name" class="he" value="' + esc(x["Contact name"]) + '"></label>' +
+      '<label class="f">Company / association no.<input data-f="Company ID" value="' + esc(x["Company ID"]) + '"></label>' +
+      '<label class="f">Email<input data-f="Email" type="email" value="' + esc(x["Email"]) + '"></label>' +
+      '<label class="f">Phone<input data-f="Phone" type="tel" value="' + esc(x["Phone"]) + '"></label>' +
+      '<label class="f">Referral code (short link)<input data-f="Referral code" dir="ltr" placeholder="efe" value="' + esc(x["Referral code"]) + '"></label>' +
+      '<label class="f full">Notes<textarea data-f="Notes" class="he">' + esc(x["Notes"]) + '</textarea></label>';
+  }
+  function refStats(code){
+    code = String(code || "").toLowerCase(); if (!code) return null;
+    var leads = D.leads.filter(function(l){ return String(l["utm_campaign"] || "").toLowerCase() === code; });
+    return { leads: leads.length, won: leads.filter(function(l){ return l["Stage"] === "Closed won"; }).length };
+  }
+  function openSupplier(row){
+    var x = (D.suppliers || []).find(function(y){ return y._row === row; }) || {};
+    if (!row) {
+      drawer('<div class="ph"><div><h2>New supplier / partner</h2></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box"><div class="fg">' + supFields({}) + '</div><div class="actions"><button class="btn" id="sup-add">Add</button></div></div></div>');
+      $("sup-add").onclick = function(){ var f = vals($("panel")); if (!f["Name"]) { toast("Name required", 1); return; } busy(this, api("admin/supplier", "POST", { fields: f }).then(function(){ toast("Added"); return load().then(function(){ var last = D.suppliers[D.suppliers.length - 1]; if (last) openSupplier(last._row); }); })).catch(function(e){ toast(e.message, 1); }); };
+      return;
+    }
+    var signed = x["Status"] === "Signed";
+    drawer('<div class="ph"><div><h2 class="he">' + esc(x["Name"]) + '</h2><span class="muted">' + esc(x["Type"] || "Affiliate") + ' · ' + esc(x["Status"] || "Draft") + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb">' +
+      '<div class="box"><h3>Contract</h3>' +
+        (signed ? '<p style="margin:0 0 10px">Signed by <b class="he">' + esc(x["Signer"]) + '</b>' + (x["Signer role"] ? ' (' + esc(x["Signer role"]) + ')' : '') + ' on ' + esc(x["Signed"]) + '.</p>' : '<p class="muted" style="margin:0 0 10px">' + (x["Sent"] ? 'Sent ' + esc(x["Sent"]) + '. ' : '') + 'They open the link, read, fill in their details and sign on screen. The founders get an email when it is signed, and the signer gets a copy.</p>') +
+        '<div class="actions" style="flex-wrap:wrap">' +
+          (signed ? '' : '<button class="btn lime" id="sup-send"' + (x["Email"] ? '' : ' disabled title="Add an email first"') + '>Send by email</button>') +
+          '<button class="btn ghost" id="sup-copy">Copy link</button>' +
+          (x["Phone"] && !signed ? '<a class="btn ghost" id="sup-wa" target="_blank" rel="noopener">WhatsApp</a>' : '') +
+          '<a class="btn ghost" id="sup-open" target="_blank" rel="noopener">' + (signed ? 'View signed contract' : 'Preview') + '</a>' +
+          (signed ? '' : '<button class="btn ghost" id="sup-edit">Edit contract text</button>') +
+        '</div></div>' +
+      (x["Referral code"] ? (function(){ var st = refStats(x["Referral code"]); return '<div class="box"><h3>Referral link</h3><p style="margin:0 0 6px"><a href="https://the-board.co.il/' + esc(x["Referral code"]) + '" target="_blank" rel="noopener" dir="ltr">the-board.co.il/' + esc(x["Referral code"]) + '</a></p><p class="muted" style="margin:0;font-size:.88rem">Leads from this link: <b>' + st.leads + '</b> · Closed won: <b>' + st.won + '</b>. Commission: ' + esc(x["Commission %"] || "20") + '% of what they pay, ex VAT.</p></div>'; })() : '') +
+      '<div class="box"><h3>Details</h3><div class="fg">' + supFields(x) + '</div><div class="actions"><button class="btn" id="sup-save">Save</button></div></div></div>');
+    var link = "";
+    api("admin/contract?row=" + row).then(function(r){ link = r.link; $("sup-open").href = link; if ($("sup-wa")) $("sup-wa").href = wa(x["Phone"]) + (wa(x["Phone"]).indexOf("?") >= 0 ? "&" : "?") + "text=" + encodeURIComponent("היי " + (String(x["Contact name"] || "").split(" ")[0] || "") + ", מצורף הקישור להסכם השותפות עם The Board. קוראים וחותמים על המסך, לוקח שתי דקות: " + link); }).catch(function(){});
+    $("sup-copy").onclick = function(){ var b = this; (link ? Promise.resolve() : api("admin/contract?row=" + row).then(function(r){ link = r.link; })).then(function(){ return navigator.clipboard.writeText(link); }).then(function(){ toast("Link copied"); if (!signed && x["Status"] !== "Sent") api("admin/contract", "POST", { row: row, send: false }).then(function(){ x["Status"] = "Sent"; renderSuppliers(); }); }).catch(function(){ prompt("Copy the link:", link); }); };
+    if ($("sup-send")) $("sup-send").onclick = function(){ if (!confirmSend(x)) return; busy(this, api("admin/contract", "POST", { row: row, send: true }).then(function(){ toast("Sent to " + x["Email"]); return load().then(function(){ openSupplier(row); }); })).catch(function(e){ toast(e.message, 1); }); };
+    if ($("sup-edit")) $("sup-edit").onclick = function(){ editContract(row, x); };
+    $("sup-save").onclick = function(){ var f = vals($("panel")); busy(this, api("admin/supplier", "PUT", { row: row, fields: f }).then(function(){ Object.assign(x, f); toast("Saved"); renderSuppliers(); })).catch(function(e){ toast(e.message, 1); }); };
+  }
+  function confirmSend(x){ return window.confirm("Send the contract to " + x["Email"] + "?"); }
+  function editContract(row, x){
+    api("admin/contract?row=" + row).then(function(r){
+      var d = r.doc;
+      drawer('<div class="ph"><div><h2>Edit contract</h2><span class="muted he">' + esc(x["Name"]) + (r.custom ? ' · edited for this partner' : ' · standard template') + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box">' +
+        '<p class="muted" style="margin:0 0 10px;font-size:.85rem">Changes apply to this partner only. Placeholders filled in automatically: {{partner}} (name), {{commission}} (commission %), {{date}} (signing date), {{operator}} (The Board legal entity). Lines starting with a number show as a numbered list.</p>' +
+        '<label class="f full">Title<input id="ce-title" class="he" value="' + esc(d.title) + '"></label><div id="ce-secs">' +
+        d.sections.map(function(sec, i){ return ceSec(sec, i); }).join("") + '</div>' +
+        '<div class="actions"><button class="btn ghost" id="ce-add">+ Section</button></div>' +
+        '<div class="actions"><button class="btn" id="ce-save">Save contract</button>' + (r.custom ? '<button class="btn ghost" id="ce-reset">Back to standard template</button>' : '') + '<button class="btn ghost" id="ce-back">Cancel</button></div></div></div>');
+      $("ce-add").onclick = function(){ var n = document.querySelectorAll(".ce-sec").length; $("ce-secs").insertAdjacentHTML("beforeend", ceSec(["", ""], n)); };
+      $("ce-secs").onclick = function(ev){ if (ev.target.classList.contains("ce-del")) ev.target.closest(".ce-sec").remove(); };
+      $("ce-back").onclick = function(){ openSupplier(row); };
+      $("ce-save").onclick = function(){
+        var doc = { title: $("ce-title").value.trim(), sections: Array.prototype.map.call(document.querySelectorAll(".ce-sec"), function(el){ return [el.querySelector("input").value.trim(), el.querySelector("textarea").value.trim()]; }) };
+        busy(this, api("admin/contract", "PUT", { row: row, doc: doc }).then(function(){ toast("Contract saved"); openSupplier(row); })).catch(function(e){ toast(e.message, 1); });
+      };
+      if ($("ce-reset")) $("ce-reset").onclick = function(){ busy(this, api("admin/contract", "PUT", { row: row, reset: true }).then(function(){ toast("Back to the standard template"); openSupplier(row); })).catch(function(e){ toast(e.message, 1); }); };
+    }).catch(function(e){ toast(e.message, 1); });
+  }
+  function ceSec(sec, i){ return '<div class="ce-sec" style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><label class="f full">Section heading<input class="he" value="' + esc(sec[0]) + '"></label><label class="f full">Text<textarea class="he" style="min-height:180px">' + esc(sec[1]) + '</textarea></label><button type="button" class="btn ghost ce-del" style="padding:6px 12px;font-size:.85rem">Remove section</button></div>'; }
 
   window.addEventListener("hashchange", render);
   load();

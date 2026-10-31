@@ -412,7 +412,7 @@ label.f textarea{min-height:80px;resize:vertical}
   var SUP_STATUS = { Draft: "#ECEBF3", Sent: "#FFF1C9", Signed: "#D9F7B0", Ended: "#F3D4D4" };
   function renderSuppliers(){
     var q = $("sq").value.trim().toLowerCase();
-    var rows = (D.suppliers || []).filter(function(x){ return x["ID"]; }).filter(function(x){ return !q || [x["Name"], x["Contact name"], x["Email"], x["Type"]].join(" ").toLowerCase().indexOf(q) >= 0; }).slice().reverse();
+    var rows = (D.suppliers || []).filter(function(x){ return x["ID"]; }).filter(function(x){ return !q || [x["Name"], x["Contact name"], x["Email"], x["Type"], x["Legal entity"], x["Company ID"]].join(" ").toLowerCase().indexOf(q) >= 0; }).slice().reverse();
     $("suppliers").innerHTML = rows.length ? rows.map(function(x){
       var st = x["Status"] || "Draft";
       return '<button class="row" data-r="' + x._row + '"><span class="t he">' + esc(x["Name"]) + '</span><span class="s"><span class="he">' + esc(x["Contact name"]) + '</span> · ' + esc(x["Type"] || "Affiliate") + ' · ' + esc(x["Commission %"] || "20") + '% ex VAT</span><span class="r"><span class="badge" style="background:' + (SUP_STATUS[st] || "#ECEBF3") + '">' + esc(st) + '</span><span class="muted" style="font-size:.78rem">' + esc(st === "Signed" ? x["Signed"] : (x["Sent"] || x["Created"] || "")) + '</span></span></button>';
@@ -426,7 +426,8 @@ label.f textarea{min-height:80px;resize:vertical}
       '<label class="f">Type<select data-f="Type">' + opt(["Affiliate","Supplier","Venue","Sponsor","Other"], x["Type"] || "Affiliate") + '</select></label>' +
       '<label class="f">Commission % (ex VAT)<input data-f="Commission %" inputmode="decimal" value="' + esc(x["Commission %"] || "20") + '"></label>' +
       '<label class="f">Contact name<input data-f="Contact name" class="he" value="' + esc(x["Contact name"]) + '"></label>' +
-      '<label class="f">Company / association no.<input data-f="Company ID" value="' + esc(x["Company ID"]) + '"></label>' +
+      '<label class="f">Legal entity (who gets paid)<input data-f="Legal entity" class="he" placeholder="אתיקה פיננסים בע״מ" value="' + esc(x["Legal entity"]) + '"></label>' +
+      '<label class="f">Company / VAT no.<input data-f="Company ID" dir="ltr" value="' + esc(x["Company ID"]) + '"></label>' +
       '<label class="f">Email<input data-f="Email" type="email" value="' + esc(x["Email"]) + '"></label>' +
       '<label class="f">Phone<input data-f="Phone" type="tel" value="' + esc(x["Phone"]) + '"></label>' +
       '<label class="f">Referral code (short link)<input data-f="Referral code" dir="ltr" placeholder="efe" value="' + esc(x["Referral code"]) + '"></label>' +
@@ -446,6 +447,12 @@ label.f textarea{min-height:80px;resize:vertical}
     }
     var signed = x["Status"] === "Signed";
     drawer('<div class="ph"><div><h2 class="he">' + esc(x["Name"]) + '</h2><span class="muted">' + esc(x["Type"] || "Affiliate") + ' · ' + esc(x["Status"] || "Draft") + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb">' +
+      '<div class="box"><h3>Contact</h3><p style="margin:0;line-height:1.9">' +
+        (x["Contact name"] ? '<b class="he">' + esc(x["Contact name"]) + '</b><br>' : '') +
+        (x["Email"] ? '<a href="mailto:' + esc(x["Email"]) + '" dir="ltr">' + esc(x["Email"]) + '</a><br>' : '<span class="muted">No email yet</span><br>') +
+        (x["Phone"] ? '<a href="tel:' + esc(x["Phone"]) + '" dir="ltr">' + esc(x["Phone"]) + '</a><br>' : '') +
+        (x["Legal entity"] || x["Company ID"] ? '<span class="muted">Paid to: </span><span class="he">' + esc(x["Legal entity"] || x["Name"]) + '</span>' + (x["Company ID"] ? ' <span class="muted" dir="ltr">(' + esc(x["Company ID"]) + ')</span>' : '') : '') +
+      '</p></div>' +
       '<div class="box"><h3>Contract</h3>' +
         (signed ? '<p style="margin:0 0 10px">Signed by <b class="he">' + esc(x["Signer"]) + '</b>' + (x["Signer role"] ? ' (' + esc(x["Signer role"]) + ')' : '') + ' on ' + esc(x["Signed"]) + '.</p>' : '<p class="muted" style="margin:0 0 10px">' + (x["Sent"] ? 'Sent ' + esc(x["Sent"]) + '. ' : '') + 'They open the link, read, fill in their details and sign on screen. The founders get an email when it is signed, and the signer gets a copy.</p>') +
         '<div class="actions" style="flex-wrap:wrap">' +

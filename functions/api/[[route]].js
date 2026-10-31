@@ -279,13 +279,16 @@ function templatesFor(boardRow, admin) {
    Founders add a supplier/partner in the CRM, optionally edit the contract text, then email the signing
    link (or copy it to WhatsApp). The partner reads and signs on screen at /sign/; the signature is kept in D1
    (doc 'affiliate', email 'supplier:<ID>') and the row in the Suppliers tab turns to Signed. */
-const SUPPLIER_EDITABLE = ['Name', 'Type', 'Contact name', 'Email', 'Phone', 'Company ID', 'Contract', 'Commission %', 'Status', 'Notes', 'Referral code'];
+const SUPPLIER_EDITABLE = ['Name', 'Type', 'Contact name', 'Email', 'Phone', 'Company ID', 'Legal entity', 'Contract', 'Commission %', 'Status', 'Notes', 'Referral code'];
 const ilDate = () => new Date().toLocaleDateString('he-IL', { timeZone: 'Asia/Jerusalem', day: 'numeric', month: 'numeric', year: 'numeric' });
 async function supplierToken(c, id) { return (await hmac(c.session_secret, 'supplier:' + id)).slice(0, 32); }
 async function supplierLink(c, id) { return `https://the-board.co.il/sign/?s=${encodeURIComponent(id)}&t=${await supplierToken(c, id)}`; }
 async function supplierDoc(env, c, sup, date) {
   const custom = await env.DB.prepare('SELECT doc FROM contracts WHERE supplier_id = ?').bind(sup['ID']).first();
-  const vars = { partner: sup['Name'] || '', commission: sup['Commission %'] || '20', date: date || ilDate(), operator: c.company_legal || 'The Board' };
+  const legal = sup['Legal entity'] || '', cid = sup['Company ID'] ? `, ח.פ. ${sup['Company ID']}` : '';
+  const payee = (legal || sup['Name'] || '') + cid;
+  const partnerFull = (sup['Name'] || '') + (legal ? `, באמצעות ${legal}${cid}` : cid) + (sup['Contact name'] ? `, ע״י ${sup['Contact name']}` : '');
+  const vars = { partner: sup['Name'] || '', partner_full: partnerFull, payee, commission: sup['Commission %'] || '20', date: date || ilDate(), operator: c.company_legal || 'The Board' };
   const base = renderDoc(sup['Contract'] || 'affiliate', vars);
   if (!custom) return base;
   const d = JSON.parse(custom.doc);
@@ -604,6 +607,7 @@ export async function onRequest(context) {
       }
       if (r === 'supplier' && (method === 'PUT' || method === 'POST')) {
         const d = await readTabs(c, ['Suppliers']);
+        await ensureHeaders(c, 'Suppliers', d.Suppliers, ['Legal entity']);
         const f = {}; SUPPLIER_EDITABLE.forEach(h => { if (body.fields && h in body.fields) f[h] = body.fields[h]; });
         if (method === 'POST') {
           const id = 'S' + Date.now().toString(36).toUpperCase();

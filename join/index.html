@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&family=Heebo:wght@300;400;500;700;800&display=swap">
 <link rel="stylesheet" href="/assets/sign.css?v=20261020b">
 <script src="/assets/sign.js?v=20261020b" defer></script>
-<script src="/assets/i18n.js?v=20261020e" defer></script>
+<script src="/assets/i18n.js?v=20261031a" defer></script>
 </head>
 <body>
 <header><div class="bar"><a class="mark" href="/">THE BOARD</a><span data-lang-slot></span></div></header>
@@ -47,16 +47,18 @@
 document.addEventListener("DOMContentLoaded", function(){
   var $ = function(id){ return document.getElementById(id); }, esc = TBSign.esc;
   var q = new URLSearchParams(location.search), e = q.get("e") || "", t = q.get("t") || "", pad;
-  function payBlock(link, paid){
+  function payBlock(link, paid, bank){
     if (paid) return '<p><b>גם התשלום התקבל.</b> נשלח אליך מייל עם הכניסה לאזור החברים.</p><p><a class="btn" href="/members/">לאזור החברים</a></p>';
-    if (link) return '<p>השלב הבא: תשלום. אחרי התשלום תקבל/י חשבונית מס במייל ואת פרטי הכניסה לאזור החברים.</p><p><a class="btn" href="' + esc(link) + '" target="_blank" rel="noopener">לתשלום</a></p>';
-    return '<p>השלב הבא: תשלום. קישור לתשלום יישלח אליך בקרוב, ואחריו חשבונית מס ופרטי הכניסה לאזור החברים.</p>';
+    var h = '<p>השלב הבא: תשלום. אחרי התשלום תקבל/י חשבונית מס במייל ואת פרטי הכניסה לאזור החברים.</p>';
+    h += link ? '<p><b>בכרטיס אשראי (עד 4 תשלומים):</b></p><p><a class="btn" href="' + esc(link) + '" target="_blank" rel="noopener">לתשלום בכרטיס</a></p>' : '<p><b>בכרטיס אשראי (עד 4 תשלומים):</b> קישור לתשלום יישלח אליך בקרוב.</p>';
+    if (bank) h += '<p><b>או בהעברה בנקאית:</b><br>' + esc(bank) + '<br><span class="muted">אחרי ההעברה שלחו אסמכתא ל-info@the-board.co.il</span></p>';
+    return h;
   }
   fetch("/api/join?e=" + encodeURIComponent(e) + "&t=" + encodeURIComponent(t)).then(function(r){ return r.json(); }).then(function(res){
     $("loading").hidden = true;
     if (!res.ok) { $("err").hidden = false; return; }
     if (res.signed) {
-      $("signed").hidden = false; $("signed-text").textContent = "ההסכם נחתם ב-" + res.signed + ". תודה!"; $("pay").innerHTML = payBlock(res.payLink, res.paid); return;
+      $("signed").hidden = false; $("signed-text").textContent = "ההסכם נחתם ב-" + res.signed + ". תודה!"; $("pay").innerHTML = payBlock(res.payLink, res.paid, res.bank); return;
     }
     $("sign").hidden = false;
     var first = String(res.name || "").split(" ")[0];
@@ -77,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function(){
           if (!r.ok) throw new Error(r.error);
           $("sign").hidden = true; $("signed").hidden = false; window.scrollTo(0, 0);
           $("signed-text").textContent = "ההסכם נחתם ב-" + r.signed + ". עותק נשמר אצלנו.";
-          $("pay").innerHTML = payBlock(r.payLink, r.paid);
+          $("pay").innerHTML = payBlock(r.payLink, r.paid, r.bank);
         }).catch(function(){ $("submit").disabled = false; msg.className = "msg err"; msg.textContent = "החתימה לא נשמרה. נסו שוב."; });
     });
   }).catch(function(){ $("loading").hidden = true; $("err").hidden = false; });

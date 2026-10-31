@@ -158,7 +158,7 @@ const MEMB_HE = { 'Board': 'בורד', 'Open board': 'אופן בורד', 'Commu
 function agreementVars(c, lead) {
   const interest = lead['Interested in'] && lead['Interested in'] !== 'Unknown' ? lead['Interested in'] : 'Board';
   const price = lead['Deal value (ex VAT)'] ? `${lead['Deal value (ex VAT)']} ₪` : '4,000 ₪';
-  return { operator: c.company_legal || 'The Board (פרטי הישות המשפטית יושלמו לפני החתימה)', membership: MEMB_HE[interest] || interest, board: lead['Board (form)'] || 'ייקבע בתיאום', price };
+  return { operator: c.company_legal || 'The Board (פרטי הישות המשפטית יושלמו לפני החתימה)', membership: MEMB_HE[interest] || interest, board: lead['Board (form)'] || 'ייקבע בתיאום', price, bank: c.bank_details || 'פרטי החשבון יישלחו אליך במייל' };
 }
 async function maybeOnboard(c, d, lead) {
   // Signed + paid -> becomes a boarder, team gets notified, member gets a welcome email.
@@ -340,7 +340,7 @@ export async function onRequest(context) {
       if (!lead) return bad('lead', 404);
       const doc = renderDoc('agreement', agreementVars(c, lead));
       const payLink = lead['Payment link'] || c.payment_link || '';
-      if (method === 'GET') return json({ ok: true, name: lead['Name'], company: lead['Company & field'], signed: lead['Agreement signed'] || '', paid: lead['Payment'] === 'Paid', payLink, doc });
+      if (method === 'GET') return json({ ok: true, name: lead['Name'], company: lead['Company & field'], signed: lead['Agreement signed'] || '', paid: lead['Payment'] === 'Paid', payLink, bank: c.bank_details || '', doc });
       const name = String(body.name || '').trim(), sig = String(body.signature || '');
       if (name.length < 2 || !/^data:image\/png;base64,/.test(sig) || sig.length > 400000 || !body.agree) return bad('sign');
       const stamp = nowStamp();
@@ -351,7 +351,7 @@ export async function onRequest(context) {
       const team = (c.team_emails || '').split(',').filter(Boolean);
       await mail(c, team[0], `ההסכם נחתם: ${lead['Name']}`, `<p><b>${escH(lead['Name'])}</b> חתם/ה על הסכם ההצטרפות (${escH(stamp)}).</p><p>${lead['Payment'] === 'Paid' ? 'התשלום כבר התקבל.' : 'ממתין לתשלום.'}</p>${btnHtml('https://the-board.co.il/crm/', 'ל-CRM')}`, team.slice(1));
       const onboarded = await maybeOnboard(c, d, lead);
-      return json({ ok: true, signed: stamp, paid: lead['Payment'] === 'Paid', onboarded, payLink });
+      return json({ ok: true, signed: stamp, paid: lead['Payment'] === 'Paid', onboarded, payLink, bank: c.bank_details || '' });
     }
     if (route === 'contract' && (method === 'GET' || method === 'POST')) {
       // Partner contract, opened from the emailed / shared link (no sign-in needed).

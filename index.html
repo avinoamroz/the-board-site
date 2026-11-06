@@ -90,6 +90,11 @@ section{padding-block:96px;position:relative;overflow:hidden}
 .price{margin-top:22px;display:grid;grid-template-columns:.85fr 1.15fr;border:2px solid var(--gold);border-radius:28px;overflow:hidden;position:relative;z-index:1}
 .price>*{min-width:0}
 .price-tag{background:rgba(198,242,120,.08);padding:36px;display:grid;gap:14px;align-content:start;border-inline-end:1px solid rgba(198,242,120,.35)}
+.was{display:flex;margin-bottom:-6px}
+.was-num{position:relative;font-family:var(--f-display);font-weight:500;font-size:1.9rem;line-height:1;color:rgba(255,255,255,.55);padding:4px 6px;font-variant-numeric:tabular-nums}
+.was-num::before,.was-num::after{content:"";position:absolute;left:-4px;right:-4px;top:50%;height:3px;border-radius:2px;background:#FF5C7A}
+.was-num::before{transform:rotate(16deg)}
+.was-num::after{transform:rotate(-16deg)}
 .amount{display:flex;align-items:baseline;gap:8px;color:var(--gold);direction:rtl}
 .amount b{font-family:var(--f-display);font-weight:500;font-size:clamp(3.4rem,2.6rem + 3vw,5rem);line-height:1;font-variant-numeric:tabular-nums}
 .amount span{font-family:var(--f-display);font-size:2rem}
@@ -626,6 +631,7 @@ footer .mark{margin:0}
     <div class="price reveal" id="price">
       <div class="price-tag">
         <span class="kicker">השקעה בבורד</span>
+        <div class="was" aria-label="במקום 10,000 ₪"><span class="was-num">10,000 ₪</span></div>
         <div class="amount"><b>4,000</b><span>₪</span><small class="vat">+ מע״מ</small></div>
                 <a class="btn gold" href="#join">שריינו מקום בבורד הבא<span class="arr"><svg><use href="#arr"/></svg></span></a>
       </div>

@@ -491,7 +491,10 @@ export async function onRequest(context) {
 
     /* ----- admin ----- */
     if (route.startsWith('admin/')) {
-      if (!s.admin) return bad('forbidden', 403);
+      if (!s.admin) {
+        try { await env.DB.prepare("INSERT INTO config(key,value) VALUES('last_denied',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(s.email + ' ' + new Date().toISOString()).run(); } catch (e) {}
+        return json({ ok: false, error: 'forbidden', email: s.email }, 403);
+      }
       const r = route.slice(6);
       if (r === 'data' && method === 'GET') {
         const d = await readTabs(c, ['Leads', 'Members', 'Boards', 'Sessions', 'Suppliers']);

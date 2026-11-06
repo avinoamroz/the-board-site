@@ -147,7 +147,7 @@ label.f textarea{min-height:80px;resize:vertical}
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
   function api(path, method, body){
     return fetch("/api/" + path, { method: method || "GET", credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined })
-      .then(function(r){ return r.json().then(function(j){ if (r.status === 401) throw new Error("auth"); if (r.status === 403) throw new Error("forbidden"); if (!j.ok) throw new Error(j.detail || j.error || "error"); return j; }); });
+      .then(function(r){ return r.json().then(function(j){ if (r.status === 401) throw new Error("auth"); if (r.status === 403) { window.__deniedEmail = j.email || ""; throw new Error("forbidden"); } if (!j.ok) throw new Error(j.detail || j.error || "error"); return j; }); });
   }
   function toast(t, err){ var d = document.createElement("div"); d.className = "toast" + (err ? " err" : ""); d.textContent = t; document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 3200); }
   function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards","v-suppliers"].forEach(function(x){ $(x).hidden = x !== id; }); }
@@ -166,7 +166,7 @@ label.f textarea{min-height:80px;resize:vertical}
       render();
     }).catch(function(e){
       if (e.message === "auth") { show("v-signin"); initGoogle(); }
-      else if (e.message === "forbidden") show("v-denied");
+      else if (e.message === "forbidden") { show("v-denied"); var de = document.querySelector("#v-denied p"); if (de && window.__deniedEmail) de.textContent = "You are signed in as " + window.__deniedEmail + ", which isn't on the founders list. Sign in with the account the founders list has, or ask Noam to add this one."; }
       else { show("v-signin"); initGoogle(); $("si-err").textContent = "Couldn't load: " + e.message; }
     });
   }

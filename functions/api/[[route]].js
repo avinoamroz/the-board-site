@@ -627,6 +627,7 @@ export async function onRequest(context) {
         if (method === 'PATCH') {
           const groups = (Array.isArray(body.groups) ? body.groups : []).map(g => ({ name: String(g.name || '').slice(0, 80), color: String(g.color || '').slice(0, 20) })).filter(g => g.name).slice(0, 40);
           await env.DB.prepare("INSERT INTO config(key,value) VALUES('task_groups',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(JSON.stringify(groups)).run();
+          c.task_groups = JSON.stringify(groups);
           if (body.rename && body.rename.from && body.rename.to) { const rows = t.rows.filter(x => x['Group'] === body.rename.from); await ensureHeaders(c, 'Tasks', t, TASK_HEAD); for (const x of rows) await writeCells(c, 'Tasks', t.head, x._row, { 'Group': String(body.rename.to).slice(0, 80) }); }
           return json({ ok: true });
         }

@@ -619,7 +619,7 @@ label.f textarea{min-height:80px;resize:vertical}
       var items = list.filter(function(x){ return x["Group"] === g.name; });
       var all = TASKS.filter(function(x){ return x["Group"] === g.name; });
       return '<div class="tg' + (closed[g.name] ? ' closed' : '') + '" style="--gc:' + g.color + '" data-g="' + gi + '"><div class="tg-head"><button type="button" class="tg-tog" aria-label="פתיחה וסגירה">▼</button><h3 style="color:' + g.color + '">' + esc(g.name) + '</h3><span class="n">' + all.length + ' משימות</span><button type="button" class="tg-menu" title="שינוי שם או מחיקה">⋯</button></div>' +
-        '<div class="tg-wrap"><table class="tt-table"><thead><tr><th>משימה</th><th style="width:90px">אחראי</th><th style="width:130px">סטטוס</th><th style="width:120px">עדיפות</th><th style="width:130px">דד-ליין</th><th style="width:22%">הערות</th><th style="width:40px"></th></tr></thead><tbody>' +
+        '<div class="tg-wrap"><table class="tt-table"><thead><tr><th>משימה</th><th style="width:90px">אחראי</th><th style="width:130px">סטטוס</th><th style="width:120px">עדיפות</th><th style="width:120px">דד-ליין</th><th style="width:15%">הערות</th><th style="width:40px"></th></tr></thead><tbody>' +
         items.map(function(x){
           var late = x["Due"] && x["Due"] < t0 && x["Status"] !== "הושלם";
           return '<tr data-id="' + esc(x["ID"]) + '"' + (x["Status"] === "הושלם" ? ' class="done"' : '') + '><td class="nm"><input data-k="Task" value="' + esc(x["Task"]) + '" aria-label="משימה"></td>' +

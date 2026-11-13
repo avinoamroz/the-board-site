@@ -86,9 +86,15 @@
       typedName: function(){ return nameIn.value.trim(); }
     };
   }
+  function body(t){
+    return String(t || "").split("\n").map(function(l){
+      var sub = /^>\s*/.test(l);
+      return '<span style="display:block' + (sub ? ';padding-right:1.8em;font-size:.95em' : '') + '">' + esc(l.replace(/^>\s*/, "")) + '</span>';
+    }).join("");
+  }
   function docHtml(doc){
     return '<h2 class="doc-title">' + esc(doc.title) + '</h2><p class="doc-ver">גרסה ' + esc(doc.version) + '</p>' +
-      doc.sections.map(function(s, i){ return '<h3>' + (i + 1) + '. ' + esc(s[0]) + '</h3><p>' + esc(s[1]) + '</p>'; }).join("");
+      doc.sections.map(function(s, i){ return '<h3>' + (i + 1) + '. ' + esc(s[0]) + '</h3><p>' + body(s[1]) + '</p>'; }).join("");
   }
   window.TBSign = { mount: mount, docHtml: docHtml, esc: esc };
 })();

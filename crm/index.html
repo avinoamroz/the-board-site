@@ -476,7 +476,7 @@ label.f textarea{min-height:80px;resize:vertical}
     api("admin/contract?row=" + row).then(function(r){
       var d = r.doc;
       drawer('<div class="ph"><div><h2>Edit contract</h2><span class="muted he">' + esc(x["Name"]) + (r.custom ? ' · edited for this partner' : ' · standard template') + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box">' +
-        '<p class="muted" style="margin:0 0 10px;font-size:.85rem">Changes apply to this partner only. Placeholders filled in automatically: {{partner}} (name), {{commission}} (commission %), {{date}} (signing date), {{operator}} (The Board legal entity). Lines starting with a number show as a numbered list.</p>' +
+        '<p class="muted" style="margin:0 0 10px;font-size:.85rem">Changes apply to this partner only. Placeholders filled in automatically: {{partner}} (name), {{commission}} (commission %), {{date}} (signing date), {{operator}} (The Board legal entity). Lines starting with a number show as a numbered list; lines starting with &gt; are indented under the line above.</p>' +
         '<label class="f full">Title<input id="ce-title" class="he" value="' + esc(d.title) + '"></label><div id="ce-secs">' +
         d.sections.map(function(sec, i){ return ceSec(sec, i); }).join("") + '</div>' +
         '<div class="actions"><button class="btn ghost" id="ce-add">+ Section</button></div>' +

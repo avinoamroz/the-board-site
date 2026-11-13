@@ -143,6 +143,14 @@ label.f textarea{min-height:80px;resize:vertical}
 .tt-table td.x button{border:0;background:none;color:#B4B6C4;cursor:pointer;font-size:1rem;width:32px}
 .tt-table td.x button:hover{color:var(--red)}
 .tt-add td{height:38px}.tt-add input{border:0;background:none;font:inherit;width:100%;padding:8px 14px;color:var(--ink)}
+.nmw{display:flex;align-items:center;gap:6px}
+.nmw input{flex:1;min-width:0}
+.sub-mark{color:#B4B6C4;padding-right:14px}
+.subrow td{background:#FAFAFC}
+.kid-tog{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:0 2px}
+.kid-chip{border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:.75rem;color:var(--muted);white-space:nowrap}
+.add-sub{border:0;background:none;color:var(--plum);font:inherit;font-size:.75rem;cursor:pointer;opacity:0;white-space:nowrap}
+tr:hover .add-sub,.add-sub:focus{opacity:1}
 .tg-mini{height:8px;width:120px;border-radius:999px;overflow:hidden;display:flex;margin:8px auto 0;background:var(--line)}
 .tg-mini span{display:block;height:100%}
 .kb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
@@ -598,10 +606,11 @@ label.f textarea{min-height:80px;resize:vertical}
   function sel(list, v, field){ return '<select class="cell-sel" data-k="' + field + '" style="background:' + col(list, v) + '">' + list.map(function(p){ return '<option' + (p[0] === v ? ' selected' : '') + '>' + p[0] + '</option>'; }).join("") + '</select>'; }
   function renderTasks(){
     if (!TASKS) return;
-    var done = TASKS.filter(function(x){ return x["Status"] === "הושלם"; }).length;
-    $("tb-done").textContent = done; $("tb-total").textContent = TASKS.length; $("tb-pct").textContent = (TASKS.length ? Math.round(done / TASKS.length * 100) : 0) + "%";
-    $("tb-bar").outerHTML = bar(TASKS, "tb-bar").replace('class="tb-bar"', 'class="tb-bar" id="tb-bar"');
-    $("tb-legend").innerHTML = STATUS.map(function(s){ return '<span><i style="background:' + s[1] + '"></i>' + s[0] + ' ' + TASKS.filter(function(x){ return x["Status"] === s[0]; }).length + '</span>'; }).join("");
+    var TOP = TASKS.filter(function(x){ return !x["Parent"]; });
+    var done = TOP.filter(function(x){ return x["Status"] === "הושלם"; }).length;
+    $("tb-done").textContent = done; $("tb-total").textContent = TOP.length; $("tb-pct").textContent = (TOP.length ? Math.round(done / TOP.length * 100) : 0) + "%";
+    $("tb-bar").outerHTML = bar(TOP, "tb-bar").replace('class="tb-bar"', 'class="tb-bar" id="tb-bar"');
+    $("tb-legend").innerHTML = STATUS.map(function(s){ return '<span><i style="background:' + s[1] + '"></i>' + s[0] + ' ' + TOP.filter(function(x){ return x["Status"] === s[0]; }).length + '</span>'; }).join("");
     document.querySelectorAll(".tb-seg button").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.tv === tview); });
     var list = visible(), t0 = todayISO();
     if (tview === "kanban") {
@@ -616,13 +625,23 @@ label.f textarea{min-height:80px;resize:vertical}
       return;
     }
     $("tasks").innerHTML = GROUPS.map(function(g, gi){
-      var items = list.filter(function(x){ return x["Group"] === g.name; });
-      var all = TASKS.filter(function(x){ return x["Group"] === g.name; });
+      var items = [];
+      list.filter(function(x){ return x["Group"] === g.name && !x["Parent"]; }).forEach(function(x){
+        var kids = TASKS.filter(function(y){ return y["Parent"] === x["ID"]; });
+        x._kids = kids.length; x._kidsDone = kids.filter(function(y){ return y["Status"] === "הושלם"; }).length;
+        items.push(x);
+        if (!closed["t:" + x["ID"]]) list.filter(function(y){ return y["Parent"] === x["ID"]; }).forEach(function(y){ y._sub = true; items.push(y); });
+      });
+      list.filter(function(x){ return x["Group"] === g.name && x["Parent"] && !TASKS.some(function(p){ return p["ID"] === x["Parent"]; }); }).forEach(function(x){ items.push(x); });
+      var all = TASKS.filter(function(x){ return x["Group"] === g.name && !x["Parent"]; });
       return '<div class="tg' + (closed[g.name] ? ' closed' : '') + '" style="--gc:' + g.color + '" data-g="' + gi + '"><div class="tg-head"><button type="button" class="tg-tog" aria-label="פתיחה וסגירה">▼</button><h3 style="color:' + g.color + '">' + esc(g.name) + '</h3><span class="n">' + all.length + ' משימות</span><button type="button" class="tg-menu" title="שינוי שם או מחיקה">⋯</button></div>' +
         '<div class="tg-wrap"><table class="tt-table"><thead><tr><th>משימה</th><th style="width:90px">אחראי</th><th style="width:130px">סטטוס</th><th style="width:120px">עדיפות</th><th style="width:120px">דד-ליין</th><th style="width:15%">הערות</th><th style="width:40px"></th></tr></thead><tbody>' +
         items.map(function(x){
           var late = x["Due"] && x["Due"] < t0 && x["Status"] !== "הושלם";
-          return '<tr data-id="' + esc(x["ID"]) + '"' + (x["Status"] === "הושלם" ? ' class="done"' : '') + '><td class="nm"><input data-k="Task" value="' + esc(x["Task"]) + '" aria-label="משימה"></td>' +
+          var nm = x._sub ? '<span class="sub-mark" aria-hidden="true">└</span>' : (x._kids ? '<button type="button" class="kid-tog" data-tog="' + esc(x["ID"]) + '" aria-label="תת-משימות">' + (closed["t:" + x["ID"]] ? '◂' : '▾') + '</button>' : '');
+          var chip = (!x._sub && x._kids) ? '<span class="kid-chip">' + x._kidsDone + '/' + x._kids + '</span>' : '';
+          var addSub = x._sub ? '' : '<button type="button" class="add-sub" data-sub="' + esc(x["ID"]) + '" title="הוספת תת-משימה" aria-label="הוספת תת-משימה">+ תת</button>';
+          return '<tr data-id="' + esc(x["ID"]) + '" class="' + (x["Status"] === "הושלם" ? 'done' : '') + (x._sub ? ' subrow' : '') + '"><td class="nm"><div class="nmw">' + nm + '<input data-k="Task" value="' + esc(x["Task"]) + '" aria-label="משימה">' + chip + addSub + '</div></td>' +
             '<td><span class="own"><select data-k="Owner" class="o-' + esc(x["Owner"]) + '" aria-label="אחראי">' + '<option value=""' + (x["Owner"] ? '' : ' selected') + '>+</option>' + OWNERS.map(function(o){ return '<option value="' + o[0] + '"' + (o[0] === x["Owner"] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join("") + '</select></span></td>' +
             '<td style="padding:0">' + sel(STATUS, x["Status"], "Status") + '</td><td style="padding:0">' + sel(PRIO, x["Priority"], "Priority") + '</td>' +
             '<td class="dd' + (late ? ' late' : '') + '"><input type="date" data-k="Due" value="' + esc(x["Due"]) + '" aria-label="דד-ליין"></td>' +
@@ -638,6 +657,16 @@ label.f textarea{min-height:80px;resize:vertical}
       });
       tr.querySelector(".x button").onclick = function(){ if (!window.confirm("למחוק את המשימה?")) return; TASKS = TASKS.filter(function(y){ return y !== x; }); renderTasks(); api("admin/tasks", "DELETE", { row: x._row, id: x["ID"] }).catch(function(e){ toast(e.message, 1); loadTasks(); }); };
     });
+    $("tasks").querySelectorAll("[data-tog]").forEach(function(b){ b.onclick = function(){ var k = "t:" + b.dataset.tog; closed[k] = !closed[k]; renderTasks(); }; });
+    $("tasks").querySelectorAll("[data-sub]").forEach(function(b){ b.onclick = function(){
+      var p = TASKS.find(function(y){ return y["ID"] === b.dataset.sub; });
+      var tr = b.closest("tr"), row = document.createElement("tr"); row.className = "subrow";
+      row.innerHTML = '<td class="nm" colspan="7"><div class="nmw"><span class="sub-mark" aria-hidden="true">└</span><input placeholder="תת-משימה חדשה, Enter לשמירה" aria-label="תת-משימה חדשה"></div></td>';
+      tr.after(row); var inp = row.querySelector("input"); inp.focus();
+      inp.onkeydown = function(ev){ if (ev.key === "Escape") { row.remove(); return; } if (ev.key !== "Enter") return; var t = inp.value.trim(); if (!t) return; inp.disabled = true;
+        closed["t:" + p["ID"]] = false;
+        api("admin/tasks", "POST", { fields: { "Task": t, "Group": p["Group"], "Parent": p["ID"], "Owner": p["Owner"] || "", "Priority": "בינונית" } }).then(loadTasks).catch(function(e){ toast(e.message, 1); inp.disabled = false; }); };
+    }; });
     $("tasks").querySelectorAll("[data-add]").forEach(function(inp){
       inp.onkeydown = function(ev){
         if (ev.key !== "Enter") return;

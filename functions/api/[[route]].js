@@ -298,8 +298,8 @@ async function supplierDoc(env, c, sup, date) {
 
 
 /* ---------- founders' tasks (Tasks tab in the CRM sheet) ---------- */
-const TASK_HEAD = ['ID', 'Task', 'Owner', 'Status', 'Due', 'Notes', 'Created', 'Created by', 'Done', 'Group', 'Priority'];
-const TASK_EDITABLE = ['Task', 'Owner', 'Status', 'Due', 'Notes', 'Group', 'Priority'];
+const TASK_HEAD = ['ID', 'Task', 'Owner', 'Status', 'Due', 'Notes', 'Created', 'Created by', 'Done', 'Group', 'Priority', 'Parent'];
+const TASK_EDITABLE = ['Task', 'Owner', 'Status', 'Due', 'Notes', 'Group', 'Priority', 'Parent'];
 async function readTasks(c) {
   try { return (await readTabs(c, ['Tasks'])).Tasks; } catch (e) {
     try { await pipe(c, 'POST', ':batchUpdate', { requests: [{ addSheet: { properties: { title: 'Tasks', gridProperties: { frozenRowCount: 1 } } } }] }); } catch (e2) { throw e; }

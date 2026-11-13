@@ -298,8 +298,8 @@ async function supplierDoc(env, c, sup, date) {
 
 
 /* ---------- founders' tasks (Tasks tab in the CRM sheet) ---------- */
-const TASK_HEAD = ['ID', 'Task', 'Owner', 'Status', 'Due', 'Notes', 'Created', 'Created by', 'Done'];
-const TASK_EDITABLE = ['Task', 'Owner', 'Status', 'Due', 'Notes'];
+const TASK_HEAD = ['ID', 'Task', 'Owner', 'Status', 'Due', 'Notes', 'Created', 'Created by', 'Done', 'Group', 'Priority'];
+const TASK_EDITABLE = ['Task', 'Owner', 'Status', 'Due', 'Notes', 'Group', 'Priority'];
 async function readTasks(c) {
   try { return (await readTabs(c, ['Tasks'])).Tasks; } catch (e) {
     try { await pipe(c, 'POST', ':batchUpdate', { requests: [{ addSheet: { properties: { title: 'Tasks', gridProperties: { frozenRowCount: 1 } } } }] }); } catch (e2) { throw e; }
@@ -623,13 +623,19 @@ export async function onRequest(context) {
       }
       if (r === 'tasks') {
         const t = await readTasks(c);
-        if (method === 'GET') return json({ ok: true, tasks: t.rows.filter(x => x['ID'] && x['Status'] !== 'Deleted') });
+        if (method === 'GET') { let groups = []; try { groups = JSON.parse(c.task_groups || '[]'); } catch (e) {} return json({ ok: true, groups, tasks: t.rows.filter(x => x['ID'] && x['Status'] !== 'Deleted') }); }
+        if (method === 'PATCH') {
+          const groups = (Array.isArray(body.groups) ? body.groups : []).map(g => ({ name: String(g.name || '').slice(0, 80), color: String(g.color || '').slice(0, 20) })).filter(g => g.name).slice(0, 40);
+          await env.DB.prepare("INSERT INTO config(key,value) VALUES('task_groups',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(JSON.stringify(groups)).run();
+          if (body.rename && body.rename.from && body.rename.to) { const rows = t.rows.filter(x => x['Group'] === body.rename.from); await ensureHeaders(c, 'Tasks', t, TASK_HEAD); for (const x of rows) await writeCells(c, 'Tasks', t.head, x._row, { 'Group': String(body.rename.to).slice(0, 80) }); }
+          return json({ ok: true });
+        }
         const f = {}; TASK_EDITABLE.forEach(h => { if (body.fields && h in body.fields) f[h] = body.fields[h]; });
         if (method === 'POST') {
           if (!String(f['Task'] || '').trim()) return bad('task');
           await ensureHeaders(c, 'Tasks', t, TASK_HEAD);
           const id = 'T' + Date.now().toString(36).toUpperCase();
-          await appendRow(c, 'Tasks', t.head, Object.assign({ 'ID': id, 'Status': 'To do', 'Created': nowStamp(), 'Created by': s.name || s.email }, f));
+          await appendRow(c, 'Tasks', t.head, Object.assign({ 'ID': id, 'Status': 'לא התחיל', 'Priority': 'בינונית', 'Created': nowStamp(), 'Created by': s.name || s.email }, f));
           return json({ ok: true, id });
         }
         if (method === 'PUT' || method === 'DELETE') {
@@ -637,7 +643,7 @@ export async function onRequest(context) {
           if (!x) return bad('task', 404);
           if (method === 'DELETE') f['Status'] = 'Deleted';
           await ensureHeaders(c, 'Tasks', t, TASK_HEAD);
-          const g = Object.assign({}, f); if (f['Status'] === 'Done' && x['Status'] !== 'Done') g['Done'] = nowStamp(); if (f['Status'] && f['Status'] !== 'Done') g['Done'] = '';
+          const g = Object.assign({}, f); if (f['Status'] === 'הושלם' && x['Status'] !== 'הושלם') g['Done'] = nowStamp(); if (f['Status'] && f['Status'] !== 'הושלם') g['Done'] = '';
           await writeCells(c, 'Tasks', t.head, x._row, g);
           return json({ ok: true });
         }

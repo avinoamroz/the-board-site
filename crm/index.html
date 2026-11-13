@@ -98,20 +98,61 @@ label.f textarea{min-height:80px;resize:vertical}
 .muted{color:var(--muted)}
 .empty{color:var(--muted);text-align:center;padding:30px}
 .note{background:#FFF8E1;border:1px solid #F5E2A8;border-radius:12px;padding:10px 12px;font-size:.88rem}
-.taskadd{display:grid;grid-template-columns:1fr 120px 150px auto;gap:8px;margin-bottom:10px}
-.taskadd input,.taskadd select{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#fff;font-size:.95rem;min-width:0}
-.tcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
-.tcol{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px;min-width:0}
-.tcol h3{margin:0;font-size:1rem;display:flex;justify-content:space-between;align-items:center}
-.tcol h3 span{color:var(--muted);font-weight:500;font-size:.82rem}
-.task{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:var(--paper);cursor:pointer;text-align:start}
-.task input{margin-top:3px;width:18px;height:18px;accent-color:var(--plum);cursor:pointer}
-.task .tt{font-weight:500;overflow-wrap:anywhere}
-.task .tm{grid-column:2;color:var(--muted);font-size:.8rem;display:flex;gap:8px;flex-wrap:wrap}
-.task.done .tt{text-decoration:line-through;color:var(--muted)}
-.task .late{color:var(--red);font-weight:600}
-.task .prog{color:var(--plum);font-weight:600}
-@media (max-width:820px){.tcols{grid-template-columns:1fr}.taskadd{grid-template-columns:1fr 1fr}.taskadd #ta-text{grid-column:1/-1}}
+.tb{font-family:"Heebo","Inter",system-ui,sans-serif}
+.tb-top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:6px 0 16px}
+.tb-title{margin:0;font-size:1.6rem;font-weight:800;letter-spacing:-.01em}
+.tb-sub{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.tb-prog{min-width:260px;flex:0 1 380px;display:grid;gap:6px}
+.tb-count{font-size:.9rem;color:var(--muted)}.tb-count b{color:var(--ink);font-size:1.1rem}.tb-pct{float:left;font-size:.8rem}
+.tb-bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--line)}
+.tb-bar span{display:block;height:100%}
+.tb-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.tb-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px;vertical-align:middle}
+.tb-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.tb-tools input[type=search],.tb-tools select{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#fff;font:inherit;font-size:.92rem}
+.tb-tools input[type=search]{flex:1;min-width:160px}
+.tb-seg{display:flex;background:#fff;border:1px solid var(--line);border-radius:12px;padding:3px}
+.tb-seg button{border:0;background:none;padding:6px 14px;border-radius:9px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--muted)}
+.tb-seg button[aria-selected=true]{background:#E8E6F7;color:var(--plum);font-weight:600}
+.tb-chk{display:flex;gap:6px;align-items:center;font-size:.88rem;color:var(--muted)}
+.tb-newgroup{background:var(--plum);margin-right:auto}
+.tg{margin-bottom:22px}
+.tg-head{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.tg-head h3{margin:0;font-size:1.15rem;font-weight:800;cursor:pointer}
+.tg-head .n{color:var(--muted);font-size:.8rem}
+.tg-head .tg-menu{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:0 6px}
+.tg-tog{border:0;background:none;cursor:pointer;color:var(--muted);font-size:.8rem;padding:0;transition:transform .15s}
+.tg.closed .tg-tog{transform:rotate(90deg)}.tg.closed .tg-wrap{display:none}
+.tg-wrap{background:#fff;border:1px solid var(--line);border-right:4px solid var(--gc);border-radius:12px;overflow-x:auto}
+.tt-table{width:100%;border-collapse:collapse;min-width:820px;font-size:.92rem}
+.tt-table th{font-weight:500;color:var(--muted);font-size:.8rem;text-align:center;padding:8px 6px;border-bottom:1px solid var(--line);background:#FAFAFC}
+.tt-table th:first-child{text-align:right;padding-right:14px}
+.tt-table td{border-bottom:1px solid var(--line);padding:0;height:42px;text-align:center;vertical-align:middle}
+.tt-table tr:last-child td{border-bottom:0}
+.tt-table td.nm{text-align:right;padding:0 14px}
+.tt-table td.nm input{border:0;background:none;font:inherit;width:100%;padding:8px 0;color:var(--ink)}
+.tt-table td.nm input:focus,.tt-table td.nt input:focus{outline:2px solid #C9C3F5;border-radius:6px}
+.tt-table tr.done td.nm input{text-decoration:line-through;color:var(--muted)}
+.cell-sel{appearance:none;-webkit-appearance:none;border:0;width:100%;height:42px;color:#fff;font:inherit;font-weight:600;font-size:.88rem;text-align:center;text-align-last:center;cursor:pointer;border-left:1px solid rgba(255,255,255,.35)}
+.own{display:inline-flex;align-items:center;justify-content:center}
+.own select{appearance:none;-webkit-appearance:none;border:0;border-radius:999px;height:28px;min-width:28px;padding:0 10px;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;background:#E6E6EE;color:var(--ink);text-align:center;text-align-last:center}
+.own select.o-Noam{background:#DCD8FB;color:#3B2FA8}.own select.o-Ethan{background:#FCE3C2;color:#8A4B00}.own select.o-Adi{background:#D4F0DA;color:#1E6B33}
+.tt-table td.dd input{border:0;background:none;font:inherit;font-size:.85rem;color:var(--ink);width:100%;text-align:center}
+.tt-table td.dd.late input{color:var(--red);font-weight:600}
+.tt-table td.nt{padding:0 10px}.tt-table td.nt input{border:0;background:none;font:inherit;font-size:.85rem;width:100%;color:var(--muted);padding:8px 0}
+.tt-table td.x button{border:0;background:none;color:#B4B6C4;cursor:pointer;font-size:1rem;width:32px}
+.tt-table td.x button:hover{color:var(--red)}
+.tt-add td{height:38px}.tt-add input{border:0;background:none;font:inherit;width:100%;padding:8px 14px;color:var(--ink)}
+.tg-mini{height:8px;width:120px;border-radius:999px;overflow:hidden;display:flex;margin:8px auto 0;background:var(--line)}
+.tg-mini span{display:block;height:100%}
+.kb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+.kb-col{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0}
+.kb-col h3{margin:0;padding:10px 12px;color:#fff;font-size:.95rem;display:flex;justify-content:space-between}
+.kb-list{padding:10px;display:grid;gap:8px;min-height:60px}
+.kb-card{border:1px solid var(--line);border-right:4px solid var(--gc);border-radius:10px;padding:9px 10px;background:#fff;display:grid;gap:6px;cursor:pointer;text-align:right}
+.kb-card .t{font-weight:500;overflow-wrap:anywhere}.kb-card .m{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.76rem;color:var(--muted)}
+.pill{border-radius:999px;padding:1px 8px;color:#fff;font-weight:600;font-size:.74rem}
+@media (max-width:820px){.kb{grid-template-columns:1fr}.tb-newgroup{margin-right:0}}
 @media (max-width:640px){.fg{grid-template-columns:1fr}.kv{grid-template-columns:110px 1fr}.quick{grid-template-columns:1fr 1fr 1fr}}
 </style>
 </head>
@@ -146,15 +187,19 @@ label.f textarea{min-height:80px;resize:vertical}
     <p class="muted" style="margin:0 0 10px;font-size:.88rem">Each supplier gets a contract they read and sign on screen. Send it by email from here, or copy the link and send it yourself (WhatsApp, your own email).</p>
     <div class="list" id="suppliers"></div>
   </section>
-  <section id="v-tasks" hidden>
-    <form class="taskadd" id="task-add" autocomplete="off">
-      <input id="ta-text" dir="auto" placeholder="New task" aria-label="New task">
-      <select id="ta-owner" aria-label="Owner"><option>Noam</option><option>Ethan</option><option>Adi</option></select>
-      <input id="ta-due" type="date" aria-label="Due date">
-      <button class="btn" type="submit">Add</button>
-    </form>
-    <label class="muted" style="display:flex;gap:6px;align-items:center;font-size:.85rem;margin:0 0 10px"><input type="checkbox" id="ta-done"> Show done</label>
-    <div class="tcols" id="tasks"><p class="empty">Loading tasks…</p></div>
+  <section id="v-tasks" hidden dir="rtl" class="tb">
+    <div class="tb-top">
+      <div><h2 class="tb-title">לוח המשימות של השותפים</h2><p class="tb-sub">נועם, איתן ועדי · כל מה שצריך לקרות כדי שהבורד יעבוד</p></div>
+      <div class="tb-prog"><div class="tb-count"><b id="tb-done">0</b> מתוך <span id="tb-total">0</span> הושלמו <span class="tb-pct" id="tb-pct">0%</span></div><div class="tb-bar" id="tb-bar"></div><div class="tb-legend" id="tb-legend"></div></div>
+    </div>
+    <div class="tb-tools">
+      <div class="tb-seg" role="tablist"><button type="button" data-tv="table" aria-selected="true">טבלה</button><button type="button" data-tv="kanban" aria-selected="false">קנבן</button></div>
+      <input type="search" id="tb-q" placeholder="חיפוש משימה" aria-label="חיפוש משימה">
+      <select id="tb-owner" aria-label="אחראי"><option value="">כל האחראים</option><option value="Noam">נועם</option><option value="Ethan">איתן</option><option value="Adi">עדי</option></select>
+      <label class="tb-chk"><input type="checkbox" id="tb-hide"> הסתרת משימות שהושלמו</label>
+      <button class="btn tb-newgroup" type="button" id="tb-addgroup">קבוצה חדשה</button>
+    </div>
+    <div id="tasks"><p class="empty">טוען משימות…</p></div>
   </section>
 </main>
 <button class="btn lime fab" id="add-lead" type="button" hidden>+ Lead</button>
@@ -520,54 +565,110 @@ label.f textarea{min-height:80px;resize:vertical}
 
   window.addEventListener("hashchange", render);
 
-  /* ---------- tasks ---------- */
-  var OWNERS = ["Noam","Ethan","Adi"], TASKS = null;
+  /* ---------- tasks (Hebrew board) ---------- */
+  var OWNERS = [["Noam","נועם"],["Ethan","איתן"],["Adi","עדי"]];
+  var STATUS = [["לא התחיל","#8A90A6"],["בעבודה","#E0912B"],["תקוע","#D3384A"],["הושלם","#2E9A5B"]];
+  var PRIO = [["דחופה","#B8174A"],["גבוהה","#8E44C9"],["בינונית","#5462D1"],["נמוכה","#7BA7DE"]];
+  var GCOL = ["#3B49D6","#E0912B","#2E9A5B","#C2367B","#1C8FA8","#7A55D6","#B5651D"];
+  var TASKS = null, GROUPS = [], tview = "table", closed = {};
+  var LEGACY = { "To do":"לא התחיל", "In progress":"בעבודה", "Done":"הושלם" };
+  function stOf(x){ return LEGACY[x["Status"]] || x["Status"] || "לא התחיל"; }
+  function col(list, v){ var f = list.find(function(p){ return p[0] === v; }); return f ? f[1] : list[0][1]; }
+  function ownerName(v){ var f = OWNERS.find(function(o){ return o[0] === v; }); return f ? f[1] : (v || "+"); }
   function todayISO(){ var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
-  function fmtDue(v){ var m = String(v || "").match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? (+m[3]) + "." + (+m[2]) : v; }
   function loadTasks(){
-    return api("admin/tasks").then(function(r){ TASKS = r.tasks; renderTasks(); }).catch(function(e){ $("tasks").innerHTML = '<p class="empty">Couldn\'t load tasks: ' + esc(e.message) + '</p>'; });
+    return api("admin/tasks").then(function(r){
+      TASKS = r.tasks; GROUPS = r.groups || [];
+      TASKS.forEach(function(x){ x["Status"] = stOf(x); if (!x["Priority"]) x["Priority"] = "בינונית"; if (!x["Group"]) x["Group"] = "כללי"; });
+      TASKS.forEach(function(x){ if (!GROUPS.some(function(g){ return g.name === x["Group"]; })) GROUPS.push({ name: x["Group"], color: GCOL[GROUPS.length % GCOL.length] }); });
+      if (!GROUPS.length) GROUPS = [{ name: "כללי", color: GCOL[0] }];
+      renderTasks();
+    }).catch(function(e){ $("tasks").innerHTML = '<p class="empty">לא הצלחנו לטעון משימות: ' + esc(e.message) + '</p>'; });
   }
+  function saveGroups(rename){ return api("admin/tasks", "PATCH", { groups: GROUPS, rename: rename }).catch(function(e){ toast(e.message, 1); }); }
+  function put(x, f){ Object.assign(x, f); renderTasks(); return api("admin/tasks", "PUT", { row: x._row, id: x["ID"], fields: f }).catch(function(e){ toast(e.message, 1); loadTasks(); }); }
+  function visible(){
+    var q = $("tb-q").value.trim().toLowerCase(), o = $("tb-owner").value, hide = $("tb-hide").checked;
+    return TASKS.filter(function(x){ return (!q || (x["Task"] + " " + x["Notes"]).toLowerCase().indexOf(q) >= 0) && (!o || x["Owner"] === o) && (!hide || x["Status"] !== "הושלם"); });
+  }
+  function bar(list, cls){
+    var n = list.length || 1;
+    return '<div class="' + cls + '">' + STATUS.map(function(s){ var c = list.filter(function(x){ return x["Status"] === s[0]; }).length; return c ? '<span style="width:' + (c / n * 100) + '%;background:' + s[1] + '" title="' + s[0] + ' ' + c + '"></span>' : ''; }).join("") + '</div>';
+  }
+  function sel(list, v, field){ return '<select class="cell-sel" data-k="' + field + '" style="background:' + col(list, v) + '">' + list.map(function(p){ return '<option' + (p[0] === v ? ' selected' : '') + '>' + p[0] + '</option>'; }).join("") + '</select>'; }
   function renderTasks(){
     if (!TASKS) return;
-    var showDone = $("ta-done").checked, t0 = todayISO();
-    $("tasks").innerHTML = OWNERS.map(function(o){
-      var mine = TASKS.filter(function(x){ return (x["Owner"] || "Noam") === o; });
-      var open = mine.filter(function(x){ return x["Status"] !== "Done"; }).sort(function(a, b){ return (a["Due"] || "9999").localeCompare(b["Due"] || "9999"); });
-      var done = mine.filter(function(x){ return x["Status"] === "Done"; });
-      var list = open.concat(showDone ? done : []);
-      return '<div class="tcol"><h3>' + o + '<span>' + open.length + ' open</span></h3>' + (list.length ? list.map(function(x){
-        var isDone = x["Status"] === "Done", late = !isDone && x["Due"] && x["Due"] < t0;
-        return '<div class="task' + (isDone ? ' done' : '') + '" data-r="' + x._row + '" data-id="' + esc(x["ID"]) + '"><input type="checkbox" aria-label="Done"' + (isDone ? ' checked' : '') + '><span class="tt">' + esc(x["Task"]) + '</span><span class="tm">' +
-          (x["Due"] ? '<span class="' + (late ? 'late' : '') + '">Due ' + esc(fmtDue(x["Due"])) + '</span>' : '') +
-          (x["Status"] === "In progress" ? '<span class="prog">In progress</span>' : '') +
-          (x["Notes"] ? '<span>Notes</span>' : '') + '</span></div>';
-      }).join("") : '<p class="muted" style="margin:0;font-size:.88rem">Nothing open.</p>') + '</div>';
+    var done = TASKS.filter(function(x){ return x["Status"] === "הושלם"; }).length;
+    $("tb-done").textContent = done; $("tb-total").textContent = TASKS.length; $("tb-pct").textContent = (TASKS.length ? Math.round(done / TASKS.length * 100) : 0) + "%";
+    $("tb-bar").outerHTML = bar(TASKS, "tb-bar").replace('class="tb-bar"', 'class="tb-bar" id="tb-bar"');
+    $("tb-legend").innerHTML = STATUS.map(function(s){ return '<span><i style="background:' + s[1] + '"></i>' + s[0] + ' ' + TASKS.filter(function(x){ return x["Status"] === s[0]; }).length + '</span>'; }).join("");
+    document.querySelectorAll(".tb-seg button").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.tv === tview); });
+    var list = visible(), t0 = todayISO();
+    if (tview === "kanban") {
+      $("tasks").innerHTML = '<div class="kb">' + STATUS.map(function(s){
+        var items = list.filter(function(x){ return x["Status"] === s[0]; });
+        return '<div class="kb-col"><h3 style="background:' + s[1] + '">' + s[0] + '<span>' + items.length + '</span></h3><div class="kb-list">' + items.map(function(x){
+          var g = GROUPS.find(function(y){ return y.name === x["Group"]; }) || {};
+          return '<button type="button" class="kb-card" style="--gc:' + (g.color || GCOL[0]) + '" data-id="' + esc(x["ID"]) + '"><span class="t">' + esc(x["Task"]) + '</span><span class="m"><span class="pill" style="background:' + col(PRIO, x["Priority"]) + '">' + esc(x["Priority"]) + '</span><span>' + esc(ownerName(x["Owner"])) + '</span>' + (x["Due"] ? '<span' + (x["Due"] < t0 && s[0] !== "הושלם" ? ' style="color:var(--red);font-weight:600"' : '') + '>' + esc(x["Due"].split("-").reverse().slice(0,2).map(Number).join(".")) + '</span>' : '') + '<span>' + esc(x["Group"]) + '</span></span></button>';
+        }).join("") + '</div></div>';
+      }).join("") + '</div>';
+      $("tasks").querySelectorAll(".kb-card").forEach(function(b){ b.onclick = function(){ var x = TASKS.find(function(y){ return y["ID"] === b.dataset.id; }); var i = STATUS.findIndex(function(s){ return s[0] === x["Status"]; }); put(x, { "Status": STATUS[(i + 1) % STATUS.length][0] }); }; });
+      return;
+    }
+    $("tasks").innerHTML = GROUPS.map(function(g, gi){
+      var items = list.filter(function(x){ return x["Group"] === g.name; });
+      var all = TASKS.filter(function(x){ return x["Group"] === g.name; });
+      return '<div class="tg' + (closed[g.name] ? ' closed' : '') + '" style="--gc:' + g.color + '" data-g="' + gi + '"><div class="tg-head"><button type="button" class="tg-tog" aria-label="פתיחה וסגירה">▼</button><h3 style="color:' + g.color + '">' + esc(g.name) + '</h3><span class="n">' + all.length + ' משימות</span><button type="button" class="tg-menu" title="שינוי שם או מחיקה">⋯</button></div>' +
+        '<div class="tg-wrap"><table class="tt-table"><thead><tr><th>משימה</th><th style="width:90px">אחראי</th><th style="width:130px">סטטוס</th><th style="width:120px">עדיפות</th><th style="width:130px">דד-ליין</th><th style="width:22%">הערות</th><th style="width:40px"></th></tr></thead><tbody>' +
+        items.map(function(x){
+          var late = x["Due"] && x["Due"] < t0 && x["Status"] !== "הושלם";
+          return '<tr data-id="' + esc(x["ID"]) + '"' + (x["Status"] === "הושלם" ? ' class="done"' : '') + '><td class="nm"><input data-k="Task" value="' + esc(x["Task"]) + '" aria-label="משימה"></td>' +
+            '<td><span class="own"><select data-k="Owner" class="o-' + esc(x["Owner"]) + '" aria-label="אחראי">' + '<option value=""' + (x["Owner"] ? '' : ' selected') + '>+</option>' + OWNERS.map(function(o){ return '<option value="' + o[0] + '"' + (o[0] === x["Owner"] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join("") + '</select></span></td>' +
+            '<td style="padding:0">' + sel(STATUS, x["Status"], "Status") + '</td><td style="padding:0">' + sel(PRIO, x["Priority"], "Priority") + '</td>' +
+            '<td class="dd' + (late ? ' late' : '') + '"><input type="date" data-k="Due" value="' + esc(x["Due"]) + '" aria-label="דד-ליין"></td>' +
+            '<td class="nt"><input data-k="Notes" value="' + esc(x["Notes"]) + '" aria-label="הערות"></td><td class="x"><button type="button" title="מחיקה" aria-label="מחיקה">×</button></td></tr>';
+        }).join("") +
+        '<tr class="tt-add"><td colspan="7"><input placeholder="+ הוספת משימה" data-add="' + gi + '" aria-label="הוספת משימה"></td></tr></tbody></table></div>' + bar(all, "tg-mini") + '</div>';
     }).join("");
-    $("tasks").querySelectorAll(".task").forEach(function(el){
-      var x = TASKS.find(function(y){ return y._row === +el.dataset.r; });
-      el.querySelector("input").onclick = function(ev){ ev.stopPropagation(); var st = this.checked ? "Done" : "To do"; x["Status"] = st; renderTasks(); api("admin/tasks", "PUT", { row: x._row, id: x["ID"], fields: { "Status": st } }).catch(function(e){ toast(e.message, 1); loadTasks(); }); };
-      el.onclick = function(){ openTask(x); };
+    $("tasks").querySelectorAll("tr[data-id]").forEach(function(tr){
+      var x = TASKS.find(function(y){ return y["ID"] === tr.dataset.id; });
+      tr.querySelectorAll("[data-k]").forEach(function(el){
+        el.onchange = function(){ var f = {}; f[el.dataset.k] = el.value.trim(); if (f[el.dataset.k] === (x[el.dataset.k] || "")) return; put(x, f); };
+        if (el.tagName === "INPUT" && el.type !== "date") el.onkeydown = function(ev){ if (ev.key === "Enter") el.blur(); };
+      });
+      tr.querySelector(".x button").onclick = function(){ if (!window.confirm("למחוק את המשימה?")) return; TASKS = TASKS.filter(function(y){ return y !== x; }); renderTasks(); api("admin/tasks", "DELETE", { row: x._row, id: x["ID"] }).catch(function(e){ toast(e.message, 1); loadTasks(); }); };
+    });
+    $("tasks").querySelectorAll("[data-add]").forEach(function(inp){
+      inp.onkeydown = function(ev){
+        if (ev.key !== "Enter") return;
+        var text = inp.value.trim(); if (!text) return;
+        var g = GROUPS[+inp.dataset.add]; inp.disabled = true;
+        var o = $("tb-owner").value || "";
+        api("admin/tasks", "POST", { fields: { "Task": text, "Group": g.name, "Owner": o, "Priority": "בינונית" } }).then(function(){ return loadTasks(); }).then(function(){ var n = document.querySelector('[data-add="' + GROUPS.indexOf(g) + '"]'); if (n) n.focus(); }).catch(function(e){ toast(e.message, 1); inp.disabled = false; });
+      };
+    });
+    $("tasks").querySelectorAll(".tg").forEach(function(el){
+      var g = GROUPS[+el.dataset.g];
+      el.querySelector(".tg-tog").onclick = el.querySelector("h3").onclick = function(){ closed[g.name] = !closed[g.name]; renderTasks(); };
+      el.querySelector(".tg-menu").onclick = function(){ groupMenu(g); };
     });
   }
-  function openTask(x){
-    drawer('<div class="ph"><div><h2>Task</h2><span class="muted">Added ' + esc(x["Created"]) + (x["Created by"] ? ' by ' + esc(x["Created by"]) : '') + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box"><div class="fg">' +
-      '<label class="f full">Task<input data-f="Task" dir="auto" value="' + esc(x["Task"]) + '"></label>' +
-      '<label class="f">Owner<select data-f="Owner">' + opt(OWNERS, x["Owner"]) + '</select></label>' +
-      '<label class="f">Status<select data-f="Status">' + opt(["To do","In progress","Done"], x["Status"] || "To do") + '</select></label>' +
-      '<label class="f">Due<input data-f="Due" type="date" value="' + esc(x["Due"]) + '"></label>' +
-      '<label class="f full">Notes<textarea data-f="Notes" dir="auto">' + esc(x["Notes"]) + '</textarea></label>' +
-      '</div><div class="actions"><button class="btn" id="tk-save">Save</button><button class="btn ghost" id="tk-del">Delete</button></div></div></div>');
-    $("tk-save").onclick = function(){ var f = vals($("panel")); busy(this, api("admin/tasks", "PUT", { row: x._row, id: x["ID"], fields: f }).then(function(){ Object.assign(x, f); toast("Saved"); closeDrawer(); renderTasks(); })).catch(function(e){ toast(e.message, 1); }); };
-    $("tk-del").onclick = function(){ if (!window.confirm("Delete this task?")) return; busy(this, api("admin/tasks", "DELETE", { row: x._row, id: x["ID"] }).then(function(){ TASKS = TASKS.filter(function(y){ return y !== x; }); toast("Deleted"); closeDrawer(); renderTasks(); })).catch(function(e){ toast(e.message, 1); }); };
+  function groupMenu(g){
+    var count = TASKS.filter(function(x){ return x["Group"] === g.name; }).length;
+    drawer('<div class="ph" dir="rtl"><div><h2>' + esc(g.name) + '</h2><span class="muted">' + count + ' משימות בקבוצה</span></div><button class="x" aria-label="סגירה">×</button></div><div class="pb" dir="rtl"><div class="box"><div class="fg">' +
+      '<label class="f full">שם הקבוצה<input id="gm-name" value="' + esc(g.name) + '"></label>' +
+      '<label class="f full">צבע<select id="gm-color">' + GCOL.map(function(c, i){ return '<option value="' + c + '"' + (c === g.color ? ' selected' : '') + '>צבע ' + (i + 1) + '</option>'; }).join("") + '</select></label>' +
+      '</div><div class="actions"><button class="btn" id="gm-save">שמירה</button>' + (count ? '' : '<button class="btn ghost" id="gm-del">מחיקת הקבוצה</button>') + '</div>' + (count ? '<p class="muted" style="margin:0;font-size:.85rem">אפשר למחוק קבוצה רק כשאין בה משימות.</p>' : '') + '</div></div>');
+    $("gm-save").onclick = function(){ var nn = $("gm-name").value.trim(); if (!nn) return; var from = g.name; g.color = $("gm-color").value; var rename = nn !== from ? { from: from, to: nn } : null; g.name = nn; if (rename) TASKS.forEach(function(x){ if (x["Group"] === from) x["Group"] = nn; }); busy(this, saveGroups(rename).then(function(){ closeDrawer(); renderTasks(); })); };
+    if ($("gm-del")) $("gm-del").onclick = function(){ GROUPS = GROUPS.filter(function(y){ return y !== g; }); if (!GROUPS.length) GROUPS = [{ name: "כללי", color: GCOL[0] }]; saveGroups().then(function(){ closeDrawer(); renderTasks(); }); };
   }
-  $("ta-done").onchange = renderTasks;
-  $("task-add").onsubmit = function(ev){
-    ev.preventDefault();
-    var text = $("ta-text").value.trim(); if (!text) { $("ta-text").focus(); return; }
-    var f = { "Task": text, "Owner": $("ta-owner").value, "Due": $("ta-due").value };
-    var btn = this.querySelector("button");
-    busy(btn, api("admin/tasks", "POST", { fields: f }).then(function(){ $("ta-text").value = ""; $("ta-due").value = ""; toast("Task added"); return loadTasks(); })).catch(function(e){ toast(e.message, 1); });
+  $("tb-addgroup").onclick = function(){
+    var used = GROUPS.map(function(g){ return g.color; });
+    GROUPS.push({ name: "קבוצה חדשה", color: GCOL.find(function(c){ return used.indexOf(c) < 0; }) || GCOL[GROUPS.length % GCOL.length] });
+    saveGroups().then(function(){ renderTasks(); groupMenu(GROUPS[GROUPS.length - 1]); });
   };
+  document.querySelectorAll(".tb-seg button").forEach(function(b){ b.onclick = function(){ tview = b.dataset.tv; renderTasks(); }; });
+  ["tb-q","tb-owner","tb-hide"].forEach(function(id){ $(id).addEventListener(id === "tb-q" ? "input" : "change", renderTasks); });
   load();
 })();
 </script>

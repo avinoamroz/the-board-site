@@ -621,6 +621,7 @@ export async function onRequest(context) {
         if (f['Board']) await queueCalendar(c, context, [{ email, board: f['Board'] }]);
         return json({ ok: true });
       }
+      if (r === 'syllabus' && method === 'GET') return json({ ok: true, templates: TEMPLATES, doc: 'https://docs.google.com/document/d/1zMoD_w3wZtn2IQ9IpH_YsuiSF-A_WsvFvo-id5WyCPo/edit' });
       if (r === 'tasks') {
         const t = await readTasks(c);
         if (method === 'GET') { let groups = []; try { groups = JSON.parse(c.task_groups || '[]'); } catch (e) {} return json({ ok: true, groups, tasks: t.rows.filter(x => x['ID'] && x['Status'] !== 'Deleted') }); }

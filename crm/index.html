@@ -151,6 +151,19 @@ label.f textarea{min-height:80px;resize:vertical}
 .kid-chip{border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:.75rem;color:var(--muted);white-space:nowrap}
 .add-sub{border:0;background:none;color:var(--plum);font:inherit;font-size:.75rem;cursor:pointer;opacity:0;white-space:nowrap}
 tr:hover .add-sub,.add-sub:focus{opacity:1}
+.sy-day{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:16px}
+.sy-day h3{margin:0 0 6px;font-size:1.05rem}
+.sy-time{margin:0;padding:0;list-style:none;display:grid;gap:3px;font-size:.92rem}.sy-time b{display:inline-block;width:52px;color:var(--plum);font-variant-numeric:tabular-nums}
+.sy-list{display:grid;gap:12px}
+.sy-card{background:#fff;border:1px solid var(--line);border-right:4px solid var(--plum);border-radius:14px;padding:14px 18px;display:grid;gap:8px}
+.sy-card.extra{border-right-color:var(--lime)}
+.sy-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.sy-head .no{font-weight:800;color:var(--plum)}.sy-head h3{margin:0;font-size:1.1rem}.sy-head .d{color:var(--muted);font-size:.85rem}
+.sy-out{font-size:.88rem;color:var(--muted)}
+.sy-card ul{margin:0;padding-right:20px;display:grid;gap:2px;font-size:.93rem}
+.sy-prompt{background:var(--paper);border-radius:10px;padding:10px 12px;white-space:pre-wrap;font-size:.86rem;line-height:1.55;position:relative}
+.sy-copy{position:absolute;left:8px;top:8px;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;font-size:.75rem;padding:3px 8px;cursor:pointer}
+details.sy-p summary{cursor:pointer;color:var(--plum);font-size:.88rem;font-weight:600}
 .tg-mini{height:8px;width:120px;border-radius:999px;overflow:hidden;display:flex;margin:8px auto 0;background:var(--line)}
 .tg-mini span{display:block;height:100%}
 .kb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
@@ -169,7 +182,7 @@ tr:hover .add-sub,.add-sub:focus{opacity:1}
   <div class="bar"><a class="brand" href="/crm/">THE BOARD<small>Admin</small></a>
     <div class="hdr-actions" id="hdr" hidden><a class="pill" href="https://docs.google.com/spreadsheets/d/1j96wEuywg5_pTyoH0FD_3VKD2XlrjFG3Zp-K9RfGpR4/edit" target="_blank" rel="noopener">Sheet</a><a class="pill" href="/members/">Member view</a><button class="pill" id="refresh" type="button">Refresh</button><button class="pill" id="out" type="button">Sign out</button></div>
   </div>
-  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button><button data-v="suppliers" aria-selected="false">Suppliers</button><button data-v="tasks" aria-selected="false">Tasks</button></nav>
+  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button><button data-v="suppliers" aria-selected="false">Suppliers</button><button data-v="tasks" aria-selected="false">Tasks</button><button data-v="syllabus" aria-selected="false">Syllabus</button></nav>
 </header>
 <main>
   <div class="center" id="v-signin" hidden><h2>The Board CRM</h2><p class="muted">Founders only. Sign in with your Google account.</p><div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div><p class="muted" id="si-err"></p></div>
@@ -209,6 +222,13 @@ tr:hover .add-sub,.add-sub:focus{opacity:1}
     </div>
     <div id="tasks"><p class="empty">טוען משימות…</p></div>
   </section>
+  <section id="v-syllabus" hidden dir="rtl" class="tb">
+    <div class="tb-top"><div><h2 class="tb-title">סילבוס בורד יסודות</h2><p class="tb-sub">שישה מפגשים, נדבך אחר בעסק בכל חודש · שישי ראשון בחודש, 10:00 עד 15:00</p></div>
+    <a class="btn ghost" id="sy-doc" target="_blank" rel="noopener" href="#">פתיחה ב-Google Docs</a></div>
+    <div class="sy-day"><h3>מבנה יום הבורד</h3><ol class="sy-time"><li><b>10:00</b> ארוחת בוקר ומינגלינג, כל הבורדים יחד</li><li><b>10:30</b> עבודה בבורד: סבב פתיחה, נושא החודש, עבודה על החברה של כל משתתף והכיסא החם</li><li><b>12:30</b> הפסקה</li><li><b>13:00</b> עבודה בבורד, המשך</li><li><b>14:00</b> ערך ועבודה לפעם הבאה: תובנה מרכזית ומשימות לחודש הקרוב</li><li><b>15:00</b> סיום</li></ol>
+    <p class="muted" style="margin:6px 0 0">כללי השולחן: אפשר להחסיר מפגש אחד לכל היותר. כל משתתף חותם על NDA, מה שנאמר בחדר נשאר בחדר.</p></div>
+    <div class="sy-list" id="syllabus"><p class="empty">טוען…</p></div>
+  </section>
 </main>
 <button class="btn lime fab" id="add-lead" type="button" hidden>+ Lead</button>
 <div class="drawer" id="drawer" hidden><div class="panel" id="panel"></div></div>
@@ -227,7 +247,7 @@ tr:hover .add-sub,.add-sub:focus{opacity:1}
       .then(function(r){ return r.json().then(function(j){ if (r.status === 401) throw new Error("auth"); if (r.status === 403) { window.__deniedEmail = j.email || ""; throw new Error("forbidden"); } if (!j.ok) throw new Error(j.detail || j.error || "error"); return j; }); });
   }
   function toast(t, err){ var d = document.createElement("div"); d.className = "toast" + (err ? " err" : ""); d.textContent = t; document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 3200); }
-  function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards","v-suppliers","v-tasks"].forEach(function(x){ $(x).hidden = x !== id; }); }
+  function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards","v-suppliers","v-tasks","v-syllabus"].forEach(function(x){ $(x).hidden = x !== id; }); }
   function stClass(s){ return "st-" + String(s || "New").split(" ")[0] + (s === "Closed won" ? " st-Closed-won" : s === "Closed lost" ? " st-Closed-lost" : ""); }
   function wa(p){ var d = String(p || "").replace(/\D/g, ""); if (!d) return ""; if (d[0] === "0") d = "972" + d.slice(1); return "https://wa.me/" + d; }
   function tel(p){ return "tel:" + String(p || "").replace(/[^\d+]/g, ""); }
@@ -264,7 +284,7 @@ tr:hover .add-sub,.add-sub:focus{opacity:1}
   document.querySelectorAll("nav button").forEach(function(b){ b.onclick = function(){ view = b.dataset.v; location.hash = view; render(); }; });
   function render(){
     if (!D) return;
-    if (["pipeline","members","boards","suppliers","tasks"].indexOf(location.hash.slice(1)) >= 0) view = location.hash.slice(1);
+    if (["pipeline","members","boards","suppliers","tasks","syllabus"].indexOf(location.hash.slice(1)) >= 0) view = location.hash.slice(1);
     document.querySelectorAll("nav button").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.v === view); });
     show("v-" + view);
     $("add-lead").hidden = view !== "pipeline";
@@ -273,6 +293,7 @@ tr:hover .add-sub,.add-sub:focus{opacity:1}
     if (view === "boards") renderBoards();
     if (view === "suppliers") renderSuppliers();
     if (view === "tasks") loadTasks();
+    if (view === "syllabus") loadSyllabus();
   }
   function renderLeads(){
     var q = $("q").value.trim().toLowerCase();
@@ -698,6 +719,24 @@ tr:hover .add-sub,.add-sub:focus{opacity:1}
   };
   document.querySelectorAll(".tb-seg button").forEach(function(b){ b.onclick = function(){ tview = b.dataset.tv; renderTasks(); }; });
   ["tb-q","tb-owner","tb-hide"].forEach(function(id){ $(id).addEventListener(id === "tb-q" ? "input" : "change", renderTasks); });
+
+  /* ---------- syllabus ---------- */
+  var SY = null, SY_META = { "1": ["4.12.26","יעדים ברורים ומבנה מסודר"], "2": ["1.1.27","תוכנית שיווק לעסק"], "3": ["5.2.27","תהליך מכירה שעובד"], "4": ["5.3.27","הצעת ערך חדה"], "5": ["2.4.27","תזרים ותמחור בשליטה"], "6": ["7.5.27","תוכנית עבודה שנתית"] };
+  function loadSyllabus(){
+    if (SY) return;
+    api("admin/syllabus").then(function(r){
+      SY = r.templates; $("sy-doc").href = r.doc;
+      var order = SY.filter(function(t){ return SY_META[t.n]; }).concat(SY.filter(function(t){ return !SY_META[t.n]; }));
+      $("syllabus").innerHTML = order.map(function(t, i){
+        var m = SY_META[t.n];
+        return '<div class="sy-card' + (m ? '' : ' extra') + '"><div class="sy-head">' + (m ? '<span class="no">מפגש ' + esc(t.n) + '</span>' : '') + '<h3>' + esc(t.t) + '</h3><span class="d">' + (m ? 'בורד דצמבר: ' + esc(m[0]) : esc(t.s)) + '</span></div>' +
+          (m ? '<div class="sy-out">התוצר: ' + esc(m[1]) + '</div>' : '') +
+          '<div><b style="font-size:.88rem">מה להביא</b><ul>' + t.bring.map(function(b){ return '<li>' + esc(b) + '</li>'; }).join("") + '</ul></div>' +
+          '<details class="sy-p"><summary>פרומפט הכנה ל-Claude</summary><div class="sy-prompt"><button type="button" class="sy-copy" data-i="' + SY.indexOf(t) + '">העתקה</button>' + esc(t.prompt) + '</div></details></div>';
+      }).join("");
+      $("syllabus").querySelectorAll(".sy-copy").forEach(function(b){ b.onclick = function(){ var txt = SY[+b.dataset.i].prompt; (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function(){ toast("הפרומפט הועתק"); }).catch(function(){ toast("לא הצלחנו להעתיק", 1); }); }; });
+    }).catch(function(e){ $("syllabus").innerHTML = '<p class="empty">לא הצלחנו לטעון: ' + esc(e.message) + '</p>'; });
+  }
   load();
 })();
 </script>

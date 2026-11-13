@@ -65,11 +65,16 @@ document.addEventListener("DOMContentLoaded", function(){
   function load(){
     return fetch("/api/contract?s=" + encodeURIComponent(s) + "&t=" + encodeURIComponent(t), { cache: "no-store" }).then(function(r){ return r.json(); });
   }
+  function boardBlock(res){
+    var b = res.board;
+    if (!b) return '<div><b>בשם The Board</b>אבינועם רז, איתן וולוביץ׳, עדי חסדאי<br>ההסכם נשלח לחתימה על ידי The Board</div>';
+    return '<div><b>בשם The Board</b>' + esc(b.name) + (b.role ? ', <span dir="ltr">' + esc(b.role) + '</span>' : '') + '<br>' + esc(b.date) + (b.signature ? '<img src="' + esc(b.signature) + '" alt="חתימה">' : '') + '</div>';
+  }
   function showSigned(res){
     var g = res.signed;
     $("intro").hidden = true; $("form").hidden = true; $("done").hidden = false;
     $("done-text").textContent = "נחתם ב-" + g.at + ". אפשר לשמור עותק כ-PDF דרך הכפתור.";
-    $("doc").innerHTML = TBSign.docHtml(res.doc) + '<div class="signed-block"><div><b>בשם ' + esc(res.partner) + '</b>' + esc(g.name) + (g.role ? ", " + esc(g.role) : "") + (g.idNumber ? '<br>ת״ז ' + esc(g.idNumber) : "") + '<br>' + esc(g.at) + '<img src="' + esc(g.signature) + '" alt="חתימה"></div><div><b>בשם The Board</b>אבינועם רז, איתן וולוביץ׳, עדי חסדאי<br>ההסכם נשלח לחתימה על ידי The Board</div></div>';
+    $("doc").innerHTML = TBSign.docHtml(res.doc) + '<div class="signed-block"><div><b>בשם ' + esc(res.partner) + '</b>' + esc(g.name) + (g.role ? ", " + esc(g.role) : "") + (g.idNumber ? '<br>ת״ז ' + esc(g.idNumber) : "") + '<br>' + esc(g.at) + '<img src="' + esc(g.signature) + '" alt="חתימה"></div>' + boardBlock(res) + '</div>';
   }
   load().then(function(res){
     $("loading").hidden = true;
@@ -79,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if (res.signed) { showSigned(res); return; }
     var first = String(res.contact || "").split(" ")[0];
     $("hello").textContent = (first ? "היי " + first + ", " : "") + "ההסכם שלך עם The Board";
-    $("doc").innerHTML = TBSign.docHtml(res.doc);
+    $("doc").innerHTML = TBSign.docHtml(res.doc) + (res.board ? '<div class="signed-block">' + boardBlock(res) + '</div>' : "");
     var f = $("form");
     f.elements["name"].value = res.contact || ""; f.elements["company"].value = res.partner || "";
     pad = TBSign.mount($("sig"), { nameInput: f.elements["name"] });

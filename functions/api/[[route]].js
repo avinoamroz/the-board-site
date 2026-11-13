@@ -370,7 +370,9 @@ export async function onRequest(context) {
       if (method === 'GET') {
         const date = signed ? String(signed.signed_at).slice(0, 10).split('-').reverse().map(x => String(+x)).join('.') : '';
         const doc = await supplierDoc(env, c, sup, date);
-        return json({ ok: true, partner: sup['Name'], contact: sup['Contact name'], companyId: sup['Company ID'], signed: signed ? { name: signed.name, idNumber: signed.id_number, role: sup['Signer role'] || '', company: signed.company, at: signed.signed_at, signature: signed.signature } : null, doc });
+        let board = null;
+        try { const bs = c['board_sign:' + id] ? JSON.parse(c['board_sign:' + id]) : null; if (bs) board = Object.assign(bs, { signature: c.board_signature || '' }); } catch (e) {}
+        return json({ ok: true, partner: sup['Name'], contact: sup['Contact name'], companyId: sup['Company ID'], board, signed: signed ? { name: signed.name, idNumber: signed.id_number, role: sup['Signer role'] || '', company: signed.company, at: signed.signed_at, signature: signed.signature } : null, doc });
       }
       if (signed) return bad('already', 409);
       const name = String(body.name || '').trim(), sig = String(body.signature || '');

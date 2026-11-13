@@ -27,6 +27,8 @@ header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:10}
 nav{display:flex;gap:2px;max-width:1200px;margin:0 auto;padding:0 10px;overflow-x:auto}
 nav button{background:none;border:0;color:rgba(255,255,255,.7);padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;white-space:nowrap}
 nav button[aria-selected=true]{color:#fff;border-bottom-color:var(--lime)}
+nav .navlink{color:var(--lime);padding:10px 12px;font-weight:600;white-space:nowrap;text-decoration:none;border-bottom:3px solid transparent;margin-inline-start:auto}
+nav .navlink:hover{border-bottom-color:var(--lime)}
 main{max-width:1200px;margin:0 auto;padding:16px 16px 90px}
 .center{max-width:440px;margin:12vh auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
@@ -182,7 +184,7 @@ details.sy-p summary{cursor:pointer;color:var(--plum);font-size:.88rem;font-weig
   <div class="bar"><a class="brand" href="/crm/">THE BOARD<small>Admin</small></a>
     <div class="hdr-actions" id="hdr" hidden><a class="pill" href="https://docs.google.com/spreadsheets/d/1j96wEuywg5_pTyoH0FD_3VKD2XlrjFG3Zp-K9RfGpR4/edit" target="_blank" rel="noopener">Sheet</a><a class="pill" href="/members/">Member view</a><button class="pill" id="refresh" type="button">Refresh</button><button class="pill" id="out" type="button">Sign out</button></div>
   </div>
-  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button><button data-v="suppliers" aria-selected="false">Suppliers</button><button data-v="tasks" aria-selected="false">Tasks</button><button data-v="syllabus" aria-selected="false">Syllabus</button></nav>
+  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button><button data-v="suppliers" aria-selected="false">Suppliers</button><button data-v="tasks" aria-selected="false">Tasks</button><button data-v="syllabus" aria-selected="false">Syllabus</button><a class="navlink" href="https://claude.ai/artifact/4hcyc3fAcD7RwCWAu64Nsw" target="_blank" rel="noopener">Launch map ↗</a></nav>
 </header>
 <main>
   <div class="center" id="v-signin" hidden><h2>The Board CRM</h2><p class="muted">Founders only. Sign in with your Google account.</p><div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div><p class="muted" id="si-err"></p></div>

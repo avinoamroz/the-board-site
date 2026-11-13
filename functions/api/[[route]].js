@@ -296,6 +296,18 @@ async function supplierDoc(env, c, sup, date) {
   return { name: base.name, version: base.version + '.custom', title: sub(d.title || base.title), sections: (d.sections || base.sections).map(([h, t]) => [sub(h), sub(t)]) };
 }
 
+
+/* ---------- founders' tasks (Tasks tab in the CRM sheet) ---------- */
+const TASK_HEAD = ['ID', 'Task', 'Owner', 'Status', 'Due', 'Notes', 'Created', 'Created by', 'Done'];
+const TASK_EDITABLE = ['Task', 'Owner', 'Status', 'Due', 'Notes'];
+async function readTasks(c) {
+  try { return (await readTabs(c, ['Tasks'])).Tasks; } catch (e) {
+    if (!/parse range|Unable to parse|not found/i.test(String(e.message))) throw e;
+    await pipe(c, 'POST', ':batchUpdate', { requests: [{ addSheet: { properties: { title: 'Tasks', gridProperties: { frozenRowCount: 1 } } } }] });
+    await pipe(c, 'POST', '/values:batchUpdate', { valueInputOption: 'RAW', data: [{ range: "'Tasks'!A1", values: [TASK_HEAD] }] });
+    return { head: TASK_HEAD.slice(), rows: [] };
+  }
+}
 /* ---------- images ---------- */
 async function saveImage(env, c, kind, email, dataUrl) {
   const m = String(dataUrl || '').match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
@@ -609,6 +621,28 @@ export async function onRequest(context) {
         await appendRow(c, 'Members', d.Members.head, f);
         if (f['Board']) await queueCalendar(c, context, [{ email, board: f['Board'] }]);
         return json({ ok: true });
+      }
+      if (r === 'tasks') {
+        const t = await readTasks(c);
+        if (method === 'GET') return json({ ok: true, tasks: t.rows.filter(x => x['ID'] && x['Status'] !== 'Deleted') });
+        const body = await request.json();
+        const f = {}; TASK_EDITABLE.forEach(h => { if (body.fields && h in body.fields) f[h] = body.fields[h]; });
+        if (method === 'POST') {
+          if (!String(f['Task'] || '').trim()) return bad('task');
+          await ensureHeaders(c, 'Tasks', t, TASK_HEAD);
+          const id = 'T' + Date.now().toString(36).toUpperCase();
+          await appendRow(c, 'Tasks', t.head, Object.assign({ 'ID': id, 'Status': 'To do', 'Created': nowStamp(), 'Created by': s.name || s.email }, f));
+          return json({ ok: true, id });
+        }
+        if (method === 'PUT' || method === 'DELETE') {
+          const x = t.rows.find(y => y._row === +body.row && y['ID'] === body.id);
+          if (!x) return bad('task', 404);
+          if (method === 'DELETE') f['Status'] = 'Deleted';
+          await ensureHeaders(c, 'Tasks', t, TASK_HEAD);
+          const g = Object.assign({}, f); if (f['Status'] === 'Done' && x['Status'] !== 'Done') g['Done'] = nowStamp(); if (f['Status'] && f['Status'] !== 'Done') g['Done'] = '';
+          await writeCells(c, 'Tasks', t.head, x._row, g);
+          return json({ ok: true });
+        }
       }
       if (r === 'supplier' && (method === 'PUT' || method === 'POST')) {
         const d = await readTabs(c, ['Suppliers']);

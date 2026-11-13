@@ -98,6 +98,20 @@ label.f textarea{min-height:80px;resize:vertical}
 .muted{color:var(--muted)}
 .empty{color:var(--muted);text-align:center;padding:30px}
 .note{background:#FFF8E1;border:1px solid #F5E2A8;border-radius:12px;padding:10px 12px;font-size:.88rem}
+.taskadd{display:grid;grid-template-columns:1fr 120px 150px auto;gap:8px;margin-bottom:10px}
+.taskadd input,.taskadd select{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#fff;font-size:.95rem;min-width:0}
+.tcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.tcol{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px;min-width:0}
+.tcol h3{margin:0;font-size:1rem;display:flex;justify-content:space-between;align-items:center}
+.tcol h3 span{color:var(--muted);font-weight:500;font-size:.82rem}
+.task{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:var(--paper);cursor:pointer;text-align:start}
+.task input{margin-top:3px;width:18px;height:18px;accent-color:var(--plum);cursor:pointer}
+.task .tt{font-weight:500;overflow-wrap:anywhere}
+.task .tm{grid-column:2;color:var(--muted);font-size:.8rem;display:flex;gap:8px;flex-wrap:wrap}
+.task.done .tt{text-decoration:line-through;color:var(--muted)}
+.task .late{color:var(--red);font-weight:600}
+.task .prog{color:var(--plum);font-weight:600}
+@media (max-width:820px){.tcols{grid-template-columns:1fr}.taskadd{grid-template-columns:1fr 1fr}.taskadd #ta-text{grid-column:1/-1}}
 @media (max-width:640px){.fg{grid-template-columns:1fr}.kv{grid-template-columns:110px 1fr}.quick{grid-template-columns:1fr 1fr 1fr}}
 </style>
 </head>
@@ -106,7 +120,7 @@ label.f textarea{min-height:80px;resize:vertical}
   <div class="bar"><a class="brand" href="/crm/">THE BOARD<small>Admin</small></a>
     <div class="hdr-actions" id="hdr" hidden><a class="pill" href="https://docs.google.com/spreadsheets/d/1j96wEuywg5_pTyoH0FD_3VKD2XlrjFG3Zp-K9RfGpR4/edit" target="_blank" rel="noopener">Sheet</a><a class="pill" href="/members/">Member view</a><button class="pill" id="refresh" type="button">Refresh</button><button class="pill" id="out" type="button">Sign out</button></div>
   </div>
-  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button><button data-v="suppliers" aria-selected="false">Suppliers</button></nav>
+  <nav id="nav" hidden><button data-v="pipeline" aria-selected="true">Pipeline</button><button data-v="members" aria-selected="false">Members</button><button data-v="boards" aria-selected="false">Boards</button><button data-v="suppliers" aria-selected="false">Suppliers</button><button data-v="tasks" aria-selected="false">Tasks</button></nav>
 </header>
 <main>
   <div class="center" id="v-signin" hidden><h2>The Board CRM</h2><p class="muted">Founders only. Sign in with your Google account.</p><div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div><p class="muted" id="si-err"></p></div>
@@ -132,6 +146,16 @@ label.f textarea{min-height:80px;resize:vertical}
     <p class="muted" style="margin:0 0 10px;font-size:.88rem">Each supplier gets a contract they read and sign on screen. Send it by email from here, or copy the link and send it yourself (WhatsApp, your own email).</p>
     <div class="list" id="suppliers"></div>
   </section>
+  <section id="v-tasks" hidden>
+    <form class="taskadd" id="task-add" autocomplete="off">
+      <input id="ta-text" placeholder="New task" aria-label="New task">
+      <select id="ta-owner" aria-label="Owner"><option>Noam</option><option>Ethan</option><option>Adi</option></select>
+      <input id="ta-due" type="date" aria-label="Due date">
+      <button class="btn" type="submit">Add</button>
+    </form>
+    <label class="muted" style="display:flex;gap:6px;align-items:center;font-size:.85rem;margin:0 0 10px"><input type="checkbox" id="ta-done"> Show done</label>
+    <div class="tcols" id="tasks"><p class="empty">Loading tasks…</p></div>
+  </section>
 </main>
 <button class="btn lime fab" id="add-lead" type="button" hidden>+ Lead</button>
 <div class="drawer" id="drawer" hidden><div class="panel" id="panel"></div></div>
@@ -150,7 +174,7 @@ label.f textarea{min-height:80px;resize:vertical}
       .then(function(r){ return r.json().then(function(j){ if (r.status === 401) throw new Error("auth"); if (r.status === 403) { window.__deniedEmail = j.email || ""; throw new Error("forbidden"); } if (!j.ok) throw new Error(j.detail || j.error || "error"); return j; }); });
   }
   function toast(t, err){ var d = document.createElement("div"); d.className = "toast" + (err ? " err" : ""); d.textContent = t; document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 3200); }
-  function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards","v-suppliers"].forEach(function(x){ $(x).hidden = x !== id; }); }
+  function show(id){ ["v-signin","v-denied","v-loading","v-pipeline","v-members","v-boards","v-suppliers","v-tasks"].forEach(function(x){ $(x).hidden = x !== id; }); }
   function stClass(s){ return "st-" + String(s || "New").split(" ")[0] + (s === "Closed won" ? " st-Closed-won" : s === "Closed lost" ? " st-Closed-lost" : ""); }
   function wa(p){ var d = String(p || "").replace(/\D/g, ""); if (!d) return ""; if (d[0] === "0") d = "972" + d.slice(1); return "https://wa.me/" + d; }
   function tel(p){ return "tel:" + String(p || "").replace(/[^\d+]/g, ""); }
@@ -187,7 +211,7 @@ label.f textarea{min-height:80px;resize:vertical}
   document.querySelectorAll("nav button").forEach(function(b){ b.onclick = function(){ view = b.dataset.v; location.hash = view; render(); }; });
   function render(){
     if (!D) return;
-    if (["pipeline","members","boards","suppliers"].indexOf(location.hash.slice(1)) >= 0) view = location.hash.slice(1);
+    if (["pipeline","members","boards","suppliers","tasks"].indexOf(location.hash.slice(1)) >= 0) view = location.hash.slice(1);
     document.querySelectorAll("nav button").forEach(function(b){ b.setAttribute("aria-selected", b.dataset.v === view); });
     show("v-" + view);
     $("add-lead").hidden = view !== "pipeline";
@@ -195,6 +219,7 @@ label.f textarea{min-height:80px;resize:vertical}
     if (view === "members") renderMembers();
     if (view === "boards") renderBoards();
     if (view === "suppliers") renderSuppliers();
+    if (view === "tasks") loadTasks();
   }
   function renderLeads(){
     var q = $("q").value.trim().toLowerCase();
@@ -494,6 +519,55 @@ label.f textarea{min-height:80px;resize:vertical}
   function ceSec(sec, i){ return '<div class="ce-sec" style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><label class="f full">Section heading<input class="he" value="' + esc(sec[0]) + '"></label><label class="f full">Text<textarea class="he" style="min-height:180px">' + esc(sec[1]) + '</textarea></label><button type="button" class="btn ghost ce-del" style="padding:6px 12px;font-size:.85rem">Remove section</button></div>'; }
 
   window.addEventListener("hashchange", render);
+
+  /* ---------- tasks ---------- */
+  var OWNERS = ["Noam","Ethan","Adi"], TASKS = null;
+  function todayISO(){ var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+  function fmtDue(v){ var m = String(v || "").match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? (+m[3]) + "." + (+m[2]) : v; }
+  function loadTasks(){
+    return api("admin/tasks").then(function(r){ TASKS = r.tasks; renderTasks(); }).catch(function(e){ $("tasks").innerHTML = '<p class="empty">Couldn\'t load tasks: ' + esc(e.message) + '</p>'; });
+  }
+  function renderTasks(){
+    if (!TASKS) return;
+    var showDone = $("ta-done").checked, t0 = todayISO();
+    $("tasks").innerHTML = OWNERS.map(function(o){
+      var mine = TASKS.filter(function(x){ return (x["Owner"] || "Noam") === o; });
+      var open = mine.filter(function(x){ return x["Status"] !== "Done"; }).sort(function(a, b){ return (a["Due"] || "9999").localeCompare(b["Due"] || "9999"); });
+      var done = mine.filter(function(x){ return x["Status"] === "Done"; });
+      var list = open.concat(showDone ? done : []);
+      return '<div class="tcol"><h3>' + o + '<span>' + open.length + ' open</span></h3>' + (list.length ? list.map(function(x){
+        var isDone = x["Status"] === "Done", late = !isDone && x["Due"] && x["Due"] < t0;
+        return '<div class="task' + (isDone ? ' done' : '') + '" data-r="' + x._row + '" data-id="' + esc(x["ID"]) + '"><input type="checkbox" aria-label="Done"' + (isDone ? ' checked' : '') + '><span class="tt">' + esc(x["Task"]) + '</span><span class="tm">' +
+          (x["Due"] ? '<span class="' + (late ? 'late' : '') + '">Due ' + esc(fmtDue(x["Due"])) + '</span>' : '') +
+          (x["Status"] === "In progress" ? '<span class="prog">In progress</span>' : '') +
+          (x["Notes"] ? '<span>Notes</span>' : '') + '</span></div>';
+      }).join("") : '<p class="muted" style="margin:0;font-size:.88rem">Nothing open.</p>') + '</div>';
+    }).join("");
+    $("tasks").querySelectorAll(".task").forEach(function(el){
+      var x = TASKS.find(function(y){ return y._row === +el.dataset.r; });
+      el.querySelector("input").onclick = function(ev){ ev.stopPropagation(); var st = this.checked ? "Done" : "To do"; x["Status"] = st; renderTasks(); api("admin/tasks", "PUT", { row: x._row, id: x["ID"], fields: { "Status": st } }).catch(function(e){ toast(e.message, 1); loadTasks(); }); };
+      el.onclick = function(){ openTask(x); };
+    });
+  }
+  function openTask(x){
+    drawer('<div class="ph"><div><h2>Task</h2><span class="muted">Added ' + esc(x["Created"]) + (x["Created by"] ? ' by ' + esc(x["Created by"]) : '') + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box"><div class="fg">' +
+      '<label class="f full">Task<input data-f="Task" value="' + esc(x["Task"]) + '"></label>' +
+      '<label class="f">Owner<select data-f="Owner">' + opt(OWNERS, x["Owner"]) + '</select></label>' +
+      '<label class="f">Status<select data-f="Status">' + opt(["To do","In progress","Done"], x["Status"] || "To do") + '</select></label>' +
+      '<label class="f">Due<input data-f="Due" type="date" value="' + esc(x["Due"]) + '"></label>' +
+      '<label class="f full">Notes<textarea data-f="Notes">' + esc(x["Notes"]) + '</textarea></label>' +
+      '</div><div class="actions"><button class="btn" id="tk-save">Save</button><button class="btn ghost" id="tk-del">Delete</button></div></div></div>');
+    $("tk-save").onclick = function(){ var f = vals($("panel")); busy(this, api("admin/tasks", "PUT", { row: x._row, id: x["ID"], fields: f }).then(function(){ Object.assign(x, f); toast("Saved"); closeDrawer(); renderTasks(); })).catch(function(e){ toast(e.message, 1); }); };
+    $("tk-del").onclick = function(){ if (!window.confirm("Delete this task?")) return; busy(this, api("admin/tasks", "DELETE", { row: x._row, id: x["ID"] }).then(function(){ TASKS = TASKS.filter(function(y){ return y !== x; }); toast("Deleted"); closeDrawer(); renderTasks(); })).catch(function(e){ toast(e.message, 1); }); };
+  }
+  $("ta-done").onchange = renderTasks;
+  $("task-add").onsubmit = function(ev){
+    ev.preventDefault();
+    var text = $("ta-text").value.trim(); if (!text) { $("ta-text").focus(); return; }
+    var f = { "Task": text, "Owner": $("ta-owner").value, "Due": $("ta-due").value };
+    var btn = this.querySelector("button");
+    busy(btn, api("admin/tasks", "POST", { fields: f }).then(function(){ $("ta-text").value = ""; $("ta-due").value = ""; toast("Task added"); return loadTasks(); })).catch(function(e){ toast(e.message, 1); });
+  };
   load();
 })();
 </script>

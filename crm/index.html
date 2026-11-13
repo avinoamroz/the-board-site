@@ -148,7 +148,7 @@ label.f textarea{min-height:80px;resize:vertical}
   </section>
   <section id="v-tasks" hidden>
     <form class="taskadd" id="task-add" autocomplete="off">
-      <input id="ta-text" placeholder="New task" aria-label="New task">
+      <input id="ta-text" dir="auto" placeholder="New task" aria-label="New task">
       <select id="ta-owner" aria-label="Owner"><option>Noam</option><option>Ethan</option><option>Adi</option></select>
       <input id="ta-due" type="date" aria-label="Due date">
       <button class="btn" type="submit">Add</button>
@@ -551,11 +551,11 @@ label.f textarea{min-height:80px;resize:vertical}
   }
   function openTask(x){
     drawer('<div class="ph"><div><h2>Task</h2><span class="muted">Added ' + esc(x["Created"]) + (x["Created by"] ? ' by ' + esc(x["Created by"]) : '') + '</span></div><button class="x" aria-label="Close">×</button></div><div class="pb"><div class="box"><div class="fg">' +
-      '<label class="f full">Task<input data-f="Task" value="' + esc(x["Task"]) + '"></label>' +
+      '<label class="f full">Task<input data-f="Task" dir="auto" value="' + esc(x["Task"]) + '"></label>' +
       '<label class="f">Owner<select data-f="Owner">' + opt(OWNERS, x["Owner"]) + '</select></label>' +
       '<label class="f">Status<select data-f="Status">' + opt(["To do","In progress","Done"], x["Status"] || "To do") + '</select></label>' +
       '<label class="f">Due<input data-f="Due" type="date" value="' + esc(x["Due"]) + '"></label>' +
-      '<label class="f full">Notes<textarea data-f="Notes">' + esc(x["Notes"]) + '</textarea></label>' +
+      '<label class="f full">Notes<textarea data-f="Notes" dir="auto">' + esc(x["Notes"]) + '</textarea></label>' +
       '</div><div class="actions"><button class="btn" id="tk-save">Save</button><button class="btn ghost" id="tk-del">Delete</button></div></div></div>');
     $("tk-save").onclick = function(){ var f = vals($("panel")); busy(this, api("admin/tasks", "PUT", { row: x._row, id: x["ID"], fields: f }).then(function(){ Object.assign(x, f); toast("Saved"); closeDrawer(); renderTasks(); })).catch(function(e){ toast(e.message, 1); }); };
     $("tk-del").onclick = function(){ if (!window.confirm("Delete this task?")) return; busy(this, api("admin/tasks", "DELETE", { row: x._row, id: x["ID"] }).then(function(){ TASKS = TASKS.filter(function(y){ return y !== x; }); toast("Deleted"); closeDrawer(); renderTasks(); })).catch(function(e){ toast(e.message, 1); }); };

@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function(){
   }
   function boardBlock(res){
     var b = res.board;
-    if (!b) return '<div><b>בשם The Board</b>אבינועם רז, איתן וולוביץ׳, עדי חסדאי<br>ההסכם נשלח לחתימה על ידי The Board</div>';
+    if (!b) return '<div><b>בשם The Board</b>אבינועם רז, איתן ווליבוביץ, עדי חסדאי<br>ההסכם נשלח לחתימה על ידי The Board</div>';
     return '<div><b>בשם The Board</b>' + esc(b.name) + (b.role ? ', <span dir="ltr">' + esc(b.role) + '</span>' : '') + '<br>' + esc(b.date) + (b.signature ? '<img src="' + esc(b.signature) + '" alt="חתימה">' : '') + '</div>';
   }
   function showSigned(res){

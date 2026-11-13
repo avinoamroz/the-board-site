@@ -624,7 +624,6 @@ export async function onRequest(context) {
       if (r === 'tasks') {
         const t = await readTasks(c);
         if (method === 'GET') return json({ ok: true, tasks: t.rows.filter(x => x['ID'] && x['Status'] !== 'Deleted') });
-        const body = await request.json();
         const f = {}; TASK_EDITABLE.forEach(h => { if (body.fields && h in body.fields) f[h] = body.fields[h]; });
         if (method === 'POST') {
           if (!String(f['Task'] || '').trim()) return bad('task');

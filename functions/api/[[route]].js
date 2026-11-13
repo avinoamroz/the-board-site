@@ -302,8 +302,7 @@ const TASK_HEAD = ['ID', 'Task', 'Owner', 'Status', 'Due', 'Notes', 'Created', '
 const TASK_EDITABLE = ['Task', 'Owner', 'Status', 'Due', 'Notes'];
 async function readTasks(c) {
   try { return (await readTabs(c, ['Tasks'])).Tasks; } catch (e) {
-    if (!/parse range|Unable to parse|not found/i.test(String(e.message))) throw e;
-    await pipe(c, 'POST', ':batchUpdate', { requests: [{ addSheet: { properties: { title: 'Tasks', gridProperties: { frozenRowCount: 1 } } } }] });
+    try { await pipe(c, 'POST', ':batchUpdate', { requests: [{ addSheet: { properties: { title: 'Tasks', gridProperties: { frozenRowCount: 1 } } } }] }); } catch (e2) { throw e; }
     await pipe(c, 'POST', '/values:batchUpdate', { valueInputOption: 'RAW', data: [{ range: "'Tasks'!A1", values: [TASK_HEAD] }] });
     return { head: TASK_HEAD.slice(), rows: [] };
   }

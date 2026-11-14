@@ -1,0 +1,47 @@
+{
+ "account": "board",
+ "items": [
+  {
+   "date": "2026-11-15",
+   "id": "s1",
+   "image_url": "https://the-board.co.il/media/covers/story-s1.jpg",
+   "reply_keyword": "שולחן"
+  },
+  {
+   "date": "2026-11-16",
+   "id": "s2",
+   "image_url": "https://the-board.co.il/media/covers/story-s2.jpg",
+   "reply_keyword": "מפגש"
+  },
+  {
+   "date": "2026-11-17",
+   "id": "s3",
+   "image_url": "https://the-board.co.il/media/covers/story-s3.jpg",
+   "reply_keyword": "מספרים"
+  },
+  {
+   "date": "2026-11-18",
+   "id": "s4",
+   "image_url": "https://the-board.co.il/media/covers/story-s4.jpg",
+   "reply_keyword": "NDA"
+  },
+  {
+   "date": "2026-11-19",
+   "id": "s5",
+   "image_url": "https://the-board.co.il/media/covers/story-s5.jpg",
+   "reply_keyword": "שולחן"
+  },
+  {
+   "date": "2026-11-20",
+   "id": "s6",
+   "image_url": "https://the-board.co.il/media/covers/story-s6.jpg",
+   "reply_keyword": "מקום"
+  },
+  {
+   "date": "2026-11-21",
+   "id": "s7",
+   "image_url": "https://the-board.co.il/media/covers/story-s7.jpg",
+   "reply_keyword": "החלטה"
+  }
+ ]
+}

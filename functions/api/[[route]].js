@@ -285,9 +285,18 @@ async function supplierToken(c, id) { return (await hmac(c.session_secret, 'supp
 async function supplierLink(c, id) { return `https://the-board.co.il/sign/?s=${encodeURIComponent(id)}&t=${await supplierToken(c, id)}`; }
 async function supplierDoc(env, c, sup, date) {
   const custom = await env.DB.prepare('SELECT doc FROM contracts WHERE supplier_id = ?').bind(sup['ID']).first();
-  const legal = sup['Legal entity'] || '', cid = sup['Company ID'] ? `, ח.פ. ${sup['Company ID']}` : '';
-  const payee = (legal || sup['Name'] || '') + cid;
-  const partnerFull = (sup['Name'] || '') + (legal ? `, באמצעות ${legal}${cid}` : cid) + (sup['Contact name'] ? `, ע״י ${sup['Contact name']}` : '');
+  const legal = sup['Legal entity'] || '', contact = sup['Contact name'] || '';
+  let payee, partnerFull;
+  if (!legal && sup['Company ID'] && contact) {
+    // No company: the contact signs as an עוסק מורשה, e.g. "יזמים למען יזמים, מיוצגים על ידי גיא גלנטי, עוסק מורשה 305574253"
+    const osek = `${contact}, עוסק מורשה ${sup['Company ID']}`;
+    partnerFull = `${sup['Name'] || ''}, מיוצגים על ידי ${osek}`;
+    payee = `${sup['Name'] || ''} (${osek})`;
+  } else {
+    const cid = sup['Company ID'] ? `, ח.פ. ${sup['Company ID']}` : '';
+    payee = (legal || sup['Name'] || '') + cid;
+    partnerFull = (sup['Name'] || '') + (legal ? `, באמצעות ${legal}${cid}` : cid) + (contact ? `, ע״י ${contact}` : '');
+  }
   const vars = { partner: sup['Name'] || '', partner_full: partnerFull, payee, commission: sup['Commission %'] || '20', date: date || ilDate(), operator: c.company_legal || 'The Board' };
   const base = renderDoc(sup['Contract'] || 'affiliate', vars);
   if (!custom) return base;

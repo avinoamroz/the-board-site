@@ -394,6 +394,10 @@ section{padding-block:96px;position:relative;overflow:hidden}
 .consent a{color:var(--gold-ink)}
 .cta-box .btn{justify-self:start}
 .form-msg{min-height:1.4em;font-weight:600}
+.fld input[aria-invalid="true"]{border-color:#C4362C;background:#FFF5F4}
+.fld-err{font-size:.85rem;font-weight:600;color:#C4362C;min-height:0}
+.fld-err:empty{display:none}
+.fld-err button{font:inherit;color:inherit;text-decoration:underline;background:none;border:0;padding:0;cursor:pointer}
 .form-msg.ok{color:var(--gold-ink)}
 .form-msg.err{color:#C4362C}
 .skip{position:absolute;right:16px;top:-60px;background:var(--gold);color:var(--indigo);padding:10px 16px;border-radius:999px;font-weight:700;z-index:40;text-decoration:none}
@@ -716,11 +720,11 @@ footer .ig:hover{color:var(--gold)}
       <p class="contact-line">התשובות עוזרות לנו לוודא שהבורד מתאים לך, ושתשב ליד השולחן הנכון.</p>
       <label class="fld"><span>לאיזה בורד?</span><select id="f-board" name="board"><option>בורד ינואר · 1.1.27</option><option>בורד פברואר · 5.2.27</option><option>בורד מרץ · 5.3.27</option><option>עוד לא יודע/ת</option></select></label>
       <div class="two">
-        <label class="fld"><span>שם מלא</span><input id="f-name" name="name" type="text" autocomplete="name" required></label>
-        <label class="fld"><span>טלפון</span><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" required></label>
+        <label class="fld"><span>שם מלא</span><input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="e-name"><span class="fld-err" id="e-name" aria-live="polite"></span></label>
+        <label class="fld"><span>טלפון נייד</span><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" required placeholder="050-000-0000" aria-describedby="e-phone"><span class="fld-err" id="e-phone" aria-live="polite"></span></label>
       </div>
       <div class="two">
-        <label class="fld"><span>אימייל</span><input id="f-email" name="email" type="email" autocomplete="email" dir="ltr"></label>
+        <label class="fld"><span>אימייל</span><input id="f-email" name="email" type="email" autocomplete="email" dir="ltr" required placeholder="name@example.com" aria-describedby="e-email"><span class="fld-err" id="e-email" aria-live="polite"></span></label>
         <label class="fld"><span>שם החברה ותחום הפעילות</span><input id="f-business" name="business" type="text"></label>
       </div>
       <div class="two">
@@ -732,7 +736,7 @@ footer .ig:hover{color:var(--gold)}
       <label class="fld"><span>מוכן/ה לשתף את המספרים של החברה ליד השולחן?</span><select id="f-numbers" name="numbers"><option value="">בחירה</option><option>כן</option><option>צריך/ה לחשוב על זה</option></select></label>
       <label class="fld"><span>יכול/ה להתחייב לשישי הראשון בכל חודש, עם היעדרות אחת לכל היותר?</span><select id="f-commit" name="commit"><option value="">בחירה</option><option>כן</option><option>לא בטוח/ה</option></select></label>
       <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
-      <label class="consent"><input id="f-consent" name="consent" type="checkbox" required> <span>קראתי את <a href="/privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a> ואני מסכים/ה שהפרטים ישמשו את מייסדי The Board לבדיקת התאמה ולחזרה אליי. שם וטלפון הם שדות חובה, וכל השאר רשות.</span></label>
+      <label class="consent"><input id="f-consent" name="consent" type="checkbox" required> <span>קראתי את <a href="/privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a> ואני מסכים/ה שהפרטים ישמשו את מייסדי The Board לבדיקת התאמה ולחזרה אליי. שם, טלפון ואימייל הם שדות חובה, וכל השאר רשות.</span></label>
       <button class="btn gold" type="submit" id="f-submit">שליחת השאלון<span class="arr"><svg><use href="#arr"/></svg></span></button>
       <p class="form-msg" id="f-msg" role="status"></p>
     </form>
@@ -841,15 +845,66 @@ footer .ig:hover{color:var(--gold)}
   document.querySelectorAll("[data-board]").forEach(function(a){
     a.addEventListener("click", function(){ document.getElementById("f-board").value = a.getAttribute("data-board"); });
   });
+  /* Contact details checks: Israeli mobile or landline (or a full international number with +), and a real-looking email */
+  function checkPhone(raw){
+    var t = String(raw || "").trim();
+    if (!t) return { err: "נא למלא מספר טלפון." };
+    var intl = /^(\+|00)/.test(t), d = t.replace(/\D/g, "");
+    if (intl) d = d.replace(/^00/, "");
+    if (d.indexOf("972") === 0 && (intl || d.length >= 11)) { d = "0" + d.slice(3).replace(/^0/, ""); intl = false; }
+    if (intl) {
+      return d.length >= 8 && d.length <= 15 ? { value: "+" + d } : { err: "מספר בינלאומי צריך לכלול קידומת מדינה ו-8 עד 15 ספרות." };
+    }
+    if (/^05\d{8}$/.test(d) || /^07\d{8}$/.test(d)) return { value: d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6) };
+    if (/^0[2-489]\d{7}$/.test(d)) return { value: d.slice(0,2) + "-" + d.slice(2,5) + "-" + d.slice(5) };
+    if (/^5\d{8}$/.test(d)) { d = "0" + d; return { value: d.slice(0,3) + "-" + d.slice(3,6) + "-" + d.slice(6) }; }
+    return { err: "המספר לא נראה שלם. נייד ישראלי הוא 10 ספרות, למשל \u2066050-123-4567\u2069." };
+  }
+  var TYPOS = { "gmial.com":"gmail.com","gmal.com":"gmail.com","gmai.com":"gmail.com","gamil.com":"gmail.com","gmail.co":"gmail.com","gmail.con":"gmail.com","gmail.cm":"gmail.com","gmail.co.il":"gmail.com","gmaill.com":"gmail.com","gnail.com":"gmail.com",
+    "hotmial.com":"hotmail.com","hotmai.com":"hotmail.com","hotmail.con":"hotmail.com","hotmal.com":"hotmail.com","yahoo.con":"yahoo.com","yaho.com":"yahoo.com","yahho.com":"yahoo.com",
+    "outlok.com":"outlook.com","outlook.con":"outlook.com","walla.com":"walla.co.il","walla.co":"walla.co.il","icloud.con":"icloud.com","iclod.com":"icloud.com" };
+  function checkEmail(raw){
+    var e = String(raw || "").trim().toLowerCase().replace(/\s+/g, "");
+    if (!e) return { err: "נא למלא אימייל." };
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e) || /\.\./.test(e)) return { err: "כתובת האימייל לא תקינה. בדקו שיש @ וסיומת, למשל \u2066name@gmail.com\u2069." };
+    var parts = e.split("@"), fix = TYPOS[parts[1]];
+    if (fix) return { err: "נראה שיש טעות הקלדה בכתובת.", fix: parts[0] + "@" + fix };
+    return { value: e };
+  }
+  function setErr(id, text, fix){
+    var inp = document.getElementById(id), box = document.getElementById("e-" + id.slice(2));
+    box.textContent = text || "";
+    if (fix) {
+      var b = document.createElement("button"); b.type = "button";
+      var bi = document.createElement("bdi"); bi.dir = "ltr"; bi.textContent = fix;
+      b.append(" התכוונת ל-", bi, "?");
+      b.addEventListener("click", function(){ inp.value = fix; setErr(id, ""); inp.focus(); });
+      box.appendChild(b);
+    }
+    if (text) inp.setAttribute("aria-invalid", "true"); else inp.removeAttribute("aria-invalid");
+    return !text;
+  }
+  [["f-phone", checkPhone], ["f-email", checkEmail]].forEach(function(p){
+    var inp = document.getElementById(p[0]);
+    inp.addEventListener("blur", function(){ if (!inp.value.trim()) return; var r = p[1](inp.value); if (setErr(p[0], r.err, r.fix) && r.value) inp.value = r.value; });
+    inp.addEventListener("input", function(){ if (inp.getAttribute("aria-invalid")) setErr(p[0], ""); });
+  });
   form.addEventListener("submit", function(e){
     e.preventDefault();
     msg.className = "form-msg";
-    var name = val("f-name"), phone = val("f-phone");
-    if (!name || phone.replace(/\D/g,"").length < 9) {
-      msg.textContent = "נא למלא שם וטלפון תקין.";
+    var name = val("f-name"), pc = checkPhone(val("f-phone")), ec = checkEmail(val("f-email"));
+    var bad = [];
+    setErr("f-name", name.length >= 2 ? "" : "נא למלא שם מלא.") || bad.push("f-name");
+    setErr("f-phone", pc.err) || bad.push("f-phone");
+    setErr("f-email", ec.err, ec.fix) || bad.push("f-email");
+    if (bad.length) {
+      msg.textContent = "יש לתקן את השדות המסומנים.";
       msg.classList.add("err");
+      document.getElementById(bad[0]).focus();
       return;
     }
+    var phone = pc.value;
+    document.getElementById("f-phone").value = phone;
     if (!document.getElementById("f-consent").checked) {
       msg.textContent = "כדי לשלוח, יש לאשר את מדיניות הפרטיות.";
       msg.classList.add("err");
@@ -861,7 +916,7 @@ footer .ig:hover{color:var(--gold)}
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(Object.assign({
-        name: name, phone: phone, email: val("f-email"),
+        name: name, phone: phone, email: ec.value,
         business: val("f-business"), message: val("f-message"), board: val("f-board"), role: val("f-role"), years: val("f-years"), revenue: val("f-revenue"), share_numbers: val("f-numbers"), commitment: val("f-commit"), type: "fit_check", consent: "yes",
         website: val("f-website"), src: src()
       }, attribution()))
